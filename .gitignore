@@ -1,0 +1,8 @@
+Obj
+External
+*.opensdf
+*.sdf
+*.suo
+*.pdb
+*.exe
+*.ilk
