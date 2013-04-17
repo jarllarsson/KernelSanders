@@ -1,7 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WinApp", "Src\WinApp.vcxproj", "{9023A245-3A51-49B1-8C30-D330A84C86CE}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WinApp", "Src\WinApp\WinApp.vcxproj", "{9023A245-3A51-49B1-8C30-D330A84C86CE}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Util", "Src\Util\Util.vcxproj", "{64117418-9313-4D31-90B5-C193DE4DFF83}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,6 +21,14 @@ Global
 		{9023A245-3A51-49B1-8C30-D330A84C86CE}.Release|Win32.Build.0 = Release|Win32
 		{9023A245-3A51-49B1-8C30-D330A84C86CE}.Release|x64.ActiveCfg = Release|x64
 		{9023A245-3A51-49B1-8C30-D330A84C86CE}.Release|x64.Build.0 = Release|x64
+		{64117418-9313-4D31-90B5-C193DE4DFF83}.Debug|Win32.ActiveCfg = Debug|Win32
+		{64117418-9313-4D31-90B5-C193DE4DFF83}.Debug|Win32.Build.0 = Debug|Win32
+		{64117418-9313-4D31-90B5-C193DE4DFF83}.Debug|x64.ActiveCfg = Debug|x64
+		{64117418-9313-4D31-90B5-C193DE4DFF83}.Debug|x64.Build.0 = Debug|x64
+		{64117418-9313-4D31-90B5-C193DE4DFF83}.Release|Win32.ActiveCfg = Release|Win32
+		{64117418-9313-4D31-90B5-C193DE4DFF83}.Release|Win32.Build.0 = Release|Win32
+		{64117418-9313-4D31-90B5-C193DE4DFF83}.Release|x64.ActiveCfg = Release|x64
+		{64117418-9313-4D31-90B5-C193DE4DFF83}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

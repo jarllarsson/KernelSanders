@@ -72,6 +72,7 @@ void RunCubeKernel(vector<float>& data, vector<float>& result)
 } 
  
 // Main entry into the program 
+/*
 int main(void) 
 { 
     cout << "In main." << endl; 
@@ -94,3 +95,4 @@ int main(void)
  
     return 0; 
 } 
+*/
