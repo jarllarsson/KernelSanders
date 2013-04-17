@@ -33,7 +33,7 @@ void InitializeData(vector<float>& data)
 } 
  
 // Executes CUDA kernel 
-void RunCubeKernel(vector<float>& data, vector<float>& result) 
+extern "C" void RunCubeKernel(vector<float>& data, vector<float>& result) 
 { 
     const size_t size = MaxSize * sizeof(float); 
  
