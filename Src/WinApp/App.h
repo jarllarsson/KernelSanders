@@ -3,6 +3,7 @@
 #include <windows.h>
 
 class Context;
+class GraphicsDevice;
 
 // =======================================================================================
 //                                      App
@@ -25,5 +26,6 @@ public:
 	void run();
 protected:
 	Context* m_context;
+	GraphicsDevice* m_graphicsDevice;
 private:
 };

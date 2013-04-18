@@ -5,6 +5,8 @@
 #define SAFE_RELEASE(x) if( x ) { (x)->Release(); (x) = NULL; }
 #define SAFE_DELETE(x) if( x ) { delete (x); (x) = NULL; }
 
+class ViewFactory;
+
 // =======================================================================================
 //                                     GraphicsDevice
 // =======================================================================================
@@ -20,7 +22,16 @@
 class GraphicsDevice
 {
 public:
-
+	const static int RT0 = 0;
+	const static int RT1 = 1;
+	const static int DEPTH_IDX = 10;
+	enum GBufferChannel {
+		INVALID	= -1,
+		DIFFUSE		= RT0,				// R, G, B, (Something)
+		NORMAL		= RT1,				// X, Y, Z, (Something)		
+		COUNT,
+		DEPTH		= DEPTH_IDX,		// Depth
+	};
 
 	GraphicsDevice(HWND p_hWnd, int p_width, int p_height, bool p_windowMode);
 	virtual ~GraphicsDevice();
@@ -34,19 +45,36 @@ public:
 	void setWindowMode(bool p_windowed);					///< Set window mode on/off
 	void fitViewport();										///< Fit viewport to width and height
 
+	// Mapping/Unmapping
+	void mapGBuffer();
+	void mapGBufferSlot(GBufferChannel p_slot);
+	void mapDepth();
+
+	void unmapGBuffer();
+	void unmapGBufferSlot(GBufferChannel p_slot);
+	void unmapDepth();
+	void unmapAllBuffers();
+
 protected:
 private:
 	// Initialisations
 	void initSwapChain(HWND p_hWnd);
 	void initHardware();	
 	void initBackBuffer();
+	void initDepthStencil();
+	void initGBuffer();
+	void initGBufferAndDepthStencil();
 	// Releases
 	void releaseBackBuffer();
+	void releaseGBufferAndDepthStencil();
 
 	// Members
 	int m_height;
 	int m_width;
 	bool m_windowMode;
+
+	// Factories
+	ViewFactory* m_viewFactory;
 
 	// D3D specific
 	// device
@@ -56,6 +84,12 @@ private:
 	DXGI_SWAP_CHAIN_DESC	m_swapChainDesc;
 	IDXGISwapChain*			m_swapChain;
 	D3D_FEATURE_LEVEL		m_featureLevel;
-	// render targets
-	ID3D11RenderTargetView* m_backBuffer;
+	// views
+	ID3D11RenderTargetView*		m_backBuffer;
+	ID3D11ShaderResourceView*	m_depthSrv;
+	ID3D11DepthStencilView*		m_depthStencilView;
+	ID3D11RenderTargetView*		m_gRtv[GBufferChannel::COUNT];
+	ID3D11ShaderResourceView*	m_gSrv[GBufferChannel::COUNT];
+
+
 };

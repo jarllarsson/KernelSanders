@@ -2,14 +2,28 @@
 #include "Context.h"
 #include "ContextException.h"
 #include "DebugPrint.h"
+#include "GraphicsDevice.h"
+#include "GraphicsException.h"
 
 App::App( HINSTANCE p_hInstance )
 {
+	int width=600,
+		height=400;
+	bool windowMode=true;
 	try
 	{
-		m_context = new Context(p_hInstance,"Test",600,400);
+		m_context = new Context(p_hInstance,"Test",width,height);
 	}
 	catch (ContextException& e)
+	{
+		DEBUGWARNING((e.what()));
+	}	
+	
+	try
+	{
+		m_graphicsDevice = new GraphicsDevice(m_context->getWindowHandle(),width,height,windowMode);
+	}
+	catch (GraphicsException& e)
 	{
 		DEBUGWARNING((e.what()));
 	}
@@ -18,6 +32,7 @@ App::App( HINSTANCE p_hInstance )
 App::~App()
 {
 	delete m_context;
+	delete m_graphicsDevice;
 }
 
 void App::run()
@@ -56,8 +71,12 @@ void App::run()
 
 			DEBUGPRINT((("\n"+toString(dt)).c_str())); 
 
-			// dt = clamp(dt,0.0,DTCAP);
+			m_graphicsDevice->clearRenderTargets();
 
+			// m_graphicsDevice->mapGBufferSlot(GraphicsDevice::DIFFUSE);
+
+			// dt = clamp(dt,0.0,DTCAP);
+			m_graphicsDevice->flipBackBuffer();
 		}
 	}
 }
