@@ -162,13 +162,23 @@
     <CudaCompile Include="testkernel.cu" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="App.h" />
     <ClInclude Include="BaseException.h" />
     <ClInclude Include="Context.h" />
     <ClInclude Include="ContextException.h" />
+    <ClInclude Include="GraphicsDeviceFactory.h" />
+    <ClInclude Include="GraphicsException.h" />
+    <ClInclude Include="KernelHandler.h" />
+    <ClInclude Include="GraphicsDevice.h" />
+    <ClInclude Include="ViewFactory.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="App.cpp" />
     <ClCompile Include="Context.cpp" />
+    <ClCompile Include="GraphicsDevice.cpp" />
+    <ClCompile Include="KernelHandler.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="ViewFactory.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

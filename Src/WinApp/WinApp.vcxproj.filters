@@ -8,11 +8,32 @@
     <Filter Include="Source Files\Context">
       <UniqueIdentifier>{ad19f2c0-f1bf-42ad-80ac-99200dd0cf8d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Renderer">
-      <UniqueIdentifier>{b17dbf85-88bf-4b2e-aff4-f612b06599b8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Exception">
       <UniqueIdentifier>{e61efa04-2ce7-43b0-b9be-10e0350072ac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\App">
+      <UniqueIdentifier>{9adf9407-68cb-41da-bfac-6e5302b48803}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Kernel">
+      <UniqueIdentifier>{69147fa8-9d34-4e4d-aeac-753adb0c7417}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Kernel\KernelHandler">
+      <UniqueIdentifier>{49595373-8c4c-40d7-9da5-d773c8209399}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics">
+      <UniqueIdentifier>{b17dbf85-88bf-4b2e-aff4-f612b06599b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics\RenderPass">
+      <UniqueIdentifier>{f6c960ca-ee4d-44ee-8b53-a6458117e2c7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics\Factories">
+      <UniqueIdentifier>{76c08742-4c2a-4512-beba-03b588d08204}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics\Factories\Buffers">
+      <UniqueIdentifier>{038917f1-1c2f-4145-8d94-ec785ce0fb9d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics\Factories\Views">
+      <UniqueIdentifier>{d011ef2a-d38d-4fb7-9da8-ee9afa50ed0d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -30,6 +51,24 @@
     <ClInclude Include="BaseException.h">
       <Filter>Source Files\Exception</Filter>
     </ClInclude>
+    <ClInclude Include="KernelHandler.h">
+      <Filter>Source Files\Kernel\KernelHandler</Filter>
+    </ClInclude>
+    <ClInclude Include="App.h">
+      <Filter>Source Files\App</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicsDevice.h">
+      <Filter>Source Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicsException.h">
+      <Filter>Source Files\Exception</Filter>
+    </ClInclude>
+    <ClInclude Include="ViewFactory.h">
+      <Filter>Source Files\Graphics\Factories\Views</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicsDeviceFactory.h">
+      <Filter>Source Files\Graphics\Factories</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Context.cpp">
@@ -37,6 +76,18 @@
     </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="KernelHandler.cpp">
+      <Filter>Source Files\Kernel\KernelHandler</Filter>
+    </ClCompile>
+    <ClCompile Include="App.cpp">
+      <Filter>Source Files\App</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicsDevice.cpp">
+      <Filter>Source Files\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="ViewFactory.cpp">
+      <Filter>Source Files\Graphics\Factories\Views</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

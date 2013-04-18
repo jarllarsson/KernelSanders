@@ -27,6 +27,9 @@ public:
 		int p_width, int p_height);
 	virtual ~Context();
 	HWND getWindowHandle();
+	static Context* getInstance();
+
+	void close();
 
 	void resize(int p_w, int p_h);
 
@@ -43,11 +46,19 @@ public:
 	/// \return void
 	///-----------------------------------------------------------------------------------
 	void updateTitle(const string& p_appendMsg="");
+
+	///-----------------------------------------------------------------------------------
+	/// Whether a closedown was requested
+	/// \return bool
+	///-----------------------------------------------------------------------------------
+	bool closeRequested() const;
 protected:
 private:
+	bool m_closeFlag;
 	string m_title;
 	int m_width;
 	int m_height;
 	HINSTANCE	m_hInstance;
 	HWND		m_hWnd;
+	static Context* m_instance;
 };

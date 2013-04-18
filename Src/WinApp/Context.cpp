@@ -1,9 +1,12 @@
 #include "Context.h"
 #include "ContextException.h"
 
+Context* Context::m_instance=NULL;
+
 Context::Context( HINSTANCE p_hInstance, const string& p_title, 
 				 int p_width, int p_height )
 {
+	m_closeFlag=false;
 	m_hInstance = p_hInstance; 
 	m_title = p_title;
 
@@ -47,6 +50,7 @@ Context::Context( HINSTANCE p_hInstance, const string& p_title,
 
 	ShowWindow( m_hWnd, true );
 	ShowCursor(true);
+	m_instance=this;
 }
 
 Context::~Context()
@@ -70,11 +74,26 @@ HWND Context::getWindowHandle()
 	return m_hWnd;
 }
 
+Context* Context::getInstance()
+{
+	return m_instance;
+}
+
 void Context::resize( int p_w, int p_h )
 {
 	m_width = p_w;
 	m_height = p_h;
 	SetWindowPos( m_hWnd, HWND_TOP, 0, 0, m_width, m_height, SWP_NOMOVE );
+}
+
+bool Context::closeRequested() const
+{
+	return m_closeFlag;
+}
+
+void Context::close()
+{
+	m_closeFlag=true;
 }
 
 
@@ -92,6 +111,7 @@ LRESULT CALLBACK WndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam 
 
 	case WM_DESTROY:
 		PostQuitMessage(0);
+		Context::getInstance()->close();
 		break;
 
 	case WM_KEYDOWN:
@@ -99,6 +119,7 @@ LRESULT CALLBACK WndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam 
 		{
 		case VK_ESCAPE:
 			PostQuitMessage(0);
+			Context::getInstance()->close();
 			break;
 		}
 		break;
