@@ -47,6 +47,9 @@
     <Filter Include="Source Files\Graphics\Buffers">
       <UniqueIdentifier>{e22e0526-7273-49dc-83eb-8578427b5ac9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Graphics\Graphics Utilities">
+      <UniqueIdentifier>{c20db25a-f036-449f-a06b-98620e49cff0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="testkernel.cu">
@@ -93,9 +96,6 @@
     <ClInclude Include="ShaderStageData.h">
       <Filter>Source Files\Graphics\Factories\ShaderFactory</Filter>
     </ClInclude>
-    <ClInclude Include="D3DUtil.h">
-      <Filter>Source Files\Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="BufferConfig.h">
       <Filter>Source Files\Graphics\Factories\BufferFactory</Filter>
     </ClInclude>
@@ -117,6 +117,15 @@
     <ClInclude Include="ShaderBase.h">
       <Filter>Source Files\Graphics\Shaders</Filter>
     </ClInclude>
+    <ClInclude Include="D3DUtil.h">
+      <Filter>Source Files\Graphics\Graphics Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderStateHelper.h">
+      <Filter>Source Files\Graphics\Graphics Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderStateEnums.h">
+      <Filter>Source Files\Graphics\Graphics Utilities</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Context.cpp">
@@ -137,9 +146,6 @@
     <ClCompile Include="ViewFactory.cpp">
       <Filter>Source Files\Graphics\Factories\ViewFactory</Filter>
     </ClCompile>
-    <ClCompile Include="ShaderFactory.cpp">
-      <Filter>Source Files\Graphics\Factories\ShaderFactory</Filter>
-    </ClCompile>
     <ClCompile Include="BufferConfig.cpp">
       <Filter>Source Files\Graphics\Factories\BufferFactory</Filter>
     </ClCompile>
@@ -154,6 +160,12 @@
     </ClCompile>
     <ClCompile Include="ComposeShader.cpp">
       <Filter>Source Files\Graphics\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderFactory.cpp">
+      <Filter>Source Files\Graphics\Factories\ShaderFactory</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderStateHelper.cpp">
+      <Filter>Source Files\Graphics\Graphics Utilities</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -2,7 +2,7 @@
 
 #include "Buffer.h"
 
-class PVertex;
+struct PVertex;
 
 // =======================================================================================
 //                                      BufferFactory

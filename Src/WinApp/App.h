@@ -28,4 +28,6 @@ protected:
 	Context* m_context;
 	GraphicsDevice* m_graphicsDevice;
 private:
+	static const double DTCAP;
+	float fpsUpdateTick;
 };

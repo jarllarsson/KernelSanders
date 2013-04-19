@@ -1,7 +1,11 @@
 #include "GraphicsDevice.h"
 #include "GraphicsException.h"
 #include "ViewFactory.h"
+#include "ShaderFactory.h"
+#include "BufferFactory.h"
 #include "D3DUtil.h"
+
+#include "ComposeShader.h"
 
 
 GraphicsDevice::GraphicsDevice( HWND p_hWnd, int p_width, int p_height, bool p_windowMode )
@@ -9,6 +13,7 @@ GraphicsDevice::GraphicsDevice( HWND p_hWnd, int p_width, int p_height, bool p_w
 	m_width=p_width;
 	m_height=p_height;
 	m_windowMode = p_windowMode;
+	m_wireframeMode=false;
 
 	// 1. init hardware
 	initSwapChain(p_hWnd);
@@ -16,15 +21,49 @@ GraphicsDevice::GraphicsDevice( HWND p_hWnd, int p_width, int p_height, bool p_w
 
 	// 2.  init factories
 	m_viewFactory = new ViewFactory(m_device);
+	m_shaderFactory = new ShaderFactory(m_device,m_deviceContext,m_featureLevel);
+	m_bufferFactory = new BufferFactory(m_device,m_deviceContext);
 
 	// 3. init views
 	initBackBuffer();
 	initGBufferAndDepthStencil();
+
+	// 4. init shaders
+	m_composeShader = m_shaderFactory->createComposeShader(L"../Shaders/ComposeShader.hlsl");
+
+	// 5. build states
+	buildBlendStates();
+	m_currentBlendStateType = BlendState::DEFAULT;
+	m_blendMask = 0xffffffff;
+	for (int i=0;i<4;i++) m_blendFactors[i]=1;
+
+	buildRasterizerStates();
+	m_currentRasterizerStateType = RasterizerState::DEFAULT;
+
+	// 6. Create draw-quad
+	m_fullscreenQuad = m_bufferFactory->createFullScreenQuadBuffer();
+
+
+	fitViewport();
 }
 
 GraphicsDevice::~GraphicsDevice()
 {
 	delete m_viewFactory;
+	delete m_shaderFactory;
+	delete m_bufferFactory;
+	//
+	delete m_composeShader;
+	//
+	delete m_fullscreenQuad;
+	//
+	for (unsigned int i = 0; i < m_blendStates.size(); i++){
+		SAFE_RELEASE(m_blendStates[i]);
+	}
+	for (unsigned int i = 0; i < m_rasterizerStates.size(); i++){
+		SAFE_RELEASE(m_rasterizerStates[i]);
+	}
+	//
 	releaseGBufferAndDepthStencil();
 	SAFE_RELEASE(m_device);
 	SAFE_RELEASE(m_deviceContext);
@@ -39,8 +78,8 @@ void GraphicsDevice::clearRenderTargets()
 
 	// clear gbuffer
 	unmapAllBuffers();
-	unsigned int start = GBufferChannel::DIFFUSE;
-	unsigned int end = GBufferChannel::COUNT;
+	unsigned int start = GBufferChannel::GBUF_DIFFUSE;
+	unsigned int end = GBufferChannel::GBUF_COUNT;
 	for( unsigned int i=start; i<end; i++ ) 
 	{
 		m_deviceContext->ClearRenderTargetView( m_gRtv[i], clearColor );
@@ -60,8 +99,8 @@ void GraphicsDevice::updateResolution( int p_width, int p_height )
 {
 	m_width = p_width;
 	m_height = p_height;
-	m_deviceContext->OMSetRenderTargets(0, 0, 0);
 
+	setRenderTarget(RenderTargetSpec::RT_NONE);
 	releaseBackBuffer();
 	releaseGBufferAndDepthStencil();
 
@@ -99,11 +138,35 @@ void GraphicsDevice::fitViewport()
 	m_deviceContext->RSSetViewports(1,&vp);
 }
 
+void GraphicsDevice::setWireframeMode( bool p_wireframe )
+{
+	m_wireframeMode = p_wireframe;
+}
+
+void GraphicsDevice::executeRenderPass( RenderPass p_pass )
+{
+	switch(p_pass)
+	{	
+	case RenderPass::P_BASEPASS:
+		 // none yet
+		break;
+	case RenderPass::P_COMPOSEPASS:
+		m_deviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+		setBlendState(BlendState::NORMAL);
+		setRasterizerStateSettings(RasterizerState::DEFAULT,false);
+		setRenderTarget(RT_BACKBUFFER_NODEPTHSTENCIL);
+		setShader(SI_COMPOSESHADER);
+		drawFullscreen();
+		break;
+
+	}
+}
+
 
 void GraphicsDevice::mapGBuffer()
 {
-	unsigned int start = GBufferChannel::DIFFUSE;
-	unsigned int end = GBufferChannel::COUNT;
+	unsigned int start = GBufferChannel::GBUF_DIFFUSE;
+	unsigned int end = GBufferChannel::GBUF_COUNT;
 	for( unsigned int i=start; i<end; i++ ) 
 	{
 		m_deviceContext->PSSetShaderResources( i, 1, &m_gSrv[i] );
@@ -118,7 +181,7 @@ void GraphicsDevice::mapGBufferSlot( GBufferChannel p_slot )
 
 void GraphicsDevice::mapDepth()
 {
-	unsigned int i = static_cast<unsigned int>(GBufferChannel::DEPTH);
+	unsigned int i = static_cast<unsigned int>(GBufferChannel::GBUF_DEPTH);
 	m_deviceContext->PSSetShaderResources( i, 1, &m_depthSrv );
 }
 
@@ -126,8 +189,8 @@ void GraphicsDevice::mapDepth()
 void GraphicsDevice::unmapGBuffer()
 {
 	ID3D11ShaderResourceView* nulz = NULL;
-	unsigned int start = GBufferChannel::DIFFUSE;
-	unsigned int end = GBufferChannel::COUNT;
+	unsigned int start = GBufferChannel::GBUF_DIFFUSE;
+	unsigned int end = GBufferChannel::GBUF_COUNT;
 	for( unsigned int i=start; i<end; i++ ) 
 	{
 		m_deviceContext->PSSetShaderResources( i, 1, &nulz );
@@ -144,7 +207,7 @@ void GraphicsDevice::unmapGBufferSlot( GBufferChannel p_slot )
 void GraphicsDevice::unmapDepth()
 {
 	ID3D11ShaderResourceView* nulz = NULL;
-	m_deviceContext->PSSetShaderResources( static_cast<unsigned int>(GBufferChannel::DEPTH), 
+	m_deviceContext->PSSetShaderResources( static_cast<unsigned int>(GBufferChannel::GBUF_DEPTH), 
 										   1, &nulz );
 }
 
@@ -152,6 +215,115 @@ void GraphicsDevice::unmapAllBuffers()
 {
 	unmapGBuffer();
 	unmapDepth();
+}
+
+
+void GraphicsDevice::setRenderTarget( RenderTargetSpec p_target )
+{
+	switch(p_target)
+	{	
+	case RenderTargetSpec::RT_NONE:
+		m_deviceContext->OMSetRenderTargets(0,0,0);
+		break;
+	case RenderTargetSpec::RT_BACKBUFFER:	
+		m_deviceContext->OMSetRenderTargets(1,&m_backBuffer,m_depthStencilView);
+		break;
+	case RenderTargetSpec::RT_BACKBUFFER_NODEPTHSTENCIL:
+		m_deviceContext->OMSetRenderTargets(1,&m_backBuffer,0);
+		break;
+	case RenderTargetSpec::RT_MRT:
+		m_deviceContext->OMSetRenderTargets(GBufferChannel::GBUF_COUNT,m_gRtv,m_depthStencilView);
+		break;
+	case RenderTargetSpec::RT_MRT_NODEPTHSTENCIL:
+		m_deviceContext->OMSetRenderTargets(GBufferChannel::GBUF_COUNT,m_gRtv,0);
+		break;
+	}
+}
+
+
+void GraphicsDevice::setShader( ShaderId p_shaderId )
+{
+	switch(p_shaderId)
+	{	
+	case ShaderId::SI_NONE:
+		m_deviceContext->PSSetShaderResources(0,0,0);
+		break;
+	case ShaderId::SI_COMPOSESHADER:	
+		m_composeShader->apply();
+		break;
+
+	}
+}
+
+void GraphicsDevice::setBlendState(BlendState::Mode p_state)
+{
+	unsigned int idx = static_cast<unsigned int>(p_state);
+	m_deviceContext->OMSetBlendState( m_blendStates[idx], m_blendFactors, m_blendMask );
+	m_currentBlendStateType = p_state;
+}
+
+void GraphicsDevice::setBlendFactors( float p_red, float p_green, float p_blue, 
+									   float p_alpha )
+{
+	m_blendFactors[0]=p_red;
+	m_blendFactors[1]=p_green;
+	m_blendFactors[2]=p_blue;
+	m_blendFactors[3]=p_alpha;
+}
+
+void GraphicsDevice::setBlendFactors( float p_oneValue )
+{
+	for (int i=0;i<4;i++)
+		m_blendFactors[i]=p_oneValue;
+}
+
+void GraphicsDevice::setBlendMask( UINT p_mask )
+{
+	m_blendMask = p_mask;
+}
+
+BlendState::Mode GraphicsDevice::getCurrentBlendStateType() 
+{
+	return m_currentBlendStateType;
+}
+
+void GraphicsDevice::setRasterizerStateSettings( RasterizerState::Mode p_state,
+												bool p_allowWireframOverride/*=true*/)
+{
+	RasterizerState::Mode state = getCurrentRasterizerStateType();
+	RasterizerState::Mode newState = p_state;
+	unsigned int idx = static_cast<unsigned int>(newState);
+	bool set=false;
+	// accept rasterizer state change if not in wireframe mode or 
+	// if set to not allow wireframe mode
+	if (!m_wireframeMode || !p_allowWireframOverride)
+	{	
+		m_deviceContext->RSSetState( m_rasterizerStates[idx] );
+		set=true;
+	}
+	else if (state != RasterizerState::WIREFRAME) 
+	{   
+		// otherwise, force wireframe(if not already set)
+		idx = static_cast<unsigned int>(RasterizerState::WIREFRAME);
+		set=true;
+	}
+	if (set)
+	{
+		m_deviceContext->RSSetState( m_rasterizerStates[idx] );
+		m_currentRasterizerStateType = newState;
+	}
+}
+
+RasterizerState::Mode GraphicsDevice::getCurrentRasterizerStateType()
+{
+	return m_currentRasterizerStateType;
+}
+
+
+void GraphicsDevice::drawFullscreen()
+{
+	m_fullscreenQuad->apply();
+	m_deviceContext->Draw(6,0);
 }
 
 
@@ -215,6 +387,7 @@ void GraphicsDevice::initHardware()
 		if (hr == S_OK)
 		{
 			selectedDriverType = driverTypeIndex;
+			m_featureLevel = m_device->GetFeatureLevel();
 			break;
 		}
 	}
@@ -238,8 +411,8 @@ void GraphicsDevice::initDepthStencil()
 void GraphicsDevice::initGBuffer()
 {
 	// Init all slots in gbuffer
-	unsigned int start = GBufferChannel::DIFFUSE;
-	unsigned int end = GBufferChannel::COUNT;
+	unsigned int start = GBufferChannel::GBUF_DIFFUSE;
+	unsigned int end = GBufferChannel::GBUF_COUNT;
 	for( unsigned int i=start; i<end; i++ ) 
 	{
 		m_viewFactory->constructRenderTargetViewAndShaderResourceView( &m_gRtv[i], 
@@ -256,6 +429,16 @@ void GraphicsDevice::initGBufferAndDepthStencil()
 	initGBuffer();
 }
 
+void GraphicsDevice::buildBlendStates()
+{
+	RenderStateHelper::fillBlendStateList(m_device,m_blendStates);
+}
+
+void GraphicsDevice::buildRasterizerStates()
+{
+	RenderStateHelper::fillRasterizerStateList(m_device,m_rasterizerStates);
+}
+
 void GraphicsDevice::releaseBackBuffer()
 {
 	SAFE_RELEASE( m_backBuffer );
@@ -265,7 +448,7 @@ void GraphicsDevice::releaseGBufferAndDepthStencil()
 {
 	SAFE_RELEASE(m_depthStencilView);
 
-	for (int i = 0; i < GBufferChannel::COUNT; i++)
+	for (int i = 0; i < GBufferChannel::GBUF_COUNT; i++)
 	{
 		SAFE_RELEASE(m_gRtv[i]);
 		SAFE_RELEASE(m_gSrv[i]);

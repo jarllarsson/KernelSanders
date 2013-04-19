@@ -6,6 +6,7 @@
 
 using namespace std;
 
+class BufferFactory;
 class ComposeShader;
 
 // =======================================================================================
@@ -29,7 +30,7 @@ public:
 	ShaderFactory(ID3D11Device* p_device,ID3D11DeviceContext* m_deviceContext,D3D_FEATURE_LEVEL p_featureLevel);
 	virtual ~ShaderFactory();
 
-	ComposeShader* ShaderFactory::createComposeShader( const LPCWSTR& p_vertexPath, const LPCWSTR& p_pixelPath );
+	ComposeShader* createComposeShader( const LPCWSTR& p_filePath);
 
 protected:
 	///-----------------------------------------------------------------------------------

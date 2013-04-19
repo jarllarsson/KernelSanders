@@ -6,6 +6,7 @@
 #include <comdef.h>
 #include <d3d11.h>
 #include <vector>
+#include <d3d11shader.h>
 
 
 ShaderFactory::ShaderFactory(ID3D11Device* p_device, ID3D11DeviceContext* p_deviceContext, 
@@ -64,10 +65,10 @@ ComposeShader* ShaderFactory::createComposeShader( const LPCWSTR& p_filePath )
 
 	createAllShaderStages(vertexData, pixelData);
 	createSamplerState(&samplerState);
-	createInputLayout(vertexData,&inputLayout);
+	createVertexInputLayout(vertexData,&inputLayout);
 	createShaderInitData(&shaderVariables,inputLayout,vertexData,pixelData,samplerState,NULL);
 
-	return new ComposeShader(m_bufferFactory->createSSAOBuffer(), shaderVariables);
+	return new ComposeShader(shaderVariables);
 }
 
 
@@ -303,7 +304,7 @@ void ShaderFactory::createVertexInputLayout( VSData* p_vs, ID3D11InputLayout** p
 		elementDesc.SemanticIndex = paramDesc.SemanticIndex;
 		elementDesc.InputSlot = 0;
 		elementDesc.AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-		if (p_maxPerVertexElements==-1 || i<p_maxPerVertexElements)
+		if (p_maxPerVertexElements==-1 || i<(unsigned int)p_maxPerVertexElements)
 			elementDesc.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 		else
 			elementDesc.InputSlotClass = D3D11_INPUT_PER_INSTANCE_DATA;

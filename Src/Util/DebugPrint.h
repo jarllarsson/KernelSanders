@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Windows.h>
 // =======================================================================================
 //                                      DebugPrint
 // =======================================================================================
@@ -27,13 +28,11 @@ static void debugPrint(const char* msg);
 #else
 #define DEBUGPRINT(x)
 #endif
-#ifdef WINAPI
-#include <Windows.h>
 void debugPrint(const char* msg)
 {
 	OutputDebugStringA(msg);
 }
-#endif
+
 
 // Warning version
 // #ifdef _DEBUG
@@ -43,11 +42,8 @@ static void debugWarn(const char* msg);
 #else
 #define DEBUGWARNING(x)
 #endif
-#ifdef WINAPI
-#include <Windows.h>
 void debugWarn(const char* msg)
 {
 	OutputDebugStringA((msg));
 	MessageBoxA(NULL, (msg), "Warning!", MB_ICONWARNING);
 }
-#endif

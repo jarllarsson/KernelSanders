@@ -1,5 +1,8 @@
 Obj
 External
+Bin/x86/*.txt
+Bin/x64/*.txt
+*.PIXRun
 *.opensdf
 *.sdf
 *.suo
