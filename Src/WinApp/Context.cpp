@@ -7,6 +7,7 @@ Context::Context( HINSTANCE p_hInstance, const string& p_title,
 				 int p_width, int p_height )
 {
 	m_closeFlag=false;
+	m_sizeDirty=false;
 	m_hInstance = p_hInstance; 
 	m_title = p_title;
 
@@ -79,11 +80,12 @@ Context* Context::getInstance()
 	return m_instance;
 }
 
-void Context::resize( int p_w, int p_h )
+void Context::resize( int p_w, int p_h, bool p_update)
 {
 	m_width = p_w;
 	m_height = p_h;
-	SetWindowPos( m_hWnd, HWND_TOP, 0, 0, m_width, m_height, SWP_NOMOVE );
+	if (p_update) SetWindowPos( m_hWnd, HWND_TOP, 0, 0, m_width, m_height, SWP_NOMOVE );
+	m_sizeDirty=true;
 }
 
 bool Context::closeRequested() const
@@ -94,6 +96,18 @@ bool Context::closeRequested() const
 void Context::close()
 {
 	m_closeFlag=true;
+}
+
+pair<int,int> Context::getSize()
+{
+	return pair<int,int>(m_width,m_height);
+}
+
+bool Context::isSizeDirty()
+{
+	bool isDirty = m_sizeDirty;
+	m_sizeDirty=false;
+	return isDirty;
 }
 
 
@@ -113,6 +127,10 @@ LRESULT CALLBACK WndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam 
 		PostQuitMessage(0);
 		Context::getInstance()->close();
 		break;
+
+	case WM_SIZE:
+		Context::getInstance()->resize(LOWORD(lParam),HIWORD(lParam),false);
+
 
 	case WM_KEYDOWN:
 		switch(wParam)

@@ -166,20 +166,38 @@
   <ItemGroup>
     <ClInclude Include="App.h" />
     <ClInclude Include="BaseException.h" />
+    <ClInclude Include="Buffer.h" />
+    <ClInclude Include="BufferBase.h" />
+    <ClInclude Include="BufferConfig.h" />
+    <ClInclude Include="BufferFactory.h" />
+    <ClInclude Include="ComposeShader.h" />
     <ClInclude Include="Context.h" />
     <ClInclude Include="ContextException.h" />
+    <ClInclude Include="D3DUtil.h" />
     <ClInclude Include="GraphicsDeviceFactory.h" />
     <ClInclude Include="GraphicsException.h" />
     <ClInclude Include="KernelHandler.h" />
     <ClInclude Include="GraphicsDevice.h" />
+    <ClInclude Include="PVertex.h" />
+    <ClInclude Include="ShaderBase.h" />
+    <ClInclude Include="ShaderFactory.h" />
+    <ClInclude Include="ShaderStageConfig.h" />
+    <ClInclude Include="ShaderStageData.h" />
+    <ClInclude Include="ShaderVariableContainer.h" />
     <ClInclude Include="ViewFactory.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp" />
+    <ClCompile Include="BufferBase.cpp" />
+    <ClCompile Include="BufferConfig.cpp" />
+    <ClCompile Include="BufferFactory.cpp" />
+    <ClCompile Include="ComposeShader.cpp" />
     <ClCompile Include="Context.cpp" />
     <ClCompile Include="GraphicsDevice.cpp" />
     <ClCompile Include="KernelHandler.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="ShaderBase.cpp" />
+    <ClCompile Include="ShaderFactory.cpp" />
     <ClCompile Include="ViewFactory.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

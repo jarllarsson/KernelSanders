@@ -1,28 +1,28 @@
 #pragma once
 
-#include <d3d11.h>
+#include "ShaderVariableContainer.h"
+#include "ShaderBase.h"
+#include "Buffer.h"
 
 // =======================================================================================
-//                                   GraphicsDeviceFactory
+//                                      ComposeShader
 // =======================================================================================
 
 ///---------------------------------------------------------------------------------------
-/// \brief	Base class for factories that needs access to the device and devicecontext
+/// \brief	Shader for final composition of MRT
 ///        
-/// # GraphicsDeviceFactory
+/// # ComposeShader
 /// 
-/// 18-4-2013 Jarl Larsson
+/// 19-4-2013 Jarl Larsson
 ///---------------------------------------------------------------------------------------
 
-class GraphicsDeviceFactory
+class ComposeShader : public ShaderBase
 {
 public:
-	GraphicsDeviceFactory(ID3D11Device* p_device)
-	{
-		m_device=p_device;
-	}
-	virtual ~GraphicsDeviceFactory() {}
+	ComposeShader(ShaderVariableContainer p_initData);
+	virtual ~ComposeShader();
+
+	void apply();
 protected:
-	ID3D11Device* m_device;
 private:
 };

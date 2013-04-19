@@ -2,6 +2,7 @@
 
 #include <windows.h>
 #include <string>
+#include <utility>
 
 using namespace std;
 
@@ -31,7 +32,15 @@ public:
 
 	void close();
 
-	void resize(int p_w, int p_h);
+	///-----------------------------------------------------------------------------------
+	/// Resize the window
+	/// \param p_w
+	/// \param p_h
+	/// \param p_update set to true to force an update, 
+	///					if an update has already been done by windows, set to false.
+	/// \return void
+	///-----------------------------------------------------------------------------------
+	void resize(int p_w, int p_h, bool p_update);
 
 	///-----------------------------------------------------------------------------------
 	/// Change the window title string
@@ -52,9 +61,18 @@ public:
 	/// \return bool
 	///-----------------------------------------------------------------------------------
 	bool closeRequested() const;
+
+	///-----------------------------------------------------------------------------------
+	/// Returns true if window has been resized. Dirty bit is reset upon call if true.
+	/// \return bool
+	///-----------------------------------------------------------------------------------
+	bool isSizeDirty();
+
+	pair<int,int> getSize();
 protected:
 private:
 	bool m_closeFlag;
+	bool m_sizeDirty;
 	string m_title;
 	int m_width;
 	int m_height;

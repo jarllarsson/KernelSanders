@@ -105,10 +105,6 @@ void ViewFactory::constructRenderTargetViewAndShaderResourceView( ID3D11RenderTa
 
 void ViewFactory::constructBackbuffer( ID3D11RenderTargetView** p_outRtv, IDXGISwapChain* p_inSwapChain )
 {
-	if( m_deviceContext == NULL ) {
-		throw GraphicsException("DeviceContext not uninitialized.",
-			__FILE__,__FUNCTION__,__LINE__);
-	}
 
 	if( m_device == NULL ) {
 		throw GraphicsException("Device not uninitialized.",

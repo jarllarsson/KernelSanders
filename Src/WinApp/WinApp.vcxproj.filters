@@ -29,11 +29,23 @@
     <Filter Include="Source Files\Graphics\Factories">
       <UniqueIdentifier>{76c08742-4c2a-4512-beba-03b588d08204}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Graphics\Factories\Buffers">
+    <Filter Include="Source Files\Graphics\Vertices">
+      <UniqueIdentifier>{14965c5d-487d-4ec3-ab68-4ddd2de3a3d4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics\Shaders">
+      <UniqueIdentifier>{7872d8ff-fc16-4191-a771-428f6e6d40fc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics\Factories\BufferFactory">
       <UniqueIdentifier>{038917f1-1c2f-4145-8d94-ec785ce0fb9d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Graphics\Factories\Views">
+    <Filter Include="Source Files\Graphics\Factories\ShaderFactory">
+      <UniqueIdentifier>{5c803515-9586-43ac-a5a2-f8b11e6a9ac5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics\Factories\ViewFactory">
       <UniqueIdentifier>{d011ef2a-d38d-4fb7-9da8-ee9afa50ed0d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics\Buffers">
+      <UniqueIdentifier>{e22e0526-7273-49dc-83eb-8578427b5ac9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -64,10 +76,46 @@
       <Filter>Source Files\Exception</Filter>
     </ClInclude>
     <ClInclude Include="ViewFactory.h">
-      <Filter>Source Files\Graphics\Factories\Views</Filter>
+      <Filter>Source Files\Graphics\Factories\ViewFactory</Filter>
     </ClInclude>
     <ClInclude Include="GraphicsDeviceFactory.h">
       <Filter>Source Files\Graphics\Factories</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderFactory.h">
+      <Filter>Source Files\Graphics\Factories\ShaderFactory</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderVariableContainer.h">
+      <Filter>Source Files\Graphics\Factories\ShaderFactory</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderStageConfig.h">
+      <Filter>Source Files\Graphics\Factories\ShaderFactory</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderStageData.h">
+      <Filter>Source Files\Graphics\Factories\ShaderFactory</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DUtil.h">
+      <Filter>Source Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="BufferConfig.h">
+      <Filter>Source Files\Graphics\Factories\BufferFactory</Filter>
+    </ClInclude>
+    <ClInclude Include="BufferFactory.h">
+      <Filter>Source Files\Graphics\Factories\BufferFactory</Filter>
+    </ClInclude>
+    <ClInclude Include="PVertex.h">
+      <Filter>Source Files\Graphics\Vertices</Filter>
+    </ClInclude>
+    <ClInclude Include="Buffer.h">
+      <Filter>Source Files\Graphics\Buffers</Filter>
+    </ClInclude>
+    <ClInclude Include="BufferBase.h">
+      <Filter>Source Files\Graphics\Buffers</Filter>
+    </ClInclude>
+    <ClInclude Include="ComposeShader.h">
+      <Filter>Source Files\Graphics\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderBase.h">
+      <Filter>Source Files\Graphics\Shaders</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -87,7 +135,25 @@
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="ViewFactory.cpp">
-      <Filter>Source Files\Graphics\Factories\Views</Filter>
+      <Filter>Source Files\Graphics\Factories\ViewFactory</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderFactory.cpp">
+      <Filter>Source Files\Graphics\Factories\ShaderFactory</Filter>
+    </ClCompile>
+    <ClCompile Include="BufferConfig.cpp">
+      <Filter>Source Files\Graphics\Factories\BufferFactory</Filter>
+    </ClCompile>
+    <ClCompile Include="BufferFactory.cpp">
+      <Filter>Source Files\Graphics\Factories\BufferFactory</Filter>
+    </ClCompile>
+    <ClCompile Include="BufferBase.cpp">
+      <Filter>Source Files\Graphics\Buffers</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderBase.cpp">
+      <Filter>Source Files\Graphics\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="ComposeShader.cpp">
+      <Filter>Source Files\Graphics\Shaders</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

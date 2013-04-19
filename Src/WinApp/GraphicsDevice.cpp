@@ -1,6 +1,7 @@
 #include "GraphicsDevice.h"
 #include "GraphicsException.h"
 #include "ViewFactory.h"
+#include "D3DUtil.h"
 
 
 GraphicsDevice::GraphicsDevice( HWND p_hWnd, int p_width, int p_height, bool p_windowMode )
@@ -14,7 +15,7 @@ GraphicsDevice::GraphicsDevice( HWND p_hWnd, int p_width, int p_height, bool p_w
 	initHardware();
 
 	// 2.  init factories
-	m_viewFactory = new ViewFactory(m_device,m_deviceContext);
+	m_viewFactory = new ViewFactory(m_device);
 
 	// 3. init views
 	initBackBuffer();
@@ -34,7 +35,7 @@ GraphicsDevice::~GraphicsDevice()
 
 void GraphicsDevice::clearRenderTargets()
 {
-	static float clearColor[4] = { 0.0f, 1.0f, 0.0f, 1.0f };
+	float clearColor[4] = { m_width/5000.0f, 1.0f,  m_height/1200.0f, 1.0f };
 
 	// clear gbuffer
 	unmapAllBuffers();
@@ -79,6 +80,11 @@ void GraphicsDevice::updateResolution( int p_width, int p_height )
 void GraphicsDevice::setWindowMode( bool p_windowed )
 {
 	m_windowMode=p_windowed;
+	HRESULT hr = S_OK;
+	hr = m_swapChain->SetFullscreenState((BOOL)!p_windowed,nullptr);
+	if( FAILED(hr))
+		throw GraphicsException(hr,__FILE__,__FUNCTION__,__LINE__);
+
 }
 
 void GraphicsDevice::fitViewport()

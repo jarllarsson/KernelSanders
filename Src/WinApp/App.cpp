@@ -64,6 +64,14 @@ void App::run()
 		}
 		else
 		{
+			// apply resizing on graphics device if it has been triggered by the context
+			if (m_context->isSizeDirty())
+			{
+				pair<int,int> sz=m_context->getSize();
+				m_graphicsDevice->updateResolution(sz.first,sz.second);
+			}
+
+			// Get Delta time
 			QueryPerformanceCounter((LARGE_INTEGER*)&currTimeStamp);
 			dt = (currTimeStamp - m_prevTimeStamp) * secsPerCount;
 
@@ -71,6 +79,7 @@ void App::run()
 
 			DEBUGPRINT((("\n"+toString(dt)).c_str())); 
 
+			// Run the graphics device
 			m_graphicsDevice->clearRenderTargets();
 
 			// m_graphicsDevice->mapGBufferSlot(GraphicsDevice::DIFFUSE);
