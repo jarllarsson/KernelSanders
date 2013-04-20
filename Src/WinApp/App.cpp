@@ -34,9 +34,9 @@ App::App( HINSTANCE p_hInstance )
 }
 
 App::~App()
-{
-	delete m_context;
+{	
 	delete m_graphicsDevice;
+	delete m_context;
 }
 
 void App::run()

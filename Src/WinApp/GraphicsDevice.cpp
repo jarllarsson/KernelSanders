@@ -49,6 +49,11 @@ GraphicsDevice::GraphicsDevice( HWND p_hWnd, int p_width, int p_height, bool p_w
 
 GraphicsDevice::~GraphicsDevice()
 {
+	m_swapChain->SetFullscreenState(false,nullptr);
+	SAFE_RELEASE(m_swapChain);
+	SAFE_RELEASE(m_deviceContext);
+	SAFE_RELEASE(m_device);
+	//
 	delete m_viewFactory;
 	delete m_shaderFactory;
 	delete m_bufferFactory;
@@ -65,10 +70,8 @@ GraphicsDevice::~GraphicsDevice()
 	}
 	//
 	releaseGBufferAndDepthStencil();
-	SAFE_RELEASE(m_device);
-	SAFE_RELEASE(m_deviceContext);
-	SAFE_RELEASE(m_swapChain);
 	releaseBackBuffer();
+
 }
 
 
@@ -388,6 +391,7 @@ void GraphicsDevice::initHardware()
 		{
 			selectedDriverType = driverTypeIndex;
 			m_featureLevel = m_device->GetFeatureLevel();
+			SETDDEBUGNAME((m_device),("m_device"));
 			break;
 		}
 	}

@@ -67,15 +67,15 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)Src\Util;$(SolutionDir)External\GLM\include\glm;$(IncludePath)</IncludePath>
-    <LibraryPath>$(CUDA_LIB_PATH);$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)Src\Util;$(SolutionDir)External\Visual Leak Detector\include\;$(SolutionDir)External\GLM\include\glm;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)External\Visual Leak Detector\lib\Win64;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)Bin\$(PlatformShortName)\</OutDir>
     <IntDir>$(SolutionDir)Obj\$(Configuration)\$(PlatformShortName)\</IntDir>
     <TargetName>$(ProjectName)_$(Configuration)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)Src\Util;$(SolutionDir)External\GLM\include\glm;$(IncludePath)</IncludePath>
-    <LibraryPath>$(CUDA_LIB_PATH);$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)Src\Util;$(SolutionDir)External\Visual Leak Detector\include\;$(SolutionDir)External\GLM\include\glm;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)External\Visual Leak Detector\lib\Win64;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)Bin\$(PlatformShortName)\</OutDir>
     <IntDir>$(SolutionDir)Obj\$(Configuration)\$(PlatformShortName)\</IntDir>
     <TargetName>$(ProjectName)_$(Configuration)</TargetName>
@@ -84,13 +84,15 @@
     <OutDir>$(SolutionDir)Bin\$(PlatformShortName)\</OutDir>
     <IntDir>$(SolutionDir)Obj\$(Configuration)\$(PlatformShortName)\</IntDir>
     <TargetName>$(ProjectName)_$(Configuration)</TargetName>
-    <IncludePath>$(SolutionDir)Src\Util;$(SolutionDir)External\GLM\include\glm;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Src\Util;$(SolutionDir)External\Visual Leak Detector\include\;$(SolutionDir)External\GLM\include\glm;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)External\Visual Leak Detector\lib\Win32\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)Bin\$(PlatformShortName)\</OutDir>
     <IntDir>$(SolutionDir)Obj\$(Configuration)\$(PlatformShortName)\</IntDir>
     <TargetName>$(ProjectName)_$(Configuration)</TargetName>
-    <IncludePath>$(SolutionDir)Src\Util;$(SolutionDir)External\GLM\include\glm;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Src\Util;$(SolutionDir)External\Visual Leak Detector\include\;$(SolutionDir)External\GLM\include\glm;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)External\Visual Leak Detector\lib\Win32\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

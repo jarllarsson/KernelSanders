@@ -1,5 +1,6 @@
 #include "BufferFactory.h"
 #include "PVertex.h"
+#include "D3DUtil.h"
 
 BufferFactory::BufferFactory(ID3D11Device* p_device, ID3D11DeviceContext* p_deviceContext)
 {
@@ -37,6 +38,7 @@ Buffer<PVertex>* BufferFactory::createFullScreenQuadBuffer()
 
 	// Create buffer from config and data
 	quadBuffer = new Buffer<PVertex>(m_device,m_deviceContext,&mesh[0],bufferDesc);
+	SETDEBUGNAME((quadBuffer->getBufferPointer()),("fullscreenQuad_buffer"));
 
 	return quadBuffer;
 }

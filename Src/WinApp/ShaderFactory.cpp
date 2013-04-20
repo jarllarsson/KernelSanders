@@ -340,7 +340,7 @@ void ShaderFactory::createVertexInputLayout( VSData* p_vs, ID3D11InputLayout** p
 		inputLayoutDesc.push_back(elementDesc);
 	}       
 
-	constructInputLayout(&inputLayoutDesc[0],inputLayoutDesc.size(),p_vs,p_inputLayout);
+	constructInputLayout(&inputLayoutDesc[0],(UINT)inputLayoutDesc.size(),p_vs,p_inputLayout);
 
 	//Free allocation shader reflection memory
 	vertexShaderReflection->Release();
