@@ -1,22 +1,22 @@
 #pragma once
 
 // =======================================================================================
-//                                      KernelHandler
+//                                    IKernelHandler
 // =======================================================================================
 
 ///---------------------------------------------------------------------------------------
-/// \brief	Base class for general kernel handling (for now only CUDA)
+/// \brief	Base class for general kernel handling
 ///        
-/// # KernelHandler
+/// # IKernelHandler
 /// 
 /// 18-4-2013 Jarl Larsson
 ///---------------------------------------------------------------------------------------
 
-class KernelHandler
+class IKernelHandler
 {
 public:
-	KernelHandler();
-	virtual ~KernelHandler();
+	IKernelHandler();
+	virtual ~IKernelHandler();
 	/* For OpenCL or directCompute, loading and binding would be necessary
 	void LoadProgram(const string& path);
 	void BindToProgram();

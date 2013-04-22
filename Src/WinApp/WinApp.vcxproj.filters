@@ -50,6 +50,18 @@
     <Filter Include="Source Files\Graphics\Graphics Utilities">
       <UniqueIdentifier>{c20db25a-f036-449f-a06b-98620e49cff0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Kernel\KernelHandler\Base">
+      <UniqueIdentifier>{adad9592-c1c3-4dab-9776-068ced231f95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Kernel\Resource">
+      <UniqueIdentifier>{776682dc-f6ce-480e-acf5-0cdf105bf8f1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics\Texture">
+      <UniqueIdentifier>{bf5fba5b-3d31-438b-b3f1-90dfaff086e2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics\Factories\TextureFactory">
+      <UniqueIdentifier>{da41fc45-d54b-440f-ad40-4e329239c268}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="testkernel.cu">
@@ -65,9 +77,6 @@
     </ClInclude>
     <ClInclude Include="BaseException.h">
       <Filter>Source Files\Exception</Filter>
-    </ClInclude>
-    <ClInclude Include="KernelHandler.h">
-      <Filter>Source Files\Kernel\KernelHandler</Filter>
     </ClInclude>
     <ClInclude Include="App.h">
       <Filter>Source Files\App</Filter>
@@ -126,6 +135,27 @@
     <ClInclude Include="RenderStateEnums.h">
       <Filter>Source Files\Graphics\Graphics Utilities</Filter>
     </ClInclude>
+    <ClInclude Include="CudaGraphicsKernel.h">
+      <Filter>Source Files\Kernel\KernelHandler</Filter>
+    </ClInclude>
+    <ClInclude Include="IKernelHandler.h">
+      <Filter>Source Files\Kernel\KernelHandler\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="KernelDevice.h">
+      <Filter>Source Files\Kernel</Filter>
+    </ClInclude>
+    <ClInclude Include="KernelException.h">
+      <Filter>Source Files\Exception</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>Source Files\Graphics\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureFactory.h">
+      <Filter>Source Files\Graphics\Factories\TextureFactory</Filter>
+    </ClInclude>
+    <ClInclude Include="InteropResourceMapping.h">
+      <Filter>Source Files\Kernel\Resource</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Context.cpp">
@@ -133,9 +163,6 @@
     </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="KernelHandler.cpp">
-      <Filter>Source Files\Kernel\KernelHandler</Filter>
     </ClCompile>
     <ClCompile Include="App.cpp">
       <Filter>Source Files\App</Filter>
@@ -166,6 +193,18 @@
     </ClCompile>
     <ClCompile Include="RenderStateHelper.cpp">
       <Filter>Source Files\Graphics\Graphics Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="IKernelHandler.cpp">
+      <Filter>Source Files\Kernel\KernelHandler\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="KernelDevice.cpp">
+      <Filter>Source Files\Kernel</Filter>
+    </ClCompile>
+    <ClCompile Include="CudaGraphicsKernel.cpp">
+      <Filter>Source Files\Kernel\KernelHandler</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureFactory.cpp">
+      <Filter>Source Files\Graphics\Factories\TextureFactory</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

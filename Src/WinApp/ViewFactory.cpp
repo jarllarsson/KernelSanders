@@ -1,9 +1,7 @@
 #include "ViewFactory.h"
-#include "GraphicsException.h"
 
-void ViewFactory::constructDepthStencilViewAndShaderResourceView( ID3D11DepthStencilView** p_outDsv, 
-																 ID3D11ShaderResourceView** p_outSrv, 
-																 int p_width,int p_height )
+
+void ViewFactory::constructDSVAndSRV( ID3D11DepthStencilView** p_outDsv, ID3D11ShaderResourceView** p_outSrv, int p_width,int p_height )
 {
 	HRESULT hr = S_OK;
 
@@ -50,15 +48,9 @@ void ViewFactory::constructDepthStencilViewAndShaderResourceView( ID3D11DepthSte
 	depthStencilTexture->Release();
 }
 
-void ViewFactory::checkHRESULT( HRESULT p_res,const string& p_file,
-							   const string& p_function, int p_line )
-{
-	if ( p_res != S_OK ) {
-		throw GraphicsException( p_res, p_file, p_function, p_line );
-	}
-}
 
-void ViewFactory::constructRenderTargetViewAndShaderResourceView( ID3D11RenderTargetView** p_outRtv, 
+
+void ViewFactory::constructRTVAndSRV( ID3D11RenderTargetView** p_outRtv, 
 																 ID3D11ShaderResourceView** p_outSrv, 
 																 int p_width,int p_height,
 																 DXGI_FORMAT p_format )
@@ -83,12 +75,22 @@ void ViewFactory::constructRenderTargetViewAndShaderResourceView( ID3D11RenderTa
 	hr = m_device->CreateTexture2D( &bufferDesc, NULL, &bufferTexture );		
 	checkHRESULT( hr, __FILE__, __FUNCTION__, __LINE__ );
 
+	constructRTVAndSRVFromTexture(bufferTexture,p_outRtv,p_outSrv,p_width,p_height);
+
+	bufferTexture->Release();
+}
+
+void ViewFactory::constructRTVAndSRVFromTexture( ID3D11Texture2D* p_texture, ID3D11RenderTargetView** p_outRtv, ID3D11ShaderResourceView** p_outSrv, int p_width,int p_height)
+{
 	D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
+	D3D11_TEXTURE2D_DESC bufferDesc;
+	p_texture->GetDesc(&bufferDesc);
 	renderTargetViewDesc.Format = bufferDesc.Format;
 	renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 	renderTargetViewDesc.Texture2D.MipSlice = 0;
 
-	hr = m_device->CreateRenderTargetView( bufferTexture, &renderTargetViewDesc, p_outRtv );
+	HRESULT hr = S_OK;
+	hr = m_device->CreateRenderTargetView( p_texture, &renderTargetViewDesc, p_outRtv );
 	checkHRESULT( hr, __FILE__, __FUNCTION__, __LINE__ );
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceDesc;
@@ -97,10 +99,8 @@ void ViewFactory::constructRenderTargetViewAndShaderResourceView( ID3D11RenderTa
 	shaderResourceDesc.Texture2D.MipLevels = 1;
 	shaderResourceDesc.Texture2D.MostDetailedMip = 0;
 
-	hr = m_device->CreateShaderResourceView( bufferTexture, &shaderResourceDesc, p_outSrv );
+	hr = m_device->CreateShaderResourceView( p_texture, &shaderResourceDesc, p_outSrv );
 	checkHRESULT( hr, __FILE__, __FUNCTION__, __LINE__ );
-
-	bufferTexture->Release();
 }
 
 void ViewFactory::constructBackbuffer( ID3D11RenderTargetView** p_outRtv, IDXGISwapChain* p_inSwapChain )

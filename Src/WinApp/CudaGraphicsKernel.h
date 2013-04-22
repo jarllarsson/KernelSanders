@@ -1,35 +1,33 @@
 #pragma once
 
-#include <windows.h>
-
-class Context;
-class GraphicsDevice;
-class KernelDevice;
+#include "IKernelHandler.h"
 
 // =======================================================================================
-//                                      App
+//                                   CudaGraphicsKernel
 // =======================================================================================
 
 ///---------------------------------------------------------------------------------------
-/// \brief	Brief
+/// \brief	Kernel handler for cuda kernel with graphics resources
 ///        
-/// # App
+/// # CudaGraphicsKernel
 /// 
-/// 18-4-2013 Jarl Larsson
+/// 21-4-2013 Jarl Larsson
 ///---------------------------------------------------------------------------------------
 
-class App
+class CudaGraphicsKernel : IKernelHandler
 {
 public:
-	App(HINSTANCE p_hInstance);
-	virtual ~App();
+	CudaGraphicsKernel();
+	virtual ~CudaGraphicsKernel();
 
-	void run();
+
+	virtual void SetPerKernelArgs();
+
+	virtual bool SetPerFrameArgs();
+
+	virtual void Execute(float dt);
 protected:
-	Context* m_context;
-	GraphicsDevice* m_graphicsDevice;
-	KernelDevice* m_kernelDevice;
 private:
-	static const double DTCAP;
-	float fpsUpdateTick;
+
+
 };

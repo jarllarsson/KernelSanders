@@ -1,9 +1,15 @@
 #include "App.h"
+#include "DebugPrint.h"
+
 #include "Context.h"
 #include "ContextException.h"
-#include "DebugPrint.h"
+
 #include "GraphicsDevice.h"
 #include "GraphicsException.h"
+
+#include "KernelDevice.h"
+#include "KernelException.h"
+
 #include <ValueClamp.h>
 
 const double App::DTCAP=0.5;
@@ -13,6 +19,7 @@ App::App( HINSTANCE p_hInstance )
 	int width=600,
 		height=400;
 	bool windowMode=true;
+	// Context
 	try
 	{
 		m_context = new Context(p_hInstance,"Test",width,height);
@@ -22,6 +29,7 @@ App::App( HINSTANCE p_hInstance )
 		DEBUGWARNING((e.what()));
 	}	
 	
+	// Graphics
 	try
 	{
 		m_graphicsDevice = new GraphicsDevice(m_context->getWindowHandle(),width,height,windowMode);
@@ -30,11 +38,25 @@ App::App( HINSTANCE p_hInstance )
 	{
 		DEBUGWARNING((e.what()));
 	}
+
+	// Kernels
+	try
+	{
+		m_kernelDevice = new KernelDevice(m_graphicsDevice->getDevicePointer());
+		m_kernelDevice->registerGBuffer(m_graphicsDevice->getGBufferTextures());
+	}
+	catch (KernelException& e)
+	{
+		DEBUGWARNING((e.what()));
+	}
+
+
 	fpsUpdateTick=0.0f;
 }
 
 App::~App()
 {	
+	delete m_kernelDevice;
 	delete m_graphicsDevice;
 	delete m_context;
 }
@@ -93,10 +115,18 @@ void App::run()
 			}
 
 
-			// Run the graphics device
-			m_graphicsDevice->clearRenderTargets();
-			m_graphicsDevice->executeRenderPass(GraphicsDevice::P_COMPOSEPASS);
-			m_graphicsDevice->flipBackBuffer();
+
+			// Run the devices
+			// ---------------------------------------------------------------------------------------------
+			m_kernelDevice->update(dt);												// Update kernel data
+
+			m_graphicsDevice->clearRenderTargets();									// Clear render targets
+
+			m_kernelDevice->executeKernelJob(dt,KernelDevice::J_RAYTRACEWORLD);		// Run kernels
+
+			m_graphicsDevice->executeRenderPass(GraphicsDevice::P_COMPOSEPASS);		// Run passes
+			m_graphicsDevice->flipBackBuffer();										// Flip!
+			// ---------------------------------------------------------------------------------------------
 		}
 	}
 }

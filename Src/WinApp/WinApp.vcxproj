@@ -175,19 +175,25 @@
     <ClInclude Include="ComposeShader.h" />
     <ClInclude Include="Context.h" />
     <ClInclude Include="ContextException.h" />
+    <ClInclude Include="CudaGraphicsKernel.h" />
     <ClInclude Include="D3DUtil.h" />
     <ClInclude Include="GraphicsDeviceFactory.h" />
     <ClInclude Include="GraphicsException.h" />
-    <ClInclude Include="KernelHandler.h" />
+    <ClInclude Include="IKernelHandler.h" />
     <ClInclude Include="GraphicsDevice.h" />
+    <ClInclude Include="KernelDevice.h" />
+    <ClInclude Include="KernelException.h" />
     <ClInclude Include="PVertex.h" />
     <ClInclude Include="RenderStateEnums.h" />
     <ClInclude Include="RenderStateHelper.h" />
+    <ClInclude Include="InteropResourceMapping.h" />
     <ClInclude Include="ShaderBase.h" />
     <ClInclude Include="ShaderFactory.h" />
     <ClInclude Include="ShaderStageConfig.h" />
     <ClInclude Include="ShaderStageData.h" />
     <ClInclude Include="ShaderVariableContainer.h" />
+    <ClInclude Include="Texture.h" />
+    <ClInclude Include="TextureFactory.h" />
     <ClInclude Include="ViewFactory.h" />
   </ItemGroup>
   <ItemGroup>
@@ -197,12 +203,15 @@
     <ClCompile Include="BufferFactory.cpp" />
     <ClCompile Include="ComposeShader.cpp" />
     <ClCompile Include="Context.cpp" />
+    <ClCompile Include="CudaGraphicsKernel.cpp" />
     <ClCompile Include="GraphicsDevice.cpp" />
-    <ClCompile Include="KernelHandler.cpp" />
+    <ClCompile Include="IKernelHandler.cpp" />
+    <ClCompile Include="KernelDevice.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="RenderStateHelper.cpp" />
     <ClCompile Include="ShaderBase.cpp" />
     <ClCompile Include="ShaderFactory.cpp" />
+    <ClCompile Include="TextureFactory.cpp" />
     <ClCompile Include="ViewFactory.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

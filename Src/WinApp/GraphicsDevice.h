@@ -8,7 +8,9 @@
 class ViewFactory;
 class BufferFactory;
 class ShaderFactory;
+class TextureFactory;
 class ComposeShader;
+class Texture;
 
 
 // =======================================================================================
@@ -74,6 +76,10 @@ public:
 	// Stages
 	void executeRenderPass(RenderPass p_pass);
 
+	// Getters
+	void* getDevicePointer();
+	vector<void*> getGBufferTextures();
+
 protected:
 private:	
 	// Mapping/Unmapping
@@ -131,6 +137,7 @@ private:
 	ViewFactory* m_viewFactory;
 	ShaderFactory* m_shaderFactory;
 	BufferFactory* m_bufferFactory;
+	TextureFactory* m_textureFactory;
 
 	// Shaders
 	ComposeShader* m_composeShader;
@@ -160,6 +167,7 @@ private:
 	ID3D11RenderTargetView*		m_backBuffer;
 	ID3D11ShaderResourceView*	m_depthSrv;
 	ID3D11DepthStencilView*		m_depthStencilView;
+	Texture*					m_gTexture[GBufferChannel::GBUF_COUNT];
 	ID3D11RenderTargetView*		m_gRtv[GBufferChannel::GBUF_COUNT];
 	ID3D11ShaderResourceView*	m_gSrv[GBufferChannel::GBUF_COUNT];
 };

@@ -3,6 +3,8 @@
 #include "ViewFactory.h"
 #include "ShaderFactory.h"
 #include "BufferFactory.h"
+#include "TextureFactory.h"
+#include "Texture.h"
 #include "D3DUtil.h"
 
 #include "ComposeShader.h"
@@ -23,6 +25,7 @@ GraphicsDevice::GraphicsDevice( HWND p_hWnd, int p_width, int p_height, bool p_w
 	m_viewFactory = new ViewFactory(m_device);
 	m_shaderFactory = new ShaderFactory(m_device,m_deviceContext,m_featureLevel);
 	m_bufferFactory = new BufferFactory(m_device,m_deviceContext);
+	m_textureFactory = new TextureFactory(m_device);
 
 	// 3. init views
 	initBackBuffer();
@@ -57,6 +60,7 @@ GraphicsDevice::~GraphicsDevice()
 	delete m_viewFactory;
 	delete m_shaderFactory;
 	delete m_bufferFactory;
+	delete m_textureFactory;
 	//
 	delete m_composeShader;
 	//
@@ -77,7 +81,8 @@ GraphicsDevice::~GraphicsDevice()
 
 void GraphicsDevice::clearRenderTargets()
 {
-	float clearColor[4] = { m_width/5000.0f, 1.0f,  m_height/1200.0f, 1.0f };
+	float clearColorRTV[4] = { 1.0f, m_width/5000.0f,  m_height/1200.0f, 1.0f };
+	float clearColorBackBuffer[4] = { m_width/5000.0f, 1.0f,  m_height/1200.0f, 1.0f };
 
 	// clear gbuffer
 	unmapAllBuffers();
@@ -85,10 +90,10 @@ void GraphicsDevice::clearRenderTargets()
 	unsigned int end = GBufferChannel::GBUF_COUNT;
 	for( unsigned int i=start; i<end; i++ ) 
 	{
-		m_deviceContext->ClearRenderTargetView( m_gRtv[i], clearColor );
+		m_deviceContext->ClearRenderTargetView( m_gRtv[i], clearColorRTV );
 	}
 	// clear backbuffer
-	m_deviceContext->ClearRenderTargetView(m_backBuffer,clearColor);
+	m_deviceContext->ClearRenderTargetView(m_backBuffer,clearColorBackBuffer);
 	// clear depth stencil
 	m_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }
@@ -163,6 +168,25 @@ void GraphicsDevice::executeRenderPass( RenderPass p_pass )
 		break;
 
 	}
+}
+
+
+void* GraphicsDevice::getDevicePointer()
+{
+	return (void*)m_device;
+}
+
+
+vector<void*> GraphicsDevice::getGBufferTextures()
+{
+	vector<void*> textureList;
+	unsigned int start = GBufferChannel::GBUF_DIFFUSE;
+	unsigned int end = GBufferChannel::GBUF_COUNT;
+	for( unsigned int i=start; i<end; i++ ) 
+	{
+		textureList.push_back((void*)m_gTexture[i]);
+	}
+	return textureList;
 }
 
 
@@ -252,6 +276,7 @@ void GraphicsDevice::setShader( ShaderId p_shaderId )
 		m_deviceContext->PSSetShaderResources(0,0,0);
 		break;
 	case ShaderId::SI_COMPOSESHADER:	
+		mapGBuffer();
 		m_composeShader->apply();
 		break;
 
@@ -407,9 +432,9 @@ void GraphicsDevice::initBackBuffer()
 
 void GraphicsDevice::initDepthStencil()
 {
-	m_viewFactory->constructDepthStencilViewAndShaderResourceView(&m_depthStencilView,
-																  &m_depthSrv,
-																  m_width,m_height);
+	m_viewFactory->constructDSVAndSRV(&m_depthStencilView,
+									  &m_depthSrv,
+									  m_width,m_height);
 }
 
 void GraphicsDevice::initGBuffer()
@@ -419,10 +444,14 @@ void GraphicsDevice::initGBuffer()
 	unsigned int end = GBufferChannel::GBUF_COUNT;
 	for( unsigned int i=start; i<end; i++ ) 
 	{
-		m_viewFactory->constructRenderTargetViewAndShaderResourceView( &m_gRtv[i], 
-																	   &m_gSrv[i], 
-																	   m_width, m_height,
-																	   DXGI_FORMAT_R8G8B8A8_UNORM );
+		m_gTexture[i] = m_textureFactory->constructTexture(m_width, m_height,
+			(D3D11_BIND_FLAG)(D3D11_BIND_UNORDERED_ACCESS | D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE),
+			DXGI_FORMAT_R32G32B32A32_FLOAT); // change to DXGI_FORMAT_R8G8B8A8_UNORM or maybe 16?
+
+		m_viewFactory->constructRTVAndSRVFromTexture( m_gTexture[i]->m_textureBuffer,
+													  &m_gRtv[i], 
+													  &m_gSrv[i], 
+													  m_width, m_height);
 	}
 }
 
@@ -454,6 +483,7 @@ void GraphicsDevice::releaseGBufferAndDepthStencil()
 
 	for (int i = 0; i < GBufferChannel::GBUF_COUNT; i++)
 	{
+		SAFE_DELETE(m_gTexture[i]);
 		SAFE_RELEASE(m_gRtv[i]);
 		SAFE_RELEASE(m_gSrv[i]);
 	}

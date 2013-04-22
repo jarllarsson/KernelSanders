@@ -1,7 +1,7 @@
 #pragma once
 
 #include <d3d11.h>
-
+#include "GraphicsException.h"
 // =======================================================================================
 //                                   GraphicsDeviceFactory
 // =======================================================================================
@@ -23,6 +23,14 @@ public:
 	}
 	virtual ~GraphicsDeviceFactory() {}
 protected:
+	void checkHRESULT(HRESULT p_res,const string& p_file,
+		const string& p_function, int p_line)
+	{
+		if ( p_res != S_OK ) {
+			throw GraphicsException( p_res, p_file, p_function, p_line );
+		}
+	}
+
 	ID3D11Device* m_device;
 private:
 };
