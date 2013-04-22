@@ -175,7 +175,8 @@
     <ClInclude Include="ComposeShader.h" />
     <ClInclude Include="Context.h" />
     <ClInclude Include="ContextException.h" />
-    <ClInclude Include="CudaGraphicsKernel.h" />
+    <ClInclude Include="RaytraceConstantBuffer.h" />
+    <ClInclude Include="RaytraceKernel.h" />
     <ClInclude Include="D3DUtil.h" />
     <ClInclude Include="GraphicsDeviceFactory.h" />
     <ClInclude Include="GraphicsException.h" />
@@ -203,7 +204,7 @@
     <ClCompile Include="BufferFactory.cpp" />
     <ClCompile Include="ComposeShader.cpp" />
     <ClCompile Include="Context.cpp" />
-    <ClCompile Include="CudaGraphicsKernel.cpp" />
+    <ClCompile Include="RaytraceKernel.cpp" />
     <ClCompile Include="GraphicsDevice.cpp" />
     <ClCompile Include="IKernelHandler.cpp" />
     <ClCompile Include="KernelDevice.cpp" />

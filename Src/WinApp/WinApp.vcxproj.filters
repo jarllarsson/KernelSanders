@@ -62,6 +62,9 @@
     <Filter Include="Source Files\Graphics\Factories\TextureFactory">
       <UniqueIdentifier>{da41fc45-d54b-440f-ad40-4e329239c268}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Kernel\Constant buffers">
+      <UniqueIdentifier>{c3f41698-6693-4457-993a-17712fcb011e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="testkernel.cu">
@@ -135,9 +138,6 @@
     <ClInclude Include="RenderStateEnums.h">
       <Filter>Source Files\Graphics\Graphics Utilities</Filter>
     </ClInclude>
-    <ClInclude Include="CudaGraphicsKernel.h">
-      <Filter>Source Files\Kernel\KernelHandler</Filter>
-    </ClInclude>
     <ClInclude Include="IKernelHandler.h">
       <Filter>Source Files\Kernel\KernelHandler\Base</Filter>
     </ClInclude>
@@ -155,6 +155,12 @@
     </ClInclude>
     <ClInclude Include="InteropResourceMapping.h">
       <Filter>Source Files\Kernel\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="RaytraceKernel.h">
+      <Filter>Source Files\Kernel\KernelHandler</Filter>
+    </ClInclude>
+    <ClInclude Include="RaytraceConstantBuffer.h">
+      <Filter>Source Files\Kernel\Constant buffers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -200,11 +206,11 @@
     <ClCompile Include="KernelDevice.cpp">
       <Filter>Source Files\Kernel</Filter>
     </ClCompile>
-    <ClCompile Include="CudaGraphicsKernel.cpp">
-      <Filter>Source Files\Kernel\KernelHandler</Filter>
-    </ClCompile>
     <ClCompile Include="TextureFactory.cpp">
       <Filter>Source Files\Graphics\Factories\TextureFactory</Filter>
+    </ClCompile>
+    <ClCompile Include="RaytraceKernel.cpp">
+      <Filter>Source Files\Kernel\KernelHandler</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

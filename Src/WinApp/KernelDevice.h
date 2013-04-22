@@ -1,6 +1,7 @@
 #pragma once
 #include <d3d11.h>
 #include "InteropResourceMapping.h"
+#include "RaytraceKernel.h"
 #include <vector>
 
 using namespace std;
@@ -32,9 +33,11 @@ public:
 
 	void update(float dt);
 
-	void executeKernelJob( float dt, KernelJob p_jobId );
+	void executeKernelJob( float p_dt, KernelJob p_jobId );
 protected:
 private:
+	int m_width, m_height;
+	RaytraceKernel* m_raytracer;
 
 	bool assertCudaResult(cudaError_t p_result);
 
