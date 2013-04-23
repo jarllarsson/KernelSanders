@@ -118,11 +118,11 @@ void App::run()
 
 			// Run the devices
 			// ---------------------------------------------------------------------------------------------
-			m_kernelDevice->update(dt);												// Update kernel data
+			m_kernelDevice->update((float)dt);												// Update kernel data
 
 			m_graphicsDevice->clearRenderTargets();									// Clear render targets
 
-			m_kernelDevice->executeKernelJob(dt,KernelDevice::J_RAYTRACEWORLD);		// Run kernels
+			m_kernelDevice->executeKernelJob((float)dt,KernelDevice::J_RAYTRACEWORLD);		// Run kernels
 
 			m_graphicsDevice->executeRenderPass(GraphicsDevice::P_COMPOSEPASS);		// Run passes
 			m_graphicsDevice->flipBackBuffer();										// Flip!

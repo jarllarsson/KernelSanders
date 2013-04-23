@@ -445,7 +445,7 @@ void GraphicsDevice::initGBuffer()
 	for( unsigned int i=start; i<end; i++ ) 
 	{
 		m_gTexture[i] = m_textureFactory->constructTexture(m_width, m_height,
-			(D3D11_BIND_FLAG)(D3D11_BIND_UNORDERED_ACCESS | D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE),
+			(D3D11_BIND_FLAG)(/*D3D11_BIND_UNORDERED_ACCESS | */D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE),
 			DXGI_FORMAT_R32G32B32A32_FLOAT); // change to DXGI_FORMAT_R8G8B8A8_UNORM or maybe 16?
 
 		m_viewFactory->constructRTVAndSRVFromTexture( m_gTexture[i]->m_textureBuffer,

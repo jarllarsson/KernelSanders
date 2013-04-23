@@ -175,6 +175,7 @@
     <ClInclude Include="ComposeShader.h" />
     <ClInclude Include="Context.h" />
     <ClInclude Include="ContextException.h" />
+    <ClInclude Include="KernelHelper.h" />
     <ClInclude Include="RaytraceConstantBuffer.h" />
     <ClInclude Include="RaytraceKernel.h" />
     <ClInclude Include="D3DUtil.h" />

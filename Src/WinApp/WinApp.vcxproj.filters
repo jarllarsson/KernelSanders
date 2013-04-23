@@ -162,6 +162,9 @@
     <ClInclude Include="RaytraceConstantBuffer.h">
       <Filter>Source Files\Kernel\Constant buffers</Filter>
     </ClInclude>
+    <ClInclude Include="KernelHelper.h">
+      <Filter>Source Files\Kernel</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Context.cpp">

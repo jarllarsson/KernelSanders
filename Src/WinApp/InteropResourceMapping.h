@@ -25,4 +25,6 @@ struct InteropResourceMapping
 {
 	vector<Texture*> m_texture;
 	vector<cudaGraphicsResource*> m_textureResource;
+	void*						  m_textureLinearMem;
+	size_t						  m_pitch;
 };

@@ -39,8 +39,7 @@ private:
 	int m_width, m_height;
 	RaytraceKernel* m_raytracer;
 
-	bool assertCudaResult(cudaError_t p_result);
-
+	RaytraceConstantBuffer cb;
 	InteropResourceMapping	m_gbufferHandle;
 	ID3D11Device*			m_device;
 };
