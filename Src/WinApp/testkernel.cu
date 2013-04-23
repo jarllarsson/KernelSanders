@@ -55,7 +55,6 @@ __constant__ RaytraceConstantBuffer cb[1];
 /*} */
 
 texture<float, 2, cudaReadModeElementType> texRef;
- 
 
 __global__ void cuda_kernel_texture_2d(unsigned char *surface, int width, int height, size_t pitch)
 {
@@ -76,9 +75,9 @@ __global__ void cuda_kernel_texture_2d(unsigned char *surface, int width, int he
     // populate it
     float value_x = 0.5f + 0.5f*cos(t + 10.0f*((2.0f*x)/width  - 1.0f));
     float value_y = 0.5f + 0.5f*cos(t + 10.0f*((2.0f*y)/height - 1.0f));
-    pixel[0] = 0.5*pixel[0] + 0.5*pow(value_x, 3.0f); // red
-    pixel[1] = 0.5*pixel[1] + 0.5*pow(value_y, 3.0f); // green
-    pixel[2] = 0.5f + 0.5f*cos(t); // blue
+    pixel[0] = (float)blockIdx.x/(float)gridDim.x /*0.1f+0.5*pixel[0] + 0.5*pow(value_x, 3.0f)*/; // red
+    pixel[1] = (float)blockIdx.y/(float)gridDim.y /*0.1f+0.5*pixel[1] + 0.5*pow(value_y, 3.0f)*/; // green
+    pixel[2] = 1.0f; // blue
     pixel[3] = 1; // alpha
 }
  
@@ -102,7 +101,12 @@ extern "C" void RunCubeKernel(void* p_cb,unsigned char *surface,
 	dim3 Db = dim3(16, 16);   // block dimensions are fixed to be 256 threads
     dim3 Dg = dim3((width+Db.x-1)/Db.x, (height+Db.y-1)/Db.y);
 
+	DEBUGPRINT(( ("\n"+toString(width)+" x "+toString(height)).c_str() ));
+
     cuda_kernel_texture_2d<<<Dg,Db>>>((unsigned char *)surface, width, height, pitch);
+
+	res = cudaDeviceSynchronize();
+	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
 
 	//res = cudaUnbindTexture(colorTex);
 	//KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);

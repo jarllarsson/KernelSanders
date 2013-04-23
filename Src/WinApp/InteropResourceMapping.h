@@ -23,8 +23,8 @@ using namespace std;
 
 struct InteropResourceMapping
 {
-	vector<Texture*> m_texture;
-	vector<cudaGraphicsResource*> m_textureResource;
-	void*						  m_textureLinearMem;
-	size_t						  m_pitch;
+	Texture** m_texture; // double pointer to texture in case texture is reallocated(on resize for example)
+	cudaGraphicsResource* m_textureResource;
+	void*				  m_textureLinearMem;
+	size_t				  m_pitch;
 };

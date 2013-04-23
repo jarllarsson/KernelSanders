@@ -72,16 +72,17 @@ void RaytraceKernel::Execute( KernelData* p_data, float p_dt )
 
 	// Map render textures
 	cudaStream_t stream = 0;
-	const int resourceCount = 1;
+	const int resourceCount = 1; // only use color for now
 		//(int)blob->m_textureResource->size();
-	cudaError_t res = cudaGraphicsMapResources(resourceCount, &(*blob->m_textureResource)[0], stream);
+	cudaError_t res = cudaGraphicsMapResources(resourceCount, &blob->m_textureResource/*[0]*/, stream);
 	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
 	// Get pointers
-	res = cudaGraphicsSubResourceGetMappedArray(&blob->m_textureView, (*blob->m_textureResource)[0], 0, 0);
+	res = cudaGraphicsSubResourceGetMappedArray(&blob->m_textureView, blob->m_textureResource/*[0]*/, 0, 0);
 	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
 
 	RunCubeKernel(reinterpret_cast<void*>(constantBuffer),blob->m_textureLinearMem,
 		width,height,(int)pitch); 
+
 
 	// copy color array to texture (device->device)
 	res = cudaMemcpy2DToArray(
@@ -99,7 +100,7 @@ void RaytraceKernel::Execute( KernelData* p_data, float p_dt )
 
 
 	// unmap textures
-	res = cudaGraphicsUnmapResources(resourceCount, &(*blob->m_textureResource)[0], stream);
+	res = cudaGraphicsUnmapResources(resourceCount, &blob->m_textureResource/*[0]*/, stream);
 	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
 
 	// Free device memory 

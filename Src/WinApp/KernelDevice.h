@@ -29,7 +29,7 @@ public:
 	KernelDevice(void* p_device);
 	virtual ~KernelDevice();
 
-	void registerGBuffer(vector<void*> p_buffer);
+	void registerCanvas(void** p_texture);
 
 	void update(float dt);
 

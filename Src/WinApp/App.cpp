@@ -43,7 +43,7 @@ App::App( HINSTANCE p_hInstance )
 	try
 	{
 		m_kernelDevice = new KernelDevice(m_graphicsDevice->getDevicePointer());
-		m_kernelDevice->registerGBuffer(m_graphicsDevice->getGBufferTextures());
+		m_kernelDevice->registerCanvas(m_graphicsDevice->getInteropCanvasHandle());
 	}
 	catch (KernelException& e)
 	{
@@ -100,8 +100,9 @@ void App::run()
 
 			// Get Delta time
 			QueryPerformanceCounter((LARGE_INTEGER*)&currTimeStamp);
-			fps = (double)(currTimeStamp - m_prevTimeStamp);
+
 			dt = (currTimeStamp - m_prevTimeStamp) * secsPerCount;
+			fps = 1.0f/dt;
 			
 			dt = clamp(dt,0.0,DTCAP);
 			m_prevTimeStamp = currTimeStamp;
@@ -114,13 +115,13 @@ void App::run()
 				fpsUpdateTick=0.3f;
 			}
 
-
+			m_graphicsDevice->clearRenderTargets();									// Clear render targets
 
 			// Run the devices
 			// ---------------------------------------------------------------------------------------------
 			m_kernelDevice->update((float)dt);												// Update kernel data
 
-			m_graphicsDevice->clearRenderTargets();									// Clear render targets
+
 
 			m_kernelDevice->executeKernelJob((float)dt,KernelDevice::J_RAYTRACEWORLD);		// Run kernels
 

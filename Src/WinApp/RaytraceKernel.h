@@ -15,9 +15,9 @@ using namespace std;
 struct RaytraceKernelData : public KernelData
 {
 	int m_width; int m_height;
-	vector<cudaGraphicsResource*>* m_textureResource;
-	cudaArray*					   m_textureView;
+	cudaGraphicsResource*		   m_textureResource;
 	void*						   m_textureLinearMem;
+	cudaArray*					   m_textureView;
 	size_t*						   m_pitch;
 	RaytraceConstantBuffer* m_cb;
 };

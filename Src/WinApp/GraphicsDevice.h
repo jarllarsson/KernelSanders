@@ -78,7 +78,7 @@ public:
 
 	// Getters
 	void* getDevicePointer();
-	vector<void*> getGBufferTextures();
+	void** getInteropCanvasHandle();
 
 protected:
 private:	
@@ -168,6 +168,7 @@ private:
 	ID3D11ShaderResourceView*	m_depthSrv;
 	ID3D11DepthStencilView*		m_depthStencilView;
 	Texture*					m_gTexture[GBufferChannel::GBUF_COUNT];
+	Texture**					m_interopCanvasHandle; ///< Handle enabling texture reallocation
 	ID3D11RenderTargetView*		m_gRtv[GBufferChannel::GBUF_COUNT];
 	ID3D11ShaderResourceView*	m_gSrv[GBufferChannel::GBUF_COUNT];
 };

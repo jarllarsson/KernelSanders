@@ -125,12 +125,20 @@ LRESULT CALLBACK WndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam 
 
 	case WM_DESTROY:
 		PostQuitMessage(0);
-		Context::getInstance()->close();
+		{
+			Context* context = Context::getInstance();
+			if (context)
+				context->close();
+		}
 		break;
 
 	case WM_SIZE:
-		Context::getInstance()->resize(LOWORD(lParam),HIWORD(lParam),false);
-
+		{
+			Context* context = Context::getInstance();
+			if (context)
+				context->resize(LOWORD(lParam),HIWORD(lParam),false);
+		}
+		break;
 
 	case WM_KEYDOWN:
 		switch(wParam)

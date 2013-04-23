@@ -16,7 +16,7 @@ extern "C" void RunCubeKernel(vector<float>& data, vector<float>& result);
 
 // =======================================================================================
 //     
-//							       Unnamed CUDA project
+//							     Codename "Kernel Sanders"
 //
 // =======================================================================================
 

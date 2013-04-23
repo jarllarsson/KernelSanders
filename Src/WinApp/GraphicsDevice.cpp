@@ -16,6 +16,7 @@ GraphicsDevice::GraphicsDevice( HWND p_hWnd, int p_width, int p_height, bool p_w
 	m_height=p_height;
 	m_windowMode = p_windowMode;
 	m_wireframeMode=false;
+	m_interopCanvasHandle=new Texture*;
 
 	// 1. init hardware
 	initSwapChain(p_hWnd);
@@ -61,6 +62,7 @@ GraphicsDevice::~GraphicsDevice()
 	delete m_shaderFactory;
 	delete m_bufferFactory;
 	delete m_textureFactory;
+	delete m_interopCanvasHandle;
 	//
 	delete m_composeShader;
 	//
@@ -177,16 +179,9 @@ void* GraphicsDevice::getDevicePointer()
 }
 
 
-vector<void*> GraphicsDevice::getGBufferTextures()
+void** GraphicsDevice::getInteropCanvasHandle()
 {
-	vector<void*> textureList;
-	unsigned int start = GBufferChannel::GBUF_DIFFUSE;
-	unsigned int end = GBufferChannel::GBUF_COUNT;
-	for( unsigned int i=start; i<end; i++ ) 
-	{
-		textureList.push_back((void*)m_gTexture[i]);
-	}
-	return textureList;
+	return (void**)m_interopCanvasHandle;
 }
 
 
@@ -453,6 +448,7 @@ void GraphicsDevice::initGBuffer()
 													  &m_gSrv[i], 
 													  m_width, m_height);
 	}
+	*m_interopCanvasHandle = (Texture*)m_gTexture[GBufferChannel::GBUF_DIFFUSE];
 }
 
 
