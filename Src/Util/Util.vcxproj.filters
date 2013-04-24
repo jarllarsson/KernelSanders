@@ -5,16 +5,25 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
+    <Filter Include="Source Files\Exception">
+      <UniqueIdentifier>{b84128aa-380c-4e9e-a931-ff67ad1833ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Debug">
+      <UniqueIdentifier>{6d417b59-cff5-4c3c-acc6-72379e584977}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ToString.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="DebugPrint.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="ValueClamp.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugPrint.h">
+      <Filter>Source Files\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseException.h">
+      <Filter>Source Files\Exception</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

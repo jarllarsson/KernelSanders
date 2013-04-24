@@ -1,11 +1,11 @@
 #include "App.h"
-#include "DebugPrint.h"
+#include <DebugPrint.h>
 
 #include "Context.h"
 #include "ContextException.h"
 
-#include "GraphicsDevice.h"
-#include "GraphicsException.h"
+#include <GraphicsDevice.h>
+#include <GraphicsException.h>
 
 #include "KernelDevice.h"
 #include "KernelException.h"
@@ -22,7 +22,7 @@ App::App( HINSTANCE p_hInstance )
 	// Context
 	try
 	{
-		m_context = new Context(p_hInstance,"Test",width,height);
+		m_context = new Context(p_hInstance,"Kernel Sanders",width,height);
 	}
 	catch (ContextException& e)
 	{

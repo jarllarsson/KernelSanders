@@ -1,6 +1,6 @@
 #pragma once
 
-#include "BaseException.h"
+#include <BaseException.h>
 #include <wtypesbase.h>
 #include <string.h>
 #include <d3dcommon.h>

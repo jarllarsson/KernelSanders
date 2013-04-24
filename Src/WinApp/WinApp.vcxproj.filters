@@ -20,56 +20,18 @@
     <Filter Include="Source Files\Kernel\KernelHandler">
       <UniqueIdentifier>{49595373-8c4c-40d7-9da5-d773c8209399}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Graphics">
-      <UniqueIdentifier>{b17dbf85-88bf-4b2e-aff4-f612b06599b8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Graphics\RenderPass">
-      <UniqueIdentifier>{f6c960ca-ee4d-44ee-8b53-a6458117e2c7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Graphics\Factories">
-      <UniqueIdentifier>{76c08742-4c2a-4512-beba-03b588d08204}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Graphics\Vertices">
-      <UniqueIdentifier>{14965c5d-487d-4ec3-ab68-4ddd2de3a3d4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Graphics\Shaders">
-      <UniqueIdentifier>{7872d8ff-fc16-4191-a771-428f6e6d40fc}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Graphics\Factories\BufferFactory">
-      <UniqueIdentifier>{038917f1-1c2f-4145-8d94-ec785ce0fb9d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Graphics\Factories\ShaderFactory">
-      <UniqueIdentifier>{5c803515-9586-43ac-a5a2-f8b11e6a9ac5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Graphics\Factories\ViewFactory">
-      <UniqueIdentifier>{d011ef2a-d38d-4fb7-9da8-ee9afa50ed0d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Graphics\Buffers">
-      <UniqueIdentifier>{e22e0526-7273-49dc-83eb-8578427b5ac9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Graphics\Graphics Utilities">
-      <UniqueIdentifier>{c20db25a-f036-449f-a06b-98620e49cff0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Kernel\KernelHandler\Base">
       <UniqueIdentifier>{adad9592-c1c3-4dab-9776-068ced231f95}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Kernel\Resource">
       <UniqueIdentifier>{776682dc-f6ce-480e-acf5-0cdf105bf8f1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Graphics\Texture">
-      <UniqueIdentifier>{bf5fba5b-3d31-438b-b3f1-90dfaff086e2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Graphics\Factories\TextureFactory">
-      <UniqueIdentifier>{da41fc45-d54b-440f-ad40-4e329239c268}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Kernel\Constant buffers">
       <UniqueIdentifier>{c3f41698-6693-4457-993a-17712fcb011e}</UniqueIdentifier>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <CudaCompile Include="testkernel.cu">
-      <Filter>Source Files</Filter>
-    </CudaCompile>
+    <Filter Include="Source Files\Kernel\Kernels">
+      <UniqueIdentifier>{37863357-319a-464e-b7a8-d5ef5386a20a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Context.h">
@@ -78,65 +40,8 @@
     <ClInclude Include="ContextException.h">
       <Filter>Source Files\Exception</Filter>
     </ClInclude>
-    <ClInclude Include="BaseException.h">
-      <Filter>Source Files\Exception</Filter>
-    </ClInclude>
     <ClInclude Include="App.h">
       <Filter>Source Files\App</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphicsDevice.h">
-      <Filter>Source Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphicsException.h">
-      <Filter>Source Files\Exception</Filter>
-    </ClInclude>
-    <ClInclude Include="ViewFactory.h">
-      <Filter>Source Files\Graphics\Factories\ViewFactory</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphicsDeviceFactory.h">
-      <Filter>Source Files\Graphics\Factories</Filter>
-    </ClInclude>
-    <ClInclude Include="ShaderFactory.h">
-      <Filter>Source Files\Graphics\Factories\ShaderFactory</Filter>
-    </ClInclude>
-    <ClInclude Include="ShaderVariableContainer.h">
-      <Filter>Source Files\Graphics\Factories\ShaderFactory</Filter>
-    </ClInclude>
-    <ClInclude Include="ShaderStageConfig.h">
-      <Filter>Source Files\Graphics\Factories\ShaderFactory</Filter>
-    </ClInclude>
-    <ClInclude Include="ShaderStageData.h">
-      <Filter>Source Files\Graphics\Factories\ShaderFactory</Filter>
-    </ClInclude>
-    <ClInclude Include="BufferConfig.h">
-      <Filter>Source Files\Graphics\Factories\BufferFactory</Filter>
-    </ClInclude>
-    <ClInclude Include="BufferFactory.h">
-      <Filter>Source Files\Graphics\Factories\BufferFactory</Filter>
-    </ClInclude>
-    <ClInclude Include="PVertex.h">
-      <Filter>Source Files\Graphics\Vertices</Filter>
-    </ClInclude>
-    <ClInclude Include="Buffer.h">
-      <Filter>Source Files\Graphics\Buffers</Filter>
-    </ClInclude>
-    <ClInclude Include="BufferBase.h">
-      <Filter>Source Files\Graphics\Buffers</Filter>
-    </ClInclude>
-    <ClInclude Include="ComposeShader.h">
-      <Filter>Source Files\Graphics\Shaders</Filter>
-    </ClInclude>
-    <ClInclude Include="ShaderBase.h">
-      <Filter>Source Files\Graphics\Shaders</Filter>
-    </ClInclude>
-    <ClInclude Include="D3DUtil.h">
-      <Filter>Source Files\Graphics\Graphics Utilities</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderStateHelper.h">
-      <Filter>Source Files\Graphics\Graphics Utilities</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderStateEnums.h">
-      <Filter>Source Files\Graphics\Graphics Utilities</Filter>
     </ClInclude>
     <ClInclude Include="IKernelHandler.h">
       <Filter>Source Files\Kernel\KernelHandler\Base</Filter>
@@ -146,12 +51,6 @@
     </ClInclude>
     <ClInclude Include="KernelException.h">
       <Filter>Source Files\Exception</Filter>
-    </ClInclude>
-    <ClInclude Include="Texture.h">
-      <Filter>Source Files\Graphics\Texture</Filter>
-    </ClInclude>
-    <ClInclude Include="TextureFactory.h">
-      <Filter>Source Files\Graphics\Factories\TextureFactory</Filter>
     </ClInclude>
     <ClInclude Include="InteropResourceMapping.h">
       <Filter>Source Files\Kernel\Resource</Filter>
@@ -176,44 +75,19 @@
     <ClCompile Include="App.cpp">
       <Filter>Source Files\App</Filter>
     </ClCompile>
-    <ClCompile Include="GraphicsDevice.cpp">
-      <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="ViewFactory.cpp">
-      <Filter>Source Files\Graphics\Factories\ViewFactory</Filter>
-    </ClCompile>
-    <ClCompile Include="BufferConfig.cpp">
-      <Filter>Source Files\Graphics\Factories\BufferFactory</Filter>
-    </ClCompile>
-    <ClCompile Include="BufferFactory.cpp">
-      <Filter>Source Files\Graphics\Factories\BufferFactory</Filter>
-    </ClCompile>
-    <ClCompile Include="BufferBase.cpp">
-      <Filter>Source Files\Graphics\Buffers</Filter>
-    </ClCompile>
-    <ClCompile Include="ShaderBase.cpp">
-      <Filter>Source Files\Graphics\Shaders</Filter>
-    </ClCompile>
-    <ClCompile Include="ComposeShader.cpp">
-      <Filter>Source Files\Graphics\Shaders</Filter>
-    </ClCompile>
-    <ClCompile Include="ShaderFactory.cpp">
-      <Filter>Source Files\Graphics\Factories\ShaderFactory</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderStateHelper.cpp">
-      <Filter>Source Files\Graphics\Graphics Utilities</Filter>
-    </ClCompile>
     <ClCompile Include="IKernelHandler.cpp">
       <Filter>Source Files\Kernel\KernelHandler\Base</Filter>
     </ClCompile>
     <ClCompile Include="KernelDevice.cpp">
       <Filter>Source Files\Kernel</Filter>
     </ClCompile>
-    <ClCompile Include="TextureFactory.cpp">
-      <Filter>Source Files\Graphics\Factories\TextureFactory</Filter>
-    </ClCompile>
     <ClCompile Include="RaytraceKernel.cpp">
       <Filter>Source Files\Kernel\KernelHandler</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="RaytraceKernel.cu">
+      <Filter>Source Files\Kernel\Kernels</Filter>
+    </CudaCompile>
   </ItemGroup>
 </Project>

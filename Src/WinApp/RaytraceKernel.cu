@@ -21,38 +21,7 @@ static const int MaxSize = 96;
 
 __constant__ RaytraceConstantBuffer cb[1];
 
-// texture<float, 2, cudaReadModeElementType> colorTex;
-// texture<float, 2, cudaReadModeElementType> normalTex;
 
-// CUDA kernel: cubes each array value 
-// __global__ void cubeKernel(float* result, float* data,float* surface) 
-// { 
-// 	int idx = threadIdx.x; 
-// 	float f = data[idx]; 
-// 	result[idx] = cb[0].b; 
-// 
-// 	//int x = blockIdx.x*blockDim.x + threadIdx.x;
-//    // int y = blockIdx.y*blockDim.y + threadIdx.y;
-//     //float *pixel;
-// 	surface[idx]=1.0f;
-
-    // in the case where, due to quantization into grids, we have
-    // more threads than pixels, skip the threads which don't
-    // correspond to valid pixels
-   // if (x >= width || y >= height) return;
-
-    // get a pointer to the pixel at (x,y)
-// 	int y = 0;
-// 	int x = idx;
-// 	int pitch = 4*600;
-//     pixel = (float *)(surface + y*pitch) + 4*x;
-// 
-//     // populate it
-//     pixel[0] = 0.0f; // red
-//     pixel[1] = 1.0f; // green
-//     pixel[2] = 1.0f; // blue
-//     pixel[3] = 1; // alpha
-/*} */
 
 texture<float, 2, cudaReadModeElementType> texRef;
 
@@ -89,15 +58,7 @@ extern "C" void RunCubeKernel(void* p_cb,unsigned char *surface,
 	cudaError_t res = cudaMemcpyToSymbol(cb, p_cb, sizeof(p_cb));
 	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
 
-	// bind array to texture
-// 	cudaChannelFormatDesc colorTexFormat = cudaCreateChannelDesc(32, 32, 32, 32, cudaChannelFormatKindFloat);
-//     res = cudaBindTextureToArray(colorTex, colorArray, colorTexFormat);
-// 	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
- 
-	// Launch kernel: 1 block, 96 threads 
-	// Important: Do not exceed number of threads returned by the device query, 1024 on my computer. 
-	//cubeKernel<<<1, MaxSize>>>(resDev,dataDev,(float*)colorArray); 
-
+	// Set up dimensions
 	dim3 Db = dim3(16, 16);   // block dimensions are fixed to be 256 threads
     dim3 Dg = dim3((width+Db.x-1)/Db.x, (height+Db.y-1)/Db.y);
 
@@ -108,32 +69,4 @@ extern "C" void RunCubeKernel(void* p_cb,unsigned char *surface,
 	res = cudaDeviceSynchronize();
 	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
 
-	//res = cudaUnbindTexture(colorTex);
-	//KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
 } 
- 
-// Main entry into the program 
-/*
-int main(void) 
-{ 
-	cout << "In main." << endl; 
- 
-	// Create sample data 
-	vector<float> data(MaxSize); 
-	InitializeData(data); 
- 
-	// Compute cube on the device 
-	vector<float> cube(MaxSize); 
-	RunCubeKernel(data, cube); 
- 
-	// Print out results 
-	cout << "Cube kernel results." << endl << endl; 
- 
-	for (int i = 0; i < MaxSize; ++i) 
-	{ 
-		cout << cube[i] << endl; 
-	} 
- 
-	return 0; 
-} 
-*/

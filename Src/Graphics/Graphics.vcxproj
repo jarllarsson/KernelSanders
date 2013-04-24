@@ -19,8 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{64117418-9313-4D31-90B5-C193DE4DFF83}</ProjectGuid>
-    <RootNamespace>Util</RootNamespace>
+    <ProjectGuid>{51C90BF7-3675-4F5C-A531-03A10F2EAC86}</ProjectGuid>
+    <RootNamespace>Graphics</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -69,21 +69,25 @@
     <OutDir>$(SolutionDir)Bin\$(PlatformShortName)\</OutDir>
     <IntDir>$(SolutionDir)Obj\$(Configuration)\$(PlatformShortName)\</IntDir>
     <TargetName>$(ProjectName)_$(Configuration)</TargetName>
+    <IncludePath>$(SolutionDir)External\GLM\include\glm;$(SolutionDir)Src\Util;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)Bin\$(PlatformShortName)\</OutDir>
     <IntDir>$(SolutionDir)Obj\$(Configuration)\$(PlatformShortName)\</IntDir>
     <TargetName>$(ProjectName)_$(Configuration)</TargetName>
+    <IncludePath>$(SolutionDir)External\GLM\include\glm;$(SolutionDir)Src\Util;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)Bin\$(PlatformShortName)\</OutDir>
     <IntDir>$(SolutionDir)Obj\$(Configuration)\$(PlatformShortName)\</IntDir>
     <TargetName>$(ProjectName)_$(Configuration)</TargetName>
+    <IncludePath>$(SolutionDir)External\GLM\include\glm;$(SolutionDir)Src\Util;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)Bin\$(PlatformShortName)\</OutDir>
     <IntDir>$(SolutionDir)Obj\$(Configuration)\$(PlatformShortName)\</IntDir>
     <TargetName>$(ProjectName)_$(Configuration)</TargetName>
+    <IncludePath>$(SolutionDir)External\GLM\include\glm;$(SolutionDir)Src\Util;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -130,13 +134,38 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="BaseException.h" />
-    <ClInclude Include="DebugPrint.h" />
-    <ClInclude Include="ToString.h" />
-    <ClInclude Include="ValueClamp.h" />
+    <ClInclude Include="Buffer.h" />
+    <ClInclude Include="BufferBase.h" />
+    <ClInclude Include="BufferConfig.h" />
+    <ClInclude Include="BufferFactory.h" />
+    <ClInclude Include="ComposeShader.h" />
+    <ClInclude Include="D3DUtil.h" />
+    <ClInclude Include="GraphicsDevice.h" />
+    <ClInclude Include="GraphicsDeviceFactory.h" />
+    <ClInclude Include="GraphicsException.h" />
+    <ClInclude Include="PVertex.h" />
+    <ClInclude Include="RenderStateEnums.h" />
+    <ClInclude Include="RenderStateHelper.h" />
+    <ClInclude Include="ShaderBase.h" />
+    <ClInclude Include="ShaderFactory.h" />
+    <ClInclude Include="ShaderStageConfig.h" />
+    <ClInclude Include="ShaderStageData.h" />
+    <ClInclude Include="ShaderVariableContainer.h" />
+    <ClInclude Include="Texture.h" />
+    <ClInclude Include="TextureFactory.h" />
+    <ClInclude Include="ViewFactory.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Util.cpp" />
+    <ClCompile Include="BufferBase.cpp" />
+    <ClCompile Include="BufferConfig.cpp" />
+    <ClCompile Include="BufferFactory.cpp" />
+    <ClCompile Include="ComposeShader.cpp" />
+    <ClCompile Include="GraphicsDevice.cpp" />
+    <ClCompile Include="RenderStateHelper.cpp" />
+    <ClCompile Include="ShaderBase.cpp" />
+    <ClCompile Include="ShaderFactory.cpp" />
+    <ClCompile Include="TextureFactory.cpp" />
+    <ClCompile Include="ViewFactory.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

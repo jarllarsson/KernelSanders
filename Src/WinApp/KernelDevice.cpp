@@ -23,14 +23,11 @@ KernelDevice::KernelDevice( void* p_device )
 
 KernelDevice::~KernelDevice()
 {
-// 	unsigned int gbufSz = static_cast<unsigned int>(m_gbufferHandle.m_texture.size());
-// 	for (unsigned int i=0;i<m_gbufferHandle.m_texture.size();i++)
-// 	{
-		cudaError_t res = cudaGraphicsUnregisterResource( m_gbufferHandle.m_textureResource/*[i]*/);
-		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
-		res = cudaFree(m_gbufferHandle.m_textureLinearMem/*[i]*/);
-		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
-/*	}*/
+
+	cudaError_t res = cudaGraphicsUnregisterResource( m_gbufferHandle.m_textureResource);
+	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
+	res = cudaFree(m_gbufferHandle.m_textureLinearMem);
+	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
 
 	delete m_raytracer;
 }
@@ -38,45 +35,39 @@ KernelDevice::~KernelDevice()
 void KernelDevice::update( float dt )
 {
 
-	// Handle change in textures
-	//unsigned int gbufSz = static_cast<unsigned int>(m_gbufferHandle.m_texture.size());
-	//for (unsigned int i=0;i<gbufSz;i++)
-	//{
-		Texture* texBuf = *m_gbufferHandle.m_texture/*[i]*/;
-		if (texBuf->isDirty())
-		{
-			cudaError_t res;
-// 			if (i==0)
-// 			{
-				m_width=texBuf->m_width;
-				m_height=texBuf->m_height;
-			/*}*/
-// 			res = cudaGraphicsUnregisterResource( m_gbufferHandle.m_textureResource);		
-// 			KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
+	Texture* texBuf = *m_gbufferHandle.m_texture/*[i]*/;
+	if (texBuf->isDirty())
+	{
+		cudaError_t res;
 
-			// ***********
-			res = cudaFree(m_gbufferHandle.m_textureLinearMem/*[i]*/);
-			KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
-			// ***********
-			
-			res = cudaGraphicsD3D11RegisterResource( &(m_gbufferHandle.m_textureResource/*[i]*/),
-																 texBuf->m_textureBuffer,
-																 cudaGraphicsRegisterFlagsNone);
-
-			KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
-
-			// ***********
-
-			res = cudaMallocPitch(&m_gbufferHandle.m_textureLinearMem/*[i]*/, &m_gbufferHandle.m_pitch, m_width * sizeof(float) * 4, (size_t)m_height);
-			KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
-			res = cudaMemset(m_gbufferHandle.m_textureLinearMem/*[i]*/, 1, m_gbufferHandle.m_pitch * m_height);	
-			KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
-			// ***********
+		m_width=texBuf->m_width;
+		m_height=texBuf->m_height;
 
 
-			texBuf->unsetDirtyFlag();
-		}
-	//}
+		// ***********
+		res = cudaFree(m_gbufferHandle.m_textureLinearMem/*[i]*/);
+		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
+		// ***********
+
+		res = cudaGraphicsD3D11RegisterResource( &(m_gbufferHandle.m_textureResource),
+			texBuf->m_textureBuffer,
+			cudaGraphicsRegisterFlagsNone);
+
+		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
+
+		// ***********
+
+		res = cudaMallocPitch(&m_gbufferHandle.m_textureLinearMem, 
+			&m_gbufferHandle.m_pitch, m_width * sizeof(float) * 4, (size_t)m_height);
+		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
+		res = cudaMemset(m_gbufferHandle.m_textureLinearMem, 1, m_gbufferHandle.m_pitch * m_height);	
+		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
+		// ***********
+
+
+		texBuf->unsetDirtyFlag();
+	}
+
 }
 
 void KernelDevice::executeKernelJob( float p_dt, KernelJob p_jobId )
@@ -104,41 +95,32 @@ void KernelDevice::executeKernelJob( float p_dt, KernelJob p_jobId )
 
 void KernelDevice::registerCanvas( void** p_texture )
 {
-	//unsigned int gbufSz = static_cast<unsigned int>(p_buffer.size());
-	//for (unsigned int i=0;i<gbufSz;i++)
-	//{
-// 		m_gbufferHandle.m_texture.push_back((Texture*)p_buffer[i]);
-// 		m_gbufferHandle.m_textureResource.push_back(NULL);
-		m_gbufferHandle.m_texture = (Texture**)p_texture;
-		
-		Texture* texBuf = *m_gbufferHandle.m_texture/*[i]*/;
-		cudaError_t res = cudaGraphicsD3D11RegisterResource( &(m_gbufferHandle.m_textureResource/*[i]*/),
-															  texBuf->m_textureBuffer,
-															  cudaGraphicsRegisterFlagsNone);
-// 		if (i==0)
-// 		{
-			m_width=texBuf->m_width;
-			m_height=texBuf->m_height;
-		/*}*/
-		
-		if (!KernelHelper::assertCudaResult(res))
-			throw KernelException(res,"Error registering GBuffer texture",__FILE__,__FUNCTION__,__LINE__);
 
-		// ***********
-// 		if (i==0)
-// 		{
-			res = cudaMallocPitch(&m_gbufferHandle.m_textureLinearMem, &m_gbufferHandle.m_pitch, m_width * sizeof(float) * 4, (size_t)m_height);
-			if (!KernelHelper::assertCudaResult(res))
-				throw KernelException(res,"Error registering GBuffer texture",__FILE__,__FUNCTION__,__LINE__);
-			res = cudaMemset(m_gbufferHandle.m_textureLinearMem, 1, m_gbufferHandle.m_pitch * m_height);	
-			if (!KernelHelper::assertCudaResult(res))
-				throw KernelException(res,"Error registering GBuffer texture",__FILE__,__FUNCTION__,__LINE__);
-		/*}*/
-		
-		// ***********
+	m_gbufferHandle.m_texture = (Texture**)p_texture;
 
-		texBuf->unsetDirtyFlag();
-	//}
+	Texture* texBuf = *m_gbufferHandle.m_texture/*[i]*/;
+	cudaError_t res = cudaGraphicsD3D11RegisterResource( &(m_gbufferHandle.m_textureResource/*[i]*/),
+		texBuf->m_textureBuffer,
+		cudaGraphicsRegisterFlagsNone);
+
+	m_width=texBuf->m_width;
+	m_height=texBuf->m_height;
+
+
+	if (!KernelHelper::assertCudaResult(res))
+		throw KernelException(res,"Error registering GBuffer texture",__FILE__,__FUNCTION__,__LINE__);
+
+
+	res = cudaMallocPitch(&m_gbufferHandle.m_textureLinearMem, &m_gbufferHandle.m_pitch, m_width * sizeof(float) * 4, (size_t)m_height);
+	if (!KernelHelper::assertCudaResult(res))
+		throw KernelException(res,"Error registering GBuffer texture",__FILE__,__FUNCTION__,__LINE__);
+	res = cudaMemset(m_gbufferHandle.m_textureLinearMem, 1, m_gbufferHandle.m_pitch * m_height);	
+	if (!KernelHelper::assertCudaResult(res))
+		throw KernelException(res,"Error registering GBuffer texture",__FILE__,__FUNCTION__,__LINE__);
+
+
+	texBuf->unsetDirtyFlag();
+
 
 }
 

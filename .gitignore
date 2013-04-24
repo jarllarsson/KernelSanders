@@ -9,3 +9,4 @@ Bin/x64/*.txt
 *.pdb
 *.exe
 *.ilk
+*.lib

@@ -1,5 +1,5 @@
 #pragma once
-#include "BaseException.h"
+#include <BaseException.h>
 
 #include <cuda.h>
 #include <builtin_types.h>

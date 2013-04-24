@@ -67,15 +67,15 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)Src\Util;$(SolutionDir)External\Visual Leak Detector\include\;$(SolutionDir)External\GLM\include\glm;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)External\Visual Leak Detector\lib\Win64;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)Src\Graphics;$(SolutionDir)Src\Util;$(SolutionDir)External\Visual Leak Detector\include\;$(SolutionDir)External\GLM\include\glm;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)Bin\$(PlatformShortName)\;$(SolutionDir)External\Visual Leak Detector\lib\Win64;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)Bin\$(PlatformShortName)\</OutDir>
     <IntDir>$(SolutionDir)Obj\$(Configuration)\$(PlatformShortName)\</IntDir>
     <TargetName>$(ProjectName)_$(Configuration)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)Src\Util;$(SolutionDir)External\Visual Leak Detector\include\;$(SolutionDir)External\GLM\include\glm;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)External\Visual Leak Detector\lib\Win64;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)Src\Graphics;$(SolutionDir)Src\Util;$(SolutionDir)External\Visual Leak Detector\include\;$(SolutionDir)External\GLM\include\glm;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)Bin\$(PlatformShortName)\;$(SolutionDir)External\Visual Leak Detector\lib\Win64;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)Bin\$(PlatformShortName)\</OutDir>
     <IntDir>$(SolutionDir)Obj\$(Configuration)\$(PlatformShortName)\</IntDir>
     <TargetName>$(ProjectName)_$(Configuration)</TargetName>
@@ -84,15 +84,15 @@
     <OutDir>$(SolutionDir)Bin\$(PlatformShortName)\</OutDir>
     <IntDir>$(SolutionDir)Obj\$(Configuration)\$(PlatformShortName)\</IntDir>
     <TargetName>$(ProjectName)_$(Configuration)</TargetName>
-    <IncludePath>$(SolutionDir)Src\Util;$(SolutionDir)External\Visual Leak Detector\include\;$(SolutionDir)External\GLM\include\glm;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)External\Visual Leak Detector\lib\Win32\;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)Src\Graphics;$(SolutionDir)Src\Util;$(SolutionDir)External\Visual Leak Detector\include\;$(SolutionDir)External\GLM\include\glm;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)Bin\$(PlatformShortName)\;$(SolutionDir)External\Visual Leak Detector\lib\Win32\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)Bin\$(PlatformShortName)\</OutDir>
     <IntDir>$(SolutionDir)Obj\$(Configuration)\$(PlatformShortName)\</IntDir>
     <TargetName>$(ProjectName)_$(Configuration)</TargetName>
-    <IncludePath>$(SolutionDir)Src\Util;$(SolutionDir)External\Visual Leak Detector\include\;$(SolutionDir)External\GLM\include\glm;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)External\Visual Leak Detector\lib\Win32\;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)Src\Graphics;$(SolutionDir)Src\Util;$(SolutionDir)External\Visual Leak Detector\include\;$(SolutionDir)External\GLM\include\glm;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)Bin\$(PlatformShortName)\;$(SolutionDir)External\Visual Leak Detector\lib\Win32\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -102,7 +102,7 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(CUDA_PATH)lib\$(PlatformName);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Util_$(Configuration).lib;Graphics_$(Configuration).lib;d3d11.lib;d3dcompiler.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
     </Link>
     <CudaCompile>
@@ -117,7 +117,7 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(CUDA_PATH)lib\$(PlatformName);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Util_$(Configuration).lib;Graphics_$(Configuration).lib;d3d11.lib;d3dcompiler.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
     </Link>
     <CudaCompile>
@@ -137,7 +137,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Util_$(Configuration).lib;Graphics_$(Configuration).lib;d3d11.lib;d3dcompiler.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <CudaCompile>
       <KeepDir>$(IntDir)CUDA\</KeepDir>
@@ -155,7 +155,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Util_$(Configuration).lib;Graphics_$(Configuration).lib;d3d11.lib;d3dcompiler.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
@@ -163,58 +163,27 @@
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <CudaCompile Include="testkernel.cu" />
+    <CudaCompile Include="RaytraceKernel.cu" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h" />
-    <ClInclude Include="BaseException.h" />
-    <ClInclude Include="Buffer.h" />
-    <ClInclude Include="BufferBase.h" />
-    <ClInclude Include="BufferConfig.h" />
-    <ClInclude Include="BufferFactory.h" />
-    <ClInclude Include="ComposeShader.h" />
     <ClInclude Include="Context.h" />
     <ClInclude Include="ContextException.h" />
     <ClInclude Include="KernelHelper.h" />
     <ClInclude Include="RaytraceConstantBuffer.h" />
     <ClInclude Include="RaytraceKernel.h" />
-    <ClInclude Include="D3DUtil.h" />
-    <ClInclude Include="GraphicsDeviceFactory.h" />
-    <ClInclude Include="GraphicsException.h" />
     <ClInclude Include="IKernelHandler.h" />
-    <ClInclude Include="GraphicsDevice.h" />
     <ClInclude Include="KernelDevice.h" />
     <ClInclude Include="KernelException.h" />
-    <ClInclude Include="PVertex.h" />
-    <ClInclude Include="RenderStateEnums.h" />
-    <ClInclude Include="RenderStateHelper.h" />
     <ClInclude Include="InteropResourceMapping.h" />
-    <ClInclude Include="ShaderBase.h" />
-    <ClInclude Include="ShaderFactory.h" />
-    <ClInclude Include="ShaderStageConfig.h" />
-    <ClInclude Include="ShaderStageData.h" />
-    <ClInclude Include="ShaderVariableContainer.h" />
-    <ClInclude Include="Texture.h" />
-    <ClInclude Include="TextureFactory.h" />
-    <ClInclude Include="ViewFactory.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp" />
-    <ClCompile Include="BufferBase.cpp" />
-    <ClCompile Include="BufferConfig.cpp" />
-    <ClCompile Include="BufferFactory.cpp" />
-    <ClCompile Include="ComposeShader.cpp" />
     <ClCompile Include="Context.cpp" />
     <ClCompile Include="RaytraceKernel.cpp" />
-    <ClCompile Include="GraphicsDevice.cpp" />
     <ClCompile Include="IKernelHandler.cpp" />
     <ClCompile Include="KernelDevice.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="RenderStateHelper.cpp" />
-    <ClCompile Include="ShaderBase.cpp" />
-    <ClCompile Include="ShaderFactory.cpp" />
-    <ClCompile Include="TextureFactory.cpp" />
-    <ClCompile Include="ViewFactory.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
