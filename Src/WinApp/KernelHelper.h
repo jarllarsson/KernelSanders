@@ -6,7 +6,7 @@
 #include <cuda_d3d11_interop.h>
 #include <DebugPrint.h>
 #include <string>
-#include "..\Util\ToString.h"
+#include <ToString.h>
 
 using namespace std;
 

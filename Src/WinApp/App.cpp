@@ -1,14 +1,14 @@
 #include "App.h"
 #include <DebugPrint.h>
 
-#include "Context.h"
-#include "ContextException.h"
+#include <Context.h>
+#include <ContextException.h>
 
 #include <GraphicsDevice.h>
 #include <GraphicsException.h>
 
 #include "KernelDevice.h"
-#include "KernelException.h"
+#include "KernelException.h""
 
 #include <ValueClamp.h>
 

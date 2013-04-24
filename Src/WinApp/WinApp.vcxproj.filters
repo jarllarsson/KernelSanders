@@ -5,84 +5,72 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="Source Files\Context">
-      <UniqueIdentifier>{ad19f2c0-f1bf-42ad-80ac-99200dd0cf8d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Exception">
-      <UniqueIdentifier>{e61efa04-2ce7-43b0-b9be-10e0350072ac}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\App">
       <UniqueIdentifier>{9adf9407-68cb-41da-bfac-6e5302b48803}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Kernel">
-      <UniqueIdentifier>{69147fa8-9d34-4e4d-aeac-753adb0c7417}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Kernel\KernelHandler">
-      <UniqueIdentifier>{49595373-8c4c-40d7-9da5-d773c8209399}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Kernel\KernelHandler\Base">
-      <UniqueIdentifier>{adad9592-c1c3-4dab-9776-068ced231f95}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Kernel\Resource">
-      <UniqueIdentifier>{776682dc-f6ce-480e-acf5-0cdf105bf8f1}</UniqueIdentifier>
+      <UniqueIdentifier>{f1f5fb35-7def-4ce0-87a8-c35fbf86fb3c}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Kernel\Constant buffers">
-      <UniqueIdentifier>{c3f41698-6693-4457-993a-17712fcb011e}</UniqueIdentifier>
+      <UniqueIdentifier>{8c2ebe6b-3ec7-4e55-b8f9-4ac40942d58d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Kernel\Exception">
+      <UniqueIdentifier>{0f709bac-db33-4c7e-bb92-b39adafdab42}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Kernel\KernelHandler">
+      <UniqueIdentifier>{5e41dda6-18c1-41eb-b5db-11e818943ef2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Kernel\KernelHandler\Base">
+      <UniqueIdentifier>{fb8753ba-8143-44b6-aa06-abcbe44b3b11}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Kernel\Kernels">
-      <UniqueIdentifier>{37863357-319a-464e-b7a8-d5ef5386a20a}</UniqueIdentifier>
+      <UniqueIdentifier>{a2fd4b0d-026e-49b8-8e23-416f4f54897e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Kernel\Resource">
+      <UniqueIdentifier>{25d0a4eb-f6c8-4ff2-be0a-9225cadda1e9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Context.h">
-      <Filter>Source Files\Context</Filter>
-    </ClInclude>
-    <ClInclude Include="ContextException.h">
-      <Filter>Source Files\Exception</Filter>
-    </ClInclude>
     <ClInclude Include="App.h">
       <Filter>Source Files\App</Filter>
     </ClInclude>
-    <ClInclude Include="IKernelHandler.h">
-      <Filter>Source Files\Kernel\KernelHandler\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="KernelDevice.h">
-      <Filter>Source Files\Kernel</Filter>
+    <ClInclude Include="RaytraceConstantBuffer.h">
+      <Filter>Source Files\Kernel\Constant buffers</Filter>
     </ClInclude>
     <ClInclude Include="KernelException.h">
-      <Filter>Source Files\Exception</Filter>
-    </ClInclude>
-    <ClInclude Include="InteropResourceMapping.h">
-      <Filter>Source Files\Kernel\Resource</Filter>
+      <Filter>Source Files\Kernel\Exception</Filter>
     </ClInclude>
     <ClInclude Include="RaytraceKernel.h">
       <Filter>Source Files\Kernel\KernelHandler</Filter>
     </ClInclude>
-    <ClInclude Include="RaytraceConstantBuffer.h">
-      <Filter>Source Files\Kernel\Constant buffers</Filter>
+    <ClInclude Include="IKernelHandler.h">
+      <Filter>Source Files\Kernel\KernelHandler\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="InteropResourceMapping.h">
+      <Filter>Source Files\Kernel\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="KernelDevice.h">
+      <Filter>Source Files\Kernel</Filter>
     </ClInclude>
     <ClInclude Include="KernelHelper.h">
       <Filter>Source Files\Kernel</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Context.cpp">
-      <Filter>Source Files\Context</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="App.cpp">
       <Filter>Source Files\App</Filter>
     </ClCompile>
+    <ClCompile Include="RaytraceKernel.cpp">
+      <Filter>Source Files\Kernel\KernelHandler</Filter>
+    </ClCompile>
     <ClCompile Include="IKernelHandler.cpp">
       <Filter>Source Files\Kernel\KernelHandler\Base</Filter>
     </ClCompile>
     <ClCompile Include="KernelDevice.cpp">
       <Filter>Source Files\Kernel</Filter>
-    </ClCompile>
-    <ClCompile Include="RaytraceKernel.cpp">
-      <Filter>Source Files\Kernel\KernelHandler</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

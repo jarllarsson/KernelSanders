@@ -4,7 +4,7 @@
 #include <cuda_runtime_api.h>
 #include <cuda_d3d11_interop.h>
 #include <device_launch_parameters.h>
-#include "Texture.h"
+#include <Texture.h>
 #include <vector>
 
 using namespace std;
