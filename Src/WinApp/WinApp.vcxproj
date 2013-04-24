@@ -67,14 +67,14 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)Src\Context;$(SolutionDir)Src\Graphics;$(SolutionDir)Src\Util;$(SolutionDir)External\Visual Leak Detector\include\;$(SolutionDir)External\GLM\include\glm;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Src\Context;$(SolutionDir)Src\Graphics;$(SolutionDir)Src\Util;$(SolutionDir)External\Visual Leak Detector\include\;$(SolutionDir)External\GLM\include\;$(SolutionDir)External\CUDA Common\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)Lib\$(PlatformShortName)\;$(SolutionDir)External\Visual Leak Detector\lib\Win64;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)Bin\$(PlatformShortName)\</OutDir>
     <IntDir>$(SolutionDir)Obj\$(Configuration)\$(PlatformShortName)\</IntDir>
     <TargetName>$(ProjectName)_$(Configuration)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)Src\Context;$(SolutionDir)Src\Graphics;$(SolutionDir)Src\Util;$(SolutionDir)External\Visual Leak Detector\include\;$(SolutionDir)External\GLM\include\glm;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Src\Context;$(SolutionDir)Src\Graphics;$(SolutionDir)Src\Util;$(SolutionDir)External\Visual Leak Detector\include\;$(SolutionDir)External\GLM\include\;$(SolutionDir)External\CUDA Common\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)Lib\$(PlatformShortName)\;$(SolutionDir)External\Visual Leak Detector\lib\Win64;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)Bin\$(PlatformShortName)\</OutDir>
     <IntDir>$(SolutionDir)Obj\$(Configuration)\$(PlatformShortName)\</IntDir>
@@ -84,14 +84,14 @@
     <OutDir>$(SolutionDir)Bin\$(PlatformShortName)\</OutDir>
     <IntDir>$(SolutionDir)Obj\$(Configuration)\$(PlatformShortName)\</IntDir>
     <TargetName>$(ProjectName)_$(Configuration)</TargetName>
-    <IncludePath>$(SolutionDir)Src\Context;$(SolutionDir)Src\Graphics;$(SolutionDir)Src\Util;$(SolutionDir)External\Visual Leak Detector\include\;$(SolutionDir)External\GLM\include\glm;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Src\Context;$(SolutionDir)Src\Graphics;$(SolutionDir)Src\Util;$(SolutionDir)External\Visual Leak Detector\include\;$(SolutionDir)External\GLM\include\;$(SolutionDir)External\CUDA Common\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)Lib\$(PlatformShortName)\;$(SolutionDir)External\Visual Leak Detector\lib\Win32\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)Bin\$(PlatformShortName)\</OutDir>
     <IntDir>$(SolutionDir)Obj\$(Configuration)\$(PlatformShortName)\</IntDir>
     <TargetName>$(ProjectName)_$(Configuration)</TargetName>
-    <IncludePath>$(SolutionDir)Src\Context;$(SolutionDir)Src\Graphics;$(SolutionDir)Src\Util;$(SolutionDir)External\Visual Leak Detector\include\;$(SolutionDir)External\GLM\include\glm;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Src\Context;$(SolutionDir)Src\Graphics;$(SolutionDir)Src\Util;$(SolutionDir)External\Visual Leak Detector\include\;$(SolutionDir)External\GLM\include\;$(SolutionDir)External\CUDA Common\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)Lib\$(PlatformShortName)\;$(SolutionDir)External\Visual Leak Detector\lib\Win32\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -107,6 +107,7 @@
     </Link>
     <CudaCompile>
       <KeepDir>$(IntDir)CUDA\</KeepDir>
+      <Include>$(SolutionDir)External\CUDA Common\</Include>
     </CudaCompile>
     <CudaLink>
       <AdditionalLibraryDirectories>$(SolutionDir)Lib\$(PlatformShortName)\</AdditionalLibraryDirectories>
@@ -129,6 +130,7 @@
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
       <KeepDir>$(IntDir)CUDA\</KeepDir>
+      <Include>$(SolutionDir)External\CUDA Common\</Include>
     </CudaCompile>
     <CudaLink>
       <AdditionalLibraryDirectories>$(SolutionDir)Lib\$(PlatformShortName)\</AdditionalLibraryDirectories>
@@ -153,6 +155,7 @@
     </Link>
     <CudaCompile>
       <KeepDir>$(IntDir)CUDA\</KeepDir>
+      <Include>$(SolutionDir)External\CUDA Common\</Include>
     </CudaCompile>
     <CudaLink>
       <AdditionalLibraryDirectories>$(SolutionDir)Lib\$(PlatformShortName)\</AdditionalLibraryDirectories>
@@ -178,6 +181,7 @@
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
       <KeepDir>$(IntDir)CUDA\</KeepDir>
+      <Include>$(SolutionDir)External\CUDA Common\</Include>
     </CudaCompile>
     <CudaLink>
       <AdditionalLibraryDirectories>$(SolutionDir)Lib\$(PlatformShortName)\</AdditionalLibraryDirectories>
@@ -187,16 +191,29 @@
     </CudaLink>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Camera.h" />
+    <ClInclude Include="IntersectBox.h" />
+    <ClInclude Include="IntersectionInfo.h" />
+    <ClInclude Include="IntersectPlane.h" />
+    <ClInclude Include="IntersectSphere.h" />
+    <ClInclude Include="IntersectTriangle.h" />
+    <ClInclude Include="LightStructures.h" />
+    <ClInclude Include="Primitives.h" />
     <ClInclude Include="IKernelHandler.h" />
     <ClInclude Include="InteropResourceMapping.h" />
     <ClInclude Include="KernelDevice.h" />
     <ClInclude Include="KernelException.h" />
     <ClInclude Include="KernelHelper.h" />
+    <ClInclude Include="Ray.h" />
     <ClInclude Include="RaytraceConstantBuffer.h" />
+    <ClInclude Include="RaytraceHelper.h" />
     <ClInclude Include="RaytraceKernel.h" />
     <ClInclude Include="App.h" />
+    <ClInclude Include="RaytraceLighting.h" />
+    <ClInclude Include="RaytraceSurfaceMaterial.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="IKernelHandler.cpp" />
     <ClCompile Include="KernelDevice.cpp" />
     <ClCompile Include="RaytraceKernel.cpp" />
@@ -204,9 +221,12 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <CudaCompile Include="RaytraceKernel.cu">
+    <CudaCompile Include="RaytraceKernelEntry.cu">
       <FileType>Document</FileType>
     </CudaCompile>
+    <ClInclude Include="Raytracer.h">
+      <FileType>Document</FileType>
+    </ClInclude>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

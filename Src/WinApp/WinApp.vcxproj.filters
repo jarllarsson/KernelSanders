@@ -29,6 +29,24 @@
     <Filter Include="Source Files\Kernel\Resource">
       <UniqueIdentifier>{25d0a4eb-f6c8-4ff2-be0a-9225cadda1e9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\TempLogic">
+      <UniqueIdentifier>{d97fcd18-2338-466e-8f58-c4a86d0f7211}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Kernel\Kernels\Raytrace">
+      <UniqueIdentifier>{3ecd7622-2864-4270-ba3c-58137cc71eb3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Kernel\Kernels\Raytrace\Intersections">
+      <UniqueIdentifier>{dae42d43-e0da-438b-a6f2-0259f382a2ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Kernel\Kernels\Raytrace\Structures">
+      <UniqueIdentifier>{6816f5b1-4aa8-4da2-bb1e-30289c58cc98}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Kernel\Kernels\Raytrace\Effects">
+      <UniqueIdentifier>{e5b4e7f3-c10a-40bc-a831-6806f7555df1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Kernel\Kernels\Raytrace\Utils">
+      <UniqueIdentifier>{2bfa1553-183e-44fd-99da-e1aef31fe1b1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h">
@@ -55,6 +73,42 @@
     <ClInclude Include="KernelHelper.h">
       <Filter>Source Files\Kernel</Filter>
     </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Source Files\TempLogic</Filter>
+    </ClInclude>
+    <ClInclude Include="Primitives.h">
+      <Filter>Source Files\Kernel\Kernels\Raytrace\Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="RaytraceSurfaceMaterial.h">
+      <Filter>Source Files\Kernel\Kernels\Raytrace\Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="Ray.h">
+      <Filter>Source Files\Kernel\Kernels\Raytrace\Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="RaytraceLighting.h">
+      <Filter>Source Files\Kernel\Kernels\Raytrace\Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="RaytraceHelper.h">
+      <Filter>Source Files\Kernel\Kernels\Raytrace\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="IntersectPlane.h">
+      <Filter>Source Files\Kernel\Kernels\Raytrace\Intersections</Filter>
+    </ClInclude>
+    <ClInclude Include="IntersectTriangle.h">
+      <Filter>Source Files\Kernel\Kernels\Raytrace\Intersections</Filter>
+    </ClInclude>
+    <ClInclude Include="IntersectBox.h">
+      <Filter>Source Files\Kernel\Kernels\Raytrace\Intersections</Filter>
+    </ClInclude>
+    <ClInclude Include="IntersectionInfo.h">
+      <Filter>Source Files\Kernel\Kernels\Raytrace\Intersections</Filter>
+    </ClInclude>
+    <ClInclude Include="IntersectSphere.h">
+      <Filter>Source Files\Kernel\Kernels\Raytrace\Intersections</Filter>
+    </ClInclude>
+    <ClInclude Include="LightStructures.h">
+      <Filter>Source Files\Kernel\Kernels\Raytrace\Structures</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -72,10 +126,16 @@
     <ClCompile Include="KernelDevice.cpp">
       <Filter>Source Files\Kernel</Filter>
     </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Source Files\TempLogic</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CudaCompile Include="RaytraceKernel.cu">
-      <Filter>Source Files\Kernel\Kernels</Filter>
+    <CudaCompile Include="RaytraceKernelEntry.cu">
+      <Filter>Source Files\Kernel\Kernels\Raytrace</Filter>
+    </CudaCompile>
+    <CudaCompile Include="Raytracer.h">
+      <Filter>Source Files\Kernel\Kernels\Raytrace</Filter>
     </CudaCompile>
   </ItemGroup>
 </Project>

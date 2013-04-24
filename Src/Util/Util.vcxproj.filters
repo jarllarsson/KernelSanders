@@ -25,6 +25,9 @@
     <ClInclude Include="BaseException.h">
       <Filter>Source Files\Exception</Filter>
     </ClInclude>
+    <ClInclude Include="MathHelp.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Util.cpp">

@@ -5,7 +5,7 @@
 
 extern "C"
 {
-		void RunCubeKernel(void* p_cb,void* colorArray,
+		void RunRaytraceKernel(void* p_cb,void* colorArray,
 			int width, int height, int pitch);
 }
 
@@ -47,7 +47,7 @@ void RaytraceKernel::Execute( KernelData* p_data, float p_dt )
 
 
 	// Run the kernel
-	RunCubeKernel(reinterpret_cast<void*>(constantBuffer),blob->m_textureLinearMem,
+	RunRaytraceKernel(reinterpret_cast<void*>(constantBuffer),blob->m_textureLinearMem,
 		width,height,(int)pitch); 
 	// ---
 
