@@ -1,7 +1,7 @@
 #ifndef RAYTRACEKERNELENTRY_CU
 #define RAYTRACEKERNELENTRY_CU
 
-#include <iostream> 
+
 #include <vector> 
 #include <cuda.h>
 #include <cuda_runtime.h>
@@ -15,10 +15,6 @@
 #pragma comment(lib, "cudart") 
 
  
-using std::cerr; 
-using std::cout; 
-using std::endl; 
-using std::exception; 
 using std::vector; 
  
 
@@ -43,7 +39,7 @@ __global__ void RaytraceKernel(unsigned char *p_outSurface,
     // get a pointer to the pixel at (x,y)
     pixel = (float *)(p_outSurface + y*p_pitch) + 4*x;
 
-	Raytrace(pixel,x,y);
+	Raytrace(pixel,x,y, p_width, p_height);
 }
  
 // Executes CUDA kernel 

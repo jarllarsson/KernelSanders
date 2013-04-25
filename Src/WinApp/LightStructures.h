@@ -1,4 +1,6 @@
-#pragma once
+#ifndef RAYTRACE_LIGHTSTRUCTURES_H
+#define RAYTRACE_LIGHTSTRUCTURES_H
+
 
 // =======================================================================================
 //                                    Light Structures
@@ -8,9 +10,10 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
-#include "RaytraceConstantBuffer.h"
-#include "KernelHelper.h"
-#include "RaytraceSurfaceMaterial.h"
+#include <vector_types.h>
+
+using std::vector; 
+
 
 struct SurfaceLightingData
 {
@@ -26,3 +29,5 @@ struct Light
 	float4 diffuseColor;
 	float4 specularColor;
 };
+
+#endif

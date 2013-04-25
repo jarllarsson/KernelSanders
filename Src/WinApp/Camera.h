@@ -1,8 +1,7 @@
-#ifndef CAMERA_H
-#define CAMERA_H
+#pragma once
 
 
-#include <glm/glm.hpp>
+/*#include <glm/glm.hpp>
 #include "glm/gtx/quaternion.hpp"
 #include <glm/gtc/matrix_transform.hpp> 
 #include <MathHelp.h>
@@ -40,5 +39,4 @@ private:
 	glm::mat4 m_rotMat;
 	glm::mat4 m_viewMat;
 };
-
-#endif
+*/

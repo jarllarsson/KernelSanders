@@ -1,4 +1,5 @@
-#pragma once
+#ifndef RAYTRACE_PRIMITIVES_H
+#define RAYTRACE_PRIMITIVES_H
 
 // =======================================================================================
 //                                      Primitives
@@ -8,9 +9,12 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
-#include "RaytraceConstantBuffer.h"
-#include "KernelHelper.h"
+#include <vector_types.h>
 #include "RaytraceSurfaceMaterial.h"
+
+
+
+using std::vector; 
 
 struct Box
 {
@@ -18,6 +22,7 @@ struct Box
 	float4 sides[3];	// normalized side directions u,v,w
 	float hlengths[3]; // positive half-lengths from box center
 	Material mat;
+	float pad;
 };
 
 
@@ -33,6 +38,7 @@ struct Plane
 	float distance;
 	float4 normal;
 	Material mat;
+	float pad[3];
 };
 
 
@@ -41,4 +47,8 @@ struct Sphere
 	float4 pos;
 	float rad;
 	Material mat;
+	float pad[3];
 };
+
+
+#endif

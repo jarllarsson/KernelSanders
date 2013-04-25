@@ -1,4 +1,5 @@
-#pragma once
+#ifndef RAYTRACER_CONSTANTBUFFER_H
+#define RAYTRACER_CONSTANTBUFFER_H
 
 // =======================================================================================
 //                                   RaytraceConstantBuffer
@@ -19,3 +20,5 @@ struct RaytraceConstantBuffer
 	float c;
 	float d;
 };
+
+#endif

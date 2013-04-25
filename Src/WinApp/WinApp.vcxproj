@@ -67,14 +67,14 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)Src\Context;$(SolutionDir)Src\Graphics;$(SolutionDir)Src\Util;$(SolutionDir)External\Visual Leak Detector\include\;$(SolutionDir)External\GLM\include\;$(SolutionDir)External\CUDA Common\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Src\Context;$(SolutionDir)Src\Graphics;$(SolutionDir)Src\Util;$(SolutionDir)External\Visual Leak Detector\include\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)Lib\$(PlatformShortName)\;$(SolutionDir)External\Visual Leak Detector\lib\Win64;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)Bin\$(PlatformShortName)\</OutDir>
     <IntDir>$(SolutionDir)Obj\$(Configuration)\$(PlatformShortName)\</IntDir>
     <TargetName>$(ProjectName)_$(Configuration)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)Src\Context;$(SolutionDir)Src\Graphics;$(SolutionDir)Src\Util;$(SolutionDir)External\Visual Leak Detector\include\;$(SolutionDir)External\GLM\include\;$(SolutionDir)External\CUDA Common\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Src\Context;$(SolutionDir)Src\Graphics;$(SolutionDir)Src\Util;$(SolutionDir)External\Visual Leak Detector\include\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)Lib\$(PlatformShortName)\;$(SolutionDir)External\Visual Leak Detector\lib\Win64;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)Bin\$(PlatformShortName)\</OutDir>
     <IntDir>$(SolutionDir)Obj\$(Configuration)\$(PlatformShortName)\</IntDir>
@@ -84,14 +84,14 @@
     <OutDir>$(SolutionDir)Bin\$(PlatformShortName)\</OutDir>
     <IntDir>$(SolutionDir)Obj\$(Configuration)\$(PlatformShortName)\</IntDir>
     <TargetName>$(ProjectName)_$(Configuration)</TargetName>
-    <IncludePath>$(SolutionDir)Src\Context;$(SolutionDir)Src\Graphics;$(SolutionDir)Src\Util;$(SolutionDir)External\Visual Leak Detector\include\;$(SolutionDir)External\GLM\include\;$(SolutionDir)External\CUDA Common\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Src\Context;$(SolutionDir)Src\Graphics;$(SolutionDir)Src\Util;$(SolutionDir)External\Visual Leak Detector\include\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)Lib\$(PlatformShortName)\;$(SolutionDir)External\Visual Leak Detector\lib\Win32\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)Bin\$(PlatformShortName)\</OutDir>
     <IntDir>$(SolutionDir)Obj\$(Configuration)\$(PlatformShortName)\</IntDir>
     <TargetName>$(ProjectName)_$(Configuration)</TargetName>
-    <IncludePath>$(SolutionDir)Src\Context;$(SolutionDir)Src\Graphics;$(SolutionDir)Src\Util;$(SolutionDir)External\Visual Leak Detector\include\;$(SolutionDir)External\GLM\include\;$(SolutionDir)External\CUDA Common\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Src\Context;$(SolutionDir)Src\Graphics;$(SolutionDir)Src\Util;$(SolutionDir)External\Visual Leak Detector\include\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)Lib\$(PlatformShortName)\;$(SolutionDir)External\Visual Leak Detector\lib\Win32\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -102,18 +102,20 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>Util_$(Configuration).lib;Graphics_$(Configuration).lib;Context_$(Configuration).lib;d3d11.lib;d3dcompiler.lib;dxguid.lib;cudart.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Util_$(Configuration).lib;Graphics_$(Configuration).lib;Context_$(Configuration).lib;cudart.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
     </Link>
     <CudaCompile>
       <KeepDir>$(IntDir)CUDA\</KeepDir>
-      <Include>$(SolutionDir)External\CUDA Common\</Include>
+      <Include>
+      </Include>
     </CudaCompile>
     <CudaLink>
       <AdditionalLibraryDirectories>$(SolutionDir)Lib\$(PlatformShortName)\</AdditionalLibraryDirectories>
     </CudaLink>
     <CudaLink>
-      <AdditionalDependencies>Kernel_$(Configuration).lib</AdditionalDependencies>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
     </CudaLink>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -124,19 +126,21 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>Util_$(Configuration).lib;Graphics_$(Configuration).lib;Context_$(Configuration).lib;d3d11.lib;d3dcompiler.lib;dxguid.lib;cudart.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Util_$(Configuration).lib;Graphics_$(Configuration).lib;Context_$(Configuration).lib;cudart.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
     </Link>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
       <KeepDir>$(IntDir)CUDA\</KeepDir>
-      <Include>$(SolutionDir)External\CUDA Common\</Include>
+      <Include>
+      </Include>
     </CudaCompile>
     <CudaLink>
       <AdditionalLibraryDirectories>$(SolutionDir)Lib\$(PlatformShortName)\</AdditionalLibraryDirectories>
     </CudaLink>
     <CudaLink>
-      <AdditionalDependencies>Kernel_$(Configuration).lib</AdditionalDependencies>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
     </CudaLink>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -151,17 +155,19 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>Util_$(Configuration).lib;Graphics_$(Configuration).lib;Context_$(Configuration).lib;d3d11.lib;d3dcompiler.lib;dxguid.lib;cudart.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Util_$(Configuration).lib;Graphics_$(Configuration).lib;Context_$(Configuration).lib;cudart.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <CudaCompile>
       <KeepDir>$(IntDir)CUDA\</KeepDir>
-      <Include>$(SolutionDir)External\CUDA Common\</Include>
+      <Include>
+      </Include>
     </CudaCompile>
     <CudaLink>
       <AdditionalLibraryDirectories>$(SolutionDir)Lib\$(PlatformShortName)\</AdditionalLibraryDirectories>
     </CudaLink>
     <CudaLink>
-      <AdditionalDependencies>Kernel_$(Configuration).lib</AdditionalDependencies>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
     </CudaLink>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -176,22 +182,25 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>Util_$(Configuration).lib;Graphics_$(Configuration).lib;Context_$(Configuration).lib;d3d11.lib;d3dcompiler.lib;dxguid.lib;cudart.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Util_$(Configuration).lib;Graphics_$(Configuration).lib;Context_$(Configuration).lib;cudart.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
       <KeepDir>$(IntDir)CUDA\</KeepDir>
-      <Include>$(SolutionDir)External\CUDA Common\</Include>
+      <Include>
+      </Include>
     </CudaCompile>
     <CudaLink>
       <AdditionalLibraryDirectories>$(SolutionDir)Lib\$(PlatformShortName)\</AdditionalLibraryDirectories>
     </CudaLink>
     <CudaLink>
-      <AdditionalDependencies>Kernel_$(Configuration).lib</AdditionalDependencies>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
     </CudaLink>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="IntersectAll.h" />
     <ClInclude Include="IntersectBox.h" />
     <ClInclude Include="IntersectionInfo.h" />
     <ClInclude Include="IntersectPlane.h" />
@@ -206,11 +215,13 @@
     <ClInclude Include="KernelHelper.h" />
     <ClInclude Include="Ray.h" />
     <ClInclude Include="RaytraceConstantBuffer.h" />
-    <ClInclude Include="RaytraceHelper.h" />
+    <ClInclude Include="KernelMathHelper.h" />
     <ClInclude Include="RaytraceKernel.h" />
     <ClInclude Include="App.h" />
     <ClInclude Include="RaytraceLighting.h" />
+    <ClInclude Include="RaytraceSetup.h" />
     <ClInclude Include="RaytraceSurfaceMaterial.h" />
+    <ClInclude Include="Scene.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />

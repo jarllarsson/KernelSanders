@@ -1,6 +1,20 @@
-#pragma once
-#include "KernelRaytraceCommon.h"
-#include "KernelRaytraceLight.h"
+#ifndef INTERSECT_BOX_H
+#define INTERSECT_BOX_H
+
+#include <vector> 
+#include <cuda.h>
+#include <cuda_runtime.h>
+#include <device_launch_parameters.h>
+#include <vector_types.h>
+
+
+#include "KernelMathHelper.h"
+#include "RaytraceLighting.h"
+#include "Primitives.h"
+#include "Ray.h"
+
+
+using std::vector; 
 
 #define BOXEPSILON 1.0f/100000.0f
 
@@ -15,8 +29,8 @@ bool IntersectBox(const Box* in_box, const Ray* in_ray, Intersection* inout_inte
 	{		
 		// check too see whether the ray is perpendicular to the normal
 		// direction of the current slab
-		float e = dot(in_box->sides[i], pos);
-		float f = dot(in_box->sides[i], in_ray->dir);	
+		float e = cu_dot(in_box->sides[i], pos);
+		float f = cu_dot(in_box->sides[i], in_ray->dir);	
 		float abs_f = fabs(f);
 		if (abs_f > BOXEPSILON)
 		{
@@ -67,3 +81,5 @@ bool IntersectBox(const Box* in_box, const Ray* in_ray, Intersection* inout_inte
 	}
 	return false;
 }
+
+#endif

@@ -109,6 +109,18 @@
     <ClInclude Include="LightStructures.h">
       <Filter>Source Files\Kernel\Kernels\Raytrace\Structures</Filter>
     </ClInclude>
+    <ClInclude Include="IntersectAll.h">
+      <Filter>Source Files\Kernel\Kernels\Raytrace\Intersections</Filter>
+    </ClInclude>
+    <ClInclude Include="RaytraceSetup.h">
+      <Filter>Source Files\Kernel\Kernels\Raytrace</Filter>
+    </ClInclude>
+    <ClInclude Include="Raytracer.h">
+      <Filter>Source Files\Kernel\Kernels\Raytrace</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>Source Files\Kernel\Kernels\Raytrace\Structures</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -132,9 +144,6 @@
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="RaytraceKernelEntry.cu">
-      <Filter>Source Files\Kernel\Kernels\Raytrace</Filter>
-    </CudaCompile>
-    <CudaCompile Include="Raytracer.h">
       <Filter>Source Files\Kernel\Kernels\Raytrace</Filter>
     </CudaCompile>
   </ItemGroup>

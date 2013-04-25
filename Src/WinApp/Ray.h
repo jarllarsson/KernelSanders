@@ -1,13 +1,9 @@
 #pragma once
-#include "RaytraceSurfaceMaterial.h"
 
-struct Intersection
-{
-	float4 normal;
-	float4 pos;
-	Material surface; // don't allow changing the material's values from intersection struct
-	float dist;
-};
+#include <cuda.h>
+#include <cuda_runtime.h>
+#include <device_launch_parameters.h>
+#include <vector_types.h>
 
 struct Ray
 {
