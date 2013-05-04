@@ -18,9 +18,6 @@ BufferConfig::BufferConfig(BUFFER_INIT_DESC& p_initDesc)
 	case SLOT1:
 		slot = 1;
 		break;
-	case SHADOWBUFFER:
-		slot = SHADOWBUFFER;
-		break;
 	default:
 		break;
 	}

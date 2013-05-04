@@ -107,9 +107,9 @@ __device__ float SphereFieldDE(float4 v)
 	
 	float vxS = v.x/fabs(v.x);
 	float vzS = v.z/fabs(v.z);
-	vv = fmodf(vv, make_float2(1.0f,1.0f)) - make_float2(vxS*0.5f,vzS*0.5f); // instance on xz-plane
+	vv = cu_fmodf(vv, make_float2(1.0f,1.0f)) - make_float2(vxS*0.5f,vzS*0.5f); // instance on xz-plane
 
-	return length(vv)-0.3f;							 // sphere DE
+	return cu_length(vv)-0.3f;							 // sphere DE
 }
 
 
@@ -134,14 +134,14 @@ __device__ float SphereSpaceDE(float4 in_v, float3* out_idx)
 	float vyS = in_v.y/fabs(in_v.y);
 	float vzS = in_v.z/fabs(in_v.z);
 
-	vv = fmod(vv, localVolume) - make_float3(vxS*localVolumeH,vyS*localVolumeH,vzS*localVolumeH); // instance in xyz-volume
+	vv = cu_fmodf(vv, make_float3(localVolume,localVolume,localVolume)) - make_float3(vxS*localVolumeH,vyS*localVolumeH,vzS*localVolumeH); // instance in xyz-volume
 	
 	/*if (sin((*out_idx).x)>0.0f && sin((*out_idx).x)<1.0f
 		&& sin((*out_idx).y)>0.0f && sin((*out_idx).y)<1.0f
 		&& sin((*out_idx).z)>0.0f && sin((*out_idx).z)<1.0f)   // Culling can be done here, an example would be sampling against a 3d noise texture for a "cloud effect"
 		return fabs(fast_length(vv)+40.0f); // distance to next
 	else*/
-	   return fabs(length(vv)-20.0f);		  // sphere DE
+	   return fabs(cu_length(vv)-20.0f);		  // sphere DE
 }
 
 __device__ float RecursiveTetraDE1(float4 in_v,float3 in_pos)
@@ -156,15 +156,15 @@ __device__ float RecursiveTetraDE1(float4 in_v,float3 in_pos)
 	int n = 0;
 	float dist, d;
 	while (n < 8) {
-		c = a1; dist = length(z-a1);
-		d = length(z-a2); if (d < dist) { c = a2; dist=d; }
-		d = length(z-a3); if (d < dist) { c = a3; dist=d; }
-		d = length(z-a4); if (d < dist) { c = a4; dist=d; }
+		c = a1; dist = cu_length(z-a1);
+		d = cu_length(z-a2); if (d < dist) { c = a2; dist=d; }
+		d = cu_length(z-a3); if (d < dist) { c = a3; dist=d; }
+		d = cu_length(z-a4); if (d < dist) { c = a4; dist=d; }
 		z = Scale*z-c*(Scale-1.0);
 		n++;
 	}
 
-	return length(z) * pow(Scale, -(float)(n));
+	return cu_length(z) * pow(Scale, -(float)(n));
 }
 
 __device__ float RecursiveTetraDE2(float4 in_v,float3 in_pos)
@@ -181,7 +181,7 @@ __device__ float RecursiveTetraDE2(float4 in_v,float3 in_pos)
        z = z*Scale - Offset*(Scale-1.0);
        n++;
     }
-    return (length(z) ) * pow(Scale, -(float)(n));
+    return (cu_length(z) ) * pow(Scale, -(float)(n));
 }
 
 // ray marching

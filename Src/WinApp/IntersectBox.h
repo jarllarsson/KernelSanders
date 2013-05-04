@@ -18,7 +18,7 @@ using std::vector;
 
 #define BOXEPSILON 1.0f/100000.0f
 
-bool IntersectBox(const Box* in_box, const Ray* in_ray, Intersection* inout_intersection, bool storeResult)
+__device__ bool IntersectBox(const Box* in_box, const Ray* in_ray, Intersection* inout_intersection, bool storeResult)
 {
 	float tMin=-FLT_MAX;
 	float tMax=FLT_MAX;

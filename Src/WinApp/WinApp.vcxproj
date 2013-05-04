@@ -206,6 +206,7 @@
     <ClInclude Include="IntersectPlane.h" />
     <ClInclude Include="IntersectSphere.h" />
     <ClInclude Include="IntersectTriangle.h" />
+    <ClInclude Include="KernelMathOperators.h" />
     <ClInclude Include="LightStructures.h" />
     <ClInclude Include="Primitives.h" />
     <ClInclude Include="IKernelHandler.h" />

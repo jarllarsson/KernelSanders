@@ -43,14 +43,10 @@ struct BufferConfig
 		BUFFER_USAGE_COUNT
 	};
 
-	/************************************************************************/
-	/* SOMETHING UNCLEAR? ASK ROBIN T										*/
-	/************************************************************************/
 	enum BUFFER_SLOT
 	{
 		PERFRAME,
 		PEROBJECT,
-		SHADOWBUFFER,
 		SLOT0,
 		SLOT1,
 	};
