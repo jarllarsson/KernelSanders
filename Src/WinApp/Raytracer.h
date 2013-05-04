@@ -158,6 +158,7 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	//ray.origin = camPos;   
 
 	float4 viewFrameDir = cu_normalize( make_float4(u, v, -1.3f,0.0f) );
+	ray.dir = viewFrameDir;
 	//mat4mul_ignoreW(viewMatrix,&viewFrameDir, &ray.dir); // transform viewFrameDir with the viewMatrix to get the world space ray
 
 	Ray shadowRay;
@@ -260,8 +261,8 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	// Set the color
 	p_outPixel[R_CH] = finalColor.x + (float)blockIdx.x/(float)gridDim.x; // red
     p_outPixel[G_CH] = finalColor.y + (float)blockIdx.y/(float)gridDim.y; // green
-    p_outPixel[B_CH] = finalColor.z + 1.0f; // blue
-    p_outPixel[A_CH] = finalColor.w + 1; // alpha
+	p_outPixel[B_CH] = finalColor.z + 1.0f; // blue
+	p_outPixel[A_CH] = finalColor.w + 1; // alpha
 }
 
 #endif
