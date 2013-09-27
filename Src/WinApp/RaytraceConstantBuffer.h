@@ -1,6 +1,9 @@
 #ifndef RAYTRACER_CONSTANTBUFFER_H
 #define RAYTRACER_CONSTANTBUFFER_H
 
+#define RAYTRACEDRAWMODE_REGULAR 0
+#define RAYTRACEDRAWMODE_BLOCKDBG 1
+
 // =======================================================================================
 //                                   RaytraceConstantBuffer
 // =======================================================================================
@@ -15,6 +18,7 @@
 
 struct RaytraceConstantBuffer
 {
+	int m_drawMode;
 	float a;
 	float b;
 	float c;

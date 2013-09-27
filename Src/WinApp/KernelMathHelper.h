@@ -24,21 +24,29 @@ inline __device__ float cu_fmaxf(float a, float b)
 {
 	return a > b ? a : b;
 }
+inline __device__ float cu_clamp(float val, float minval, float maxval)
+{
+	return cu_fmaxf(cu_fminf(val,maxval),minval);
+}
+inline __device__ float cu_saturate(float val)
+{
+	return cu_clamp(val,0.0f,1.0f);
+}
 inline __device__ float cu_rsqrtf(float x)
 {
 	return 1.0f/__fsqrt_rd(x);
 	//return 1.0f / sqrtf(x);
 }
 
-inline __device__ float cu_dot(float2 a, float2 b)
+inline __device__ float cu_dot(const float2& a, const float2& b)
 {
 	return a.x * b.x + a.y * b.y;
 }
-inline __device__ float cu_dot(float3 a, float3 b)
+inline __device__ float cu_dot(const float3& a, const float3& b)
 {
 	return a.x * b.x + a.y * b.y + a.z * b.z;
 }
-inline __device__ float cu_dot(float4 a, float4 b)
+inline __device__ float cu_dot(const float4& a, const float4& b)
 {
 	return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
 }
@@ -82,17 +90,17 @@ inline __device__ float squaredLen(const float4* in_vec)
 // normalize
 ////////////////////////////////////////////////////////////////////////////////
 
-inline __device__ float2 cu_normalize(float2 v)
+inline __device__ float2 cu_normalize(const float2& v)
 {
 	float invLen = cu_rsqrtf(cu_dot(v, v));
 	return v * invLen;
 }
-inline __device__ float3 cu_normalize(float3 v)
+inline __device__ float3 cu_normalize(const float3& v)
 {
 	float invLen = cu_rsqrtf(cu_dot(v, v));
 	return v * invLen;
 }
-inline __device__ float4 cu_normalize(float4 v)
+inline __device__ float4 cu_normalize(const float4& v)
 {
 	float invLen = cu_rsqrtf(cu_dot(v, v));
 	return v * invLen;
@@ -102,17 +110,17 @@ inline __device__ float4 cu_normalize(float4 v)
 // length
 ////////////////////////////////////////////////////////////////////////////////
 
-inline __device__ float cu_length(float2 v)
+inline __device__ float cu_length(const float2& v)
 {
 	//return sqrtf(cu_dot(v, v));
 	return __fsqrt_rd(cu_dot(v, v));
 }
-inline __device__ float cu_length(float3 v)
+inline __device__ float cu_length(const float3& v)
 {
 	//return sqrtf(cu_dot(v, v));
 	return __fsqrt_rd(cu_dot(v, v));
 }
-inline __device__ float cu_length(float4 v)
+inline __device__ float cu_length(const float4& v)
 {
 	//return sqrtf(cu_dot(v, v));
 	return __fsqrt_rd(cu_dot(v, v));
@@ -123,15 +131,15 @@ inline __device__ float cu_length(float4 v)
 ////////////////////////////////////////////////////////////////////////////////
 
 
-inline __device__ float2 cu_fmodf(float2 a, float2 b)
+inline __device__ float2 cu_fmodf(const float2& a, const float2& b)
 {
 	return make_float2(fmodf(a.x, b.x), fmodf(a.y, b.y));
 }
-inline __device__ float3 cu_fmodf(float3 a, float3 b)
+inline __device__ float3 cu_fmodf(const float3& a, const float3& b)
 {
 	return make_float3(fmodf(a.x, b.x), fmodf(a.y, b.y), fmodf(a.z, b.z));
 }
-inline __device__ float4 cu_fmodf(float4 a, float4 b)
+inline __device__ float4 cu_fmodf(const float4& a, const float4& b)
 {
 	return make_float4(fmodf(a.x, b.x), fmodf(a.y, b.y), fmodf(a.z, b.z), fmodf(a.w, b.w));
 }
@@ -142,7 +150,7 @@ inline __device__ float4 cu_fmodf(float4 a, float4 b)
 // - N should be normalized, reflected vector's length is equal to length of I
 ////////////////////////////////////////////////////////////////////////////////
 
-inline __device__ float3 cu_reflect(float3 i, float3 n)
+inline __device__ float3 cu_reflect(const float3& i, const float3& n)
 {
 	return i - 2.0f * n * cu_dot(n,i);
 }
@@ -151,7 +159,7 @@ inline __device__ float3 cu_reflect(float3 i, float3 n)
 // cross product
 ////////////////////////////////////////////////////////////////////////////////
 
-inline __device__ float3 cu_cross(float3 a, float3 b)
+inline __device__ float3 cu_cross(const float3& a, const float3& b)
 {
 	return make_float3(a.y*b.z - a.z*b.y, a.z*b.x - a.x*b.z, a.x*b.y - a.y*b.x);
 }

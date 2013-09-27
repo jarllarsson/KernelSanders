@@ -18,6 +18,7 @@ KernelDevice::KernelDevice( void* p_device )
 	if (!KernelHelper::assertCudaResult(res))
 		throw KernelException(res,"Error registering d3d-device",__FILE__,__FUNCTION__,__LINE__);
 
+	m_cb.m_drawMode = RAYTRACEDRAWMODE_REGULAR;
 	m_cb.a=12.0f;
 	m_cb.b=3.0f;
 	m_cb.c=5.0f;

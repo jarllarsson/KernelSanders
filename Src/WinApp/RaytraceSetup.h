@@ -5,11 +5,11 @@
 //                                      RaytraceSetup
 // =======================================================================================
 
-#define AMOUNTOFSPHERES 1
+#define AMOUNTOFSPHERES 2
 #define AMOUNTOFPLANES 1
-#define AMOUNTOFTRIS 1
+#define AMOUNTOFTRIS 10
 #define AMOUNTOFBOXES 1
-#define AMOUNTOFLIGHTS 1
+#define AMOUNTOFLIGHTS 2
 
 #define PI 3.141592653589793238462643383279502884197169399375105820
 #define TWOPI 2.0*PI

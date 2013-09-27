@@ -111,7 +111,7 @@ void App::run()
 			if (fpsUpdateTick<=0.0f)
 			{
 				m_context->updateTitle((" | FPS: "+toString((int)fps)).c_str());
-				DEBUGPRINT((("\n"+toString(dt)).c_str())); 
+				//DEBUGPRINT((("\n"+toString(dt)).c_str())); 
 				fpsUpdateTick=0.3f;
 			}
 
