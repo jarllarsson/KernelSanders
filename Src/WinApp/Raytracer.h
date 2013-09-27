@@ -153,12 +153,14 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	// 1. Create ray
 	// calculate eye ray in world space
 	Ray ray;
-	ray.origin = make_float4(0.0f,0.0f,0.0f,0.0f);
+	ray.origin = make_float4(u,v,10.0f,1.0f);
+	//ray.origin = make_float4(0.0f,0.0f,0.0f,0.0f);
 
 	//ray.origin = camPos;   
 
 	float4 viewFrameDir = cu_normalize( make_float4(u, v, -1.3f,0.0f) );
-	ray.dir = viewFrameDir;
+	ray.dir = make_float4(0.0f,0.0f,-1.0f,0.0f);
+	//ray.dir = viewFrameDir;
 	//mat4mul_ignoreW(viewMatrix,&viewFrameDir, &ray.dir); // transform viewFrameDir with the viewMatrix to get the world space ray
 
 	Ray shadowRay;
@@ -188,6 +190,67 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	float4 lightColor = make_float4(0.0f,0.0f,0.0f,0.0f);	
 
 	// =======================================================
+
+
+	// Raytrace:
+ 
+	// while (reflectionFactor>0 && depth<max_depth)
+	// {
+
+	// for (int i=0;i<amountOfObjects;i++)
+	// {
+	float dist = -1.0f;
+
+	// sphere intersection proto
+	float4 spherePos = make_float4(0.0f,0.0f,0.0f,1.0f);
+	float sphereRad = 0.5f;
+	float4 delta = spherePos - ray.origin;
+	float B = cu_dot(ray.dir, delta);
+	float D = B*B - cu_dot(delta, delta) + sphereRad * sphereRad; 
+	if (D >= 0.0f) 
+	{
+		float t0 = B - sqrt(D); 
+		float t1 = B + sqrt(D);
+		if ((t0 > 0.001f) && (t0 < intersection.dist)) 
+		{
+			intersection.dist = t0;
+		} 
+		if ((t1 > 0.001f) && (t1 < intersection.dist)) 
+		{
+			intersection.dist = t1; 
+		}
+	}
+
+	// general after each test
+	// float dist = rayIntersect(ray,orig); // return -1 on miss
+	/*if (dist>0.0f && (dist<intersectDistance || intersectDistance<0.0f))
+	intersectDistance=dist;*/
+
+	// }	// for each object		
+
+	if (intersection.dist >= 0.0f && intersection.dist<MAX_INTERSECT_DIST)
+	{
+		finalColor=make_float4(0.0f,
+			0.0f,
+			1.0f,
+			0.0f);
+		// for (int i=0;i<amountOfLights;i++)
+		// {
+		// if (noObjectIsInFrontOfLight) // only add light colour if no object is between current pixel and light
+		// currentColor += lightColor;
+		// }
+	}
+
+	// Add color of this pixel(modified by previous pixel's reflection value) to final
+	// float4 finalColor += currentColor * reflectionFactor; 
+
+	// Modify for bounce with this reflection val 
+	// reflectionFactor *= surfaceReflectionVal;
+
+	// depth++;
+	// intersectDistance = -1.0f;
+
+	// }   // while
 
 
 	// Main raytrace loop
