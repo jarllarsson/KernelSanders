@@ -25,7 +25,7 @@ struct Light
 {
 	float diffusePower;
 	float specularPower;
-	float4 vec; // direction(w=0) or position(w=1)
+    float4 vec; // direction(w=0) or position(w=1)
 	float4 diffuseColor;
 	float4 specularColor;
 };

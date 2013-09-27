@@ -38,14 +38,14 @@ __device__ SurfaceLightingData* BlinnPhong(SurfaceLightingData* inout_surfaceLig
 			return inout_surfaceLight;*/
 
 		// diffuse light
-		float intensity = max(min(cu_dot(lightSurfDir,in_intersection->normal),1.0f),0.0f);
+		float intensity = cu_fmaxf(cu_fminf(cu_dot(lightSurfDir,in_intersection->normal),1.0f),0.0f);
 		inout_surfaceLight->diffuseColor = intensity*in_light->diffuseColor*in_light->diffusePower/sqrLightDist;
 
 		// half vector between light and ray
 		float4 h = cu_normalize(lightSurfDir+*in_viewDir);
 
-		// specular light (resuse intensity var)
-		intensity = pow(max(cu_dot(in_intersection->normal,h),0.0f),in_intersection->surface.specular.w); // specular.w is glossiness value
+		// specular light (reuse intensity var)
+		intensity = pow(cu_fmaxf(cu_dot(in_intersection->normal,h),0.0f),in_intersection->surface.specular.w); // specular.w is glossiness value
 		inout_surfaceLight->specularColor = intensity*in_light->specularColor*in_light->specularPower/sqrLightDist;
 	}
 	return inout_surfaceLight;
@@ -61,14 +61,14 @@ __device__ SurfaceLightingData* BlinnPhongDir(SurfaceLightingData* inout_surface
 		float4 lightSurfDir = in_light->vec;
 
 		// diffuse light
-		float intensity = max(min(cu_dot(lightSurfDir,in_intersection->normal),1.0f),0.0f);
+		float intensity = cu_fmaxf(cu_fminf(cu_dot(lightSurfDir,in_intersection->normal),1.0f),0.0f);
 		inout_surfaceLight->diffuseColor = intensity*in_light->diffuseColor*in_light->diffusePower;
 
 		// half vector between light and ray
 		float4 h = cu_normalize(lightSurfDir+*in_viewDir);
 		
 		// specular light (resuse intensity var)
-		intensity = pow(max(cu_dot(in_intersection->normal,h),0.0f), in_intersection->surface.specular.w); // specular.w is glossiness value
+		intensity = pow(cu_fmaxf(cu_dot(in_intersection->normal,h),0.0f), in_intersection->surface.specular.w); // specular.w is glossiness value
 		inout_surfaceLight->specularColor = intensity*in_light->specularColor*in_light->specularPower;
 		
 	}

@@ -38,6 +38,9 @@ using std::vector;
 ///---------------------------------------------------------------------------------------
 
 
+__device__ __constant__ RaytraceConstantBuffer cb[1];
+
+
 __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 						 const int p_width, const int p_height)
 {
@@ -322,8 +325,8 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	}  while (reflectionfactor>0.01f && depth<max_depth);
 #endif
 	// Set the color
-	p_outPixel[R_CH] = finalColor.x + (float)blockIdx.x/(float)gridDim.x; // red
-    p_outPixel[G_CH] = finalColor.y + (float)blockIdx.y/(float)gridDim.y; // green
+	p_outPixel[R_CH] = finalColor.x + 0.1f * cb[0].b * (float)blockIdx.x/(float)gridDim.x; // red
+	p_outPixel[G_CH] = finalColor.y + 0.1f * cb[0].b * (float)blockIdx.y/(float)gridDim.y; // green
 	p_outPixel[B_CH] = finalColor.z + 1.0f; // blue
 	p_outPixel[A_CH] = finalColor.w + 1; // alpha
 }

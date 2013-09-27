@@ -11,12 +11,17 @@
 
 KernelDevice::KernelDevice( void* p_device )
 {
-	ZeroMemory(&cb,sizeof(cb));
+	ZeroMemory(&m_cb,sizeof(m_cb));
 	m_width=1; m_height=1;
 	m_device=(ID3D11Device*)p_device;
 	cudaError_t res = cudaD3D11SetDirect3DDevice(m_device);
 	if (!KernelHelper::assertCudaResult(res))
 		throw KernelException(res,"Error registering d3d-device",__FILE__,__FUNCTION__,__LINE__);
+
+	m_cb.a=12.0f;
+	m_cb.b=3.0f;
+	m_cb.c=5.0f;
+	m_cb.d=8.0f;
 
 	m_raytracer = new RaytraceKernel();
 }
@@ -76,14 +81,14 @@ void KernelDevice::executeKernelJob( float p_dt, KernelJob p_jobId )
 	{
 	case J_RAYTRACEWORLD:
 		{
-			cb.b += p_dt;
+			m_cb.b += p_dt;
 
 			RaytraceKernelData blob;
 			blob.m_width=m_width; blob.m_height=m_height;
 			blob.m_textureResource = m_gbufferHandle.m_textureResource;
 			blob.m_textureLinearMem = m_gbufferHandle.m_textureLinearMem;
 			blob.m_pitch = &m_gbufferHandle.m_pitch;
-			blob.m_cb=&cb;
+			blob.m_cb=&m_cb;
 
 			m_raytracer->Execute((KernelData*)&blob,p_dt);
 			break;

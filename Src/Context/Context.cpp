@@ -82,8 +82,8 @@ Context* Context::getInstance()
 
 void Context::resize( int p_w, int p_h, bool p_update)
 {
-	m_width = p_w;
-	m_height = p_h;
+	m_width = max(1,p_w);
+	m_height = max(1,p_h);
 	if (p_update) SetWindowPos( m_hWnd, HWND_TOP, 0, 0, m_width, m_height, SWP_NOMOVE );
 	m_sizeDirty=true;
 }

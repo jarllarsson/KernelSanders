@@ -39,7 +39,7 @@ private:
 	int m_width, m_height;
 	RaytraceKernel* m_raytracer;
 
-	RaytraceConstantBuffer cb;
+	RaytraceConstantBuffer m_cb;
 	InteropResourceMapping	m_gbufferHandle;
 	ID3D11Device*			m_device;
 };
