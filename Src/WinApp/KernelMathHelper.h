@@ -6,6 +6,19 @@
 #define A_CH 3
 #define __CUDACC__
 
+// =======================================================================================
+//                                    KernelMathHelper
+// =======================================================================================
+
+///---------------------------------------------------------------------------------------
+/// \brief	Various math helper functions, based on CUDA 5.0 SDK samples, 
+/// with my own additions. Mainly for matrix math.
+///        
+/// # KernelMathHelper
+/// 
+/// 2013 Jarl Larsson
+///---------------------------------------------------------------------------------------
+
 #include <vector> 
 #include <cuda.h>
 #include <cuda_runtime.h>
@@ -13,6 +26,7 @@
 #include <device_functions.h>
 
 #include "KernelMathOperators.h"
+#include "KernelMathMatrix.h"
 
 #pragma comment(lib, "cudart") 
 
@@ -68,6 +82,11 @@ inline __device__ float4* mat4mul(float* mat4,const float4* in_vec, float4* out_
 	return out_res;
 }
 
+inline __device__ float4* mat4mul(float4x4* mat4,const float4* in_vec, float4* out_res)
+{
+	return mat4mul(mat4->m,in_vec, out_res);
+}
+
 // optimization for when w is not needed
 inline __device__ float4* mat4mul_ignoreW(float* mat4,const float4* in_vec, float4* out_res)
 {
@@ -76,6 +95,11 @@ inline __device__ float4* mat4mul_ignoreW(float* mat4,const float4* in_vec, floa
 	out_res->z = cu_dot( *in_vec,  make_float4(mat4[8],mat4[9],mat4[10],  mat4[11]));
 	out_res->w = 0.0f;
 	return out_res;
+}
+
+inline __device__ float4* mat4mul_ignoreW(float4x4* mat4,const float4* in_vec, float4* out_res)
+{
+	return mat4mul_ignoreW(mat4->m,in_vec, out_res);
 }
 
 // squared length of vector
@@ -163,3 +187,33 @@ inline __device__ float3 cu_cross(const float3& a, const float3& b)
 {
 	return make_float3(a.y*b.z - a.z*b.y, a.z*b.x - a.x*b.z, a.x*b.y - a.y*b.x);
 }
+
+////////////////////////////////////////////////////////////////////////////////
+// Extra make functions for array input
+////////////////////////////////////////////////////////////////////////////////
+static __inline__ __host__ __device__ float2 make_float2(float val[])
+{
+	float2 t; t.x = val[0]; t.y = val[1]; return t;
+}
+
+static __inline__ __host__ __device__ float3 make_float3(float val[])
+{
+	float3 t; t.x = val[0]; t.y = val[1]; t.z = val[2]; return t;
+}
+
+static __inline__ __host__ __device__ float4 make_float4(float val[])
+{
+	float4 t; t.x = val[0]; t.y = val[1]; t.z = val[2]; t.w = val[3]; return t;
+}
+
+static __inline__ __host__ __device__ float4x4 make_float4x4(float val[])
+{
+	float4x4 t;
+	#pragma unroll
+	for (int i=0;i<16;i++)
+	{
+		t.m[i]=val[i];
+	}
+	return t;
+}
+

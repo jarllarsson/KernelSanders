@@ -73,6 +73,11 @@ public:
 	void fitViewport();										///< Fit viewport to width and height
 	void setWireframeMode( bool p_wireframe );				///< Force wireframe render
 
+	// Info
+	float getAspectRatio();
+	int getWidth();
+	int getHeight();
+
 	// Stages
 	void executeRenderPass(RenderPass p_pass);
 

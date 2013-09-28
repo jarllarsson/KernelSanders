@@ -485,3 +485,18 @@ void GraphicsDevice::releaseGBufferAndDepthStencil()
 		SAFE_RELEASE(m_gSrv[i]);
 	}
 }
+
+float GraphicsDevice::getAspectRatio()
+{
+	return (float)m_width/(float)m_height;
+}
+
+int GraphicsDevice::getWidth()
+{
+	return m_width;
+}
+
+int GraphicsDevice::getHeight()
+{
+	return m_height;
+}

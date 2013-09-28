@@ -7,6 +7,7 @@
 #include <cuda_d3d11_interop.h>
 #include <DebugPrint.h>
 #include "KernelHelper.h"
+#include <glm\gtc\type_ptr.hpp>
 
 
 KernelDevice::KernelDevice( void* p_device )
@@ -18,11 +19,8 @@ KernelDevice::KernelDevice( void* p_device )
 	if (!KernelHelper::assertCudaResult(res))
 		throw KernelException(res,"Error registering d3d-device",__FILE__,__FUNCTION__,__LINE__);
 
+	ZeroMemory(&m_cb,sizeof(RaytraceConstantBuffer));
 	m_cb.m_drawMode = RAYTRACEDRAWMODE_REGULAR;
-	m_cb.a=12.0f;
-	m_cb.b=3.0f;
-	m_cb.c=5.0f;
-	m_cb.d=8.0f;
 
 	m_raytracer = new RaytraceKernel();
 }
@@ -38,8 +36,19 @@ KernelDevice::~KernelDevice()
 	delete m_raytracer;
 }
 
-void KernelDevice::update( float dt )
+void KernelDevice::update( float p_dt, TempController* p_tmpCam )
 {
+	// CONST BUFFER DATA
+	// time
+	m_cb.m_time += p_dt;
+
+	// camera
+	memcpy(&m_cb.m_camPos, glm::value_ptr(p_tmpCam->getPos()), sizeof(m_cb.m_camPos));
+	memcpy(&m_cb.m_cameraRotationMat, glm::value_ptr(p_tmpCam->calcRotationMatrix()), sizeof(m_cb.m_cameraRotationMat));
+	glm::vec2 rayscale=p_tmpCam->getFovXY();
+	m_cb.m_rayDirScaleX = rayscale.x;
+	m_cb.m_rayDirScaleY = rayscale.y;
+	// ======================================
 
 	Texture* texBuf = *m_gbufferHandle.m_texture/*[i]*/;
 	if (texBuf->isDirty())
@@ -82,8 +91,6 @@ void KernelDevice::executeKernelJob( float p_dt, KernelJob p_jobId )
 	{
 	case J_RAYTRACEWORLD:
 		{
-			m_cb.b += p_dt;
-
 			RaytraceKernelData blob;
 			blob.m_width=m_width; blob.m_height=m_height;
 			blob.m_textureResource = m_gbufferHandle.m_textureResource;

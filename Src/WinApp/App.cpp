@@ -11,6 +11,11 @@
 #include "KernelException.h""
 
 #include <ValueClamp.h>
+#include "TempController.h"
+
+
+#include <SDL.h>
+
 
 const double App::DTCAP=0.5;
 
@@ -50,15 +55,25 @@ App::App( HINSTANCE p_hInstance )
 		DEBUGWARNING((e.what()));
 	}
 
+	// For now init SDL2 here, no video
+	if (SDL_Init( SDL_INIT_EVENTS | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER )>0)
+	{
+		DEBUGWARNING((string("Unable to init SDL2!").c_str()));
+	}
+	//
 
 	fpsUpdateTick=0.0f;
+	m_controller = new TempController();
 }
 
 App::~App()
 {	
+	SDL_Quit();
 	delete m_kernelDevice;
 	delete m_graphicsDevice;
 	delete m_context;
+
+	delete m_controller;
 }
 
 void App::run()
@@ -91,6 +106,41 @@ void App::run()
 		}
 		else
 		{
+			//Event handler
+			SDL_Event e;
+			//Handle events on queue
+			while( SDL_PollEvent( &e ) != 0 )
+			{
+				//User presses a key
+				if( e.type == SDL_KEYDOWN )
+				{
+					//Select surfaces based on key press
+					switch( e.key.keysym.sym )
+					{
+					case SDLK_ESCAPE:
+						run=false;
+						break;
+
+// 					case SDLK_DOWN:
+// 						gCurrentSurface = gKeyPressSurfaces[ KEY_PRESS_SURFACE_DOWN ];
+// 						break;
+// 
+// 					case SDLK_LEFT:
+// 						gCurrentSurface = gKeyPressSurfaces[ KEY_PRESS_SURFACE_LEFT ];
+// 						break;
+// 
+// 					case SDLK_RIGHT:
+// 						gCurrentSurface = gKeyPressSurfaces[ KEY_PRESS_SURFACE_RIGHT ];
+// 						break;
+// 
+// 					default:
+// 						gCurrentSurface = gKeyPressSurfaces[ KEY_PRESS_SURFACE_DEFAULT ];
+// 						break;
+					}
+				}
+			}
+
+
 			// apply resizing on graphics device if it has been triggered by the context
 			if (m_context->isSizeDirty())
 			{
@@ -117,9 +167,13 @@ void App::run()
 
 			m_graphicsDevice->clearRenderTargets();									// Clear render targets
 
+			// temp controller update code
+			m_controller->setFovFromAngle(52.0f,m_graphicsDevice->getAspectRatio());
+			m_controller->update(dt);
+
 			// Run the devices
 			// ---------------------------------------------------------------------------------------------
-			m_kernelDevice->update((float)dt);												// Update kernel data
+			m_kernelDevice->update((float)dt,m_controller);								// Update kernel data
 
 
 

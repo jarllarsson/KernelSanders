@@ -5,6 +5,7 @@
 class Context;
 class GraphicsDevice;
 class KernelDevice;
+class TempController;
 
 // =======================================================================================
 //                                      App
@@ -32,4 +33,6 @@ protected:
 private:
 	static const double DTCAP;
 	float fpsUpdateTick;
+
+	TempController* m_controller;
 };

@@ -47,7 +47,15 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	// Normalized device coordinates of pixel. (-1 to 1)
 	const float u = (p_x / (float) p_width)*2.0f-1.0f;
 	const float v = (p_y / (float) p_height)*2.0f-1.0f;
-	float time = cb[0].b;
+
+
+	// Store contents of constant buffer in local mem
+	float time = cb[0].m_time;
+	float rayDirScaleX = cb[0].m_rayDirScaleX;
+	float rayDirScaleY = cb[0].m_rayDirScaleY;
+	float4  camPos = make_float4(cb[0].m_camPos);
+	float4x4 camRotation = make_float4x4(cb[0].m_cameraRotationMat);
+
 	// =======================================================
 	//                   TEST SETUP CODE
 	// =======================================================
@@ -95,7 +103,7 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	for (int i=0;i<AMOUNTOFTRIS;i++)
 	{
 
-#pragma unroll 3
+		#pragma unroll 3
 		for (int x=0;x<3;x++)
 		{
 
@@ -152,11 +160,11 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	// calculate eye ray in world space
 	Ray ray;
 	//ray.origin = make_float4(u,v,10.0f,1.0f);
-	ray.origin = make_float4(0.0f,0.0f,3.0f,1.0f);
+	ray.origin = camPos;
 
 	//ray.origin = camPos;   
 
-	float4 viewFrameDir = cu_normalize( make_float4(u, v, -1.3f,0.0f) );
+	float4 viewFrameDir = cu_normalize( make_float4(u*rayDirScaleX, v*rayDirScaleY, -1.0f,0.0f) );
 	//ray.dir = make_float4(0.0f,0.0f,-1.0f,0.0f);
 	ray.dir = viewFrameDir;
 	//mat4mul_ignoreW(viewMatrix,&viewFrameDir, &ray.dir); // transform viewFrameDir with the viewMatrix to get the world space ray

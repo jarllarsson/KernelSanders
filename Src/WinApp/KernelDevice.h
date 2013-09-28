@@ -3,6 +3,7 @@
 #include "InteropResourceMapping.h"
 #include "RaytraceKernel.h"
 #include <vector>
+#include "TempController.h"
 
 using namespace std;
 
@@ -31,7 +32,7 @@ public:
 
 	void registerCanvas(void** p_texture);
 
-	void update(float dt);
+	void update(float p_dt, TempController* p_tmpCam );
 
 	void executeKernelJob( float p_dt, KernelJob p_jobId );
 protected:

@@ -109,9 +109,6 @@
     <ClInclude Include="IntersectAll.h">
       <Filter>Source Files\Kernel\Kernels\Raytrace\Intersections</Filter>
     </ClInclude>
-    <ClInclude Include="RaytraceSetup.h">
-      <Filter>Source Files\Kernel\Kernels\Raytrace</Filter>
-    </ClInclude>
     <ClInclude Include="Raytracer.h">
       <Filter>Source Files\Kernel\Kernels\Raytrace</Filter>
     </ClInclude>
@@ -123,6 +120,15 @@
     </ClInclude>
     <ClInclude Include="KernelMathOperators.h">
       <Filter>Source Files\Kernel\Kernels\Raytrace\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="TempController.h">
+      <Filter>Source Files\TempLogic</Filter>
+    </ClInclude>
+    <ClInclude Include="KernelMathMatrix.h">
+      <Filter>Source Files\Kernel\Kernels\Raytrace\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="RaytraceDefines.h">
+      <Filter>Source Files\Kernel\Kernels\Raytrace</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -142,6 +148,9 @@
       <Filter>Source Files\Kernel</Filter>
     </ClCompile>
     <ClCompile Include="Camera.cpp">
+      <Filter>Source Files\TempLogic</Filter>
+    </ClCompile>
+    <ClCompile Include="TempController.cpp">
       <Filter>Source Files\TempLogic</Filter>
     </ClCompile>
   </ItemGroup>

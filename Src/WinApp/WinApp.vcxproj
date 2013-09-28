@@ -67,15 +67,15 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)Src\Context;$(SolutionDir)Src\Graphics;$(SolutionDir)Src\Util;$(SolutionDir)External\Visual Leak Detector\include\;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)Lib\$(PlatformShortName)\;$(SolutionDir)External\Visual Leak Detector\lib\Win64;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)Src\Context;$(SolutionDir)Src\Graphics;$(SolutionDir)Src\Util;$(SolutionDir)External\Visual Leak Detector\include\;$(SolutionDir)External\SDL2\include;$(SolutionDir)External\GLM\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)Lib\$(PlatformShortName)\;$(SolutionDir)External\Visual Leak Detector\lib\Win64;$(SolutionDir)External\SDL2\lib\x64\;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)Bin\$(PlatformShortName)\</OutDir>
     <IntDir>$(SolutionDir)Obj\$(Configuration)\$(PlatformShortName)\</IntDir>
     <TargetName>$(ProjectName)_$(Configuration)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)Src\Context;$(SolutionDir)Src\Graphics;$(SolutionDir)Src\Util;$(SolutionDir)External\Visual Leak Detector\include\;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)Lib\$(PlatformShortName)\;$(SolutionDir)External\Visual Leak Detector\lib\Win64;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)Src\Context;$(SolutionDir)Src\Graphics;$(SolutionDir)Src\Util;$(SolutionDir)External\Visual Leak Detector\include\;$(SolutionDir)External\SDL2\include;$(SolutionDir)External\GLM\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)Lib\$(PlatformShortName)\;$(SolutionDir)External\Visual Leak Detector\lib\Win64;$(SolutionDir)External\SDL2\lib\x64\;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)Bin\$(PlatformShortName)\</OutDir>
     <IntDir>$(SolutionDir)Obj\$(Configuration)\$(PlatformShortName)\</IntDir>
     <TargetName>$(ProjectName)_$(Configuration)</TargetName>
@@ -84,15 +84,15 @@
     <OutDir>$(SolutionDir)Bin\$(PlatformShortName)\</OutDir>
     <IntDir>$(SolutionDir)Obj\$(Configuration)\$(PlatformShortName)\</IntDir>
     <TargetName>$(ProjectName)_$(Configuration)</TargetName>
-    <IncludePath>$(SolutionDir)Src\Context;$(SolutionDir)Src\Graphics;$(SolutionDir)Src\Util;$(SolutionDir)External\Visual Leak Detector\include\;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)Lib\$(PlatformShortName)\;$(SolutionDir)External\Visual Leak Detector\lib\Win32\;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)Src\Context;$(SolutionDir)Src\Graphics;$(SolutionDir)Src\Util;$(SolutionDir)External\Visual Leak Detector\include\;$(SolutionDir)External\SDL2\include;$(SolutionDir)External\GLM\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)Lib\$(PlatformShortName)\;$(SolutionDir)External\Visual Leak Detector\lib\Win32\;$(SolutionDir)External\SDL2\lib\x86\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)Bin\$(PlatformShortName)\</OutDir>
     <IntDir>$(SolutionDir)Obj\$(Configuration)\$(PlatformShortName)\</IntDir>
     <TargetName>$(ProjectName)_$(Configuration)</TargetName>
-    <IncludePath>$(SolutionDir)Src\Context;$(SolutionDir)Src\Graphics;$(SolutionDir)Src\Util;$(SolutionDir)External\Visual Leak Detector\include\;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)Lib\$(PlatformShortName)\;$(SolutionDir)External\Visual Leak Detector\lib\Win32\;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)Src\Context;$(SolutionDir)Src\Graphics;$(SolutionDir)Src\Util;$(SolutionDir)External\Visual Leak Detector\include\;$(SolutionDir)External\SDL2\include;$(SolutionDir)External\GLM\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)Lib\$(PlatformShortName)\;$(SolutionDir)External\Visual Leak Detector\lib\Win32\;$(SolutionDir)External\SDL2\lib\x86\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -102,7 +102,7 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>Util_$(Configuration).lib;Graphics_$(Configuration).lib;Context_$(Configuration).lib;cudart.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Util_$(Configuration).lib;Graphics_$(Configuration).lib;Context_$(Configuration).lib;cudart.lib;SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
     </Link>
     <CudaCompile>
@@ -126,7 +126,7 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>Util_$(Configuration).lib;Graphics_$(Configuration).lib;Context_$(Configuration).lib;cudart.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Util_$(Configuration).lib;Graphics_$(Configuration).lib;Context_$(Configuration).lib;cudart.lib;SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
     </Link>
     <CudaCompile>
@@ -155,7 +155,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>Util_$(Configuration).lib;Graphics_$(Configuration).lib;Context_$(Configuration).lib;cudart.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Util_$(Configuration).lib;Graphics_$(Configuration).lib;Context_$(Configuration).lib;cudart.lib;SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <CudaCompile>
       <KeepDir>$(IntDir)CUDA\</KeepDir>
@@ -182,7 +182,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>Util_$(Configuration).lib;Graphics_$(Configuration).lib;Context_$(Configuration).lib;cudart.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Util_$(Configuration).lib;Graphics_$(Configuration).lib;Context_$(Configuration).lib;cudart.lib;SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
@@ -206,6 +206,7 @@
     <ClInclude Include="IntersectPlane.h" />
     <ClInclude Include="IntersectSphere.h" />
     <ClInclude Include="IntersectTriangle.h" />
+    <ClInclude Include="KernelMathMatrix.h" />
     <ClInclude Include="KernelMathOperators.h" />
     <ClInclude Include="LightStructures.h" />
     <ClInclude Include="Primitives.h" />
@@ -220,9 +221,10 @@
     <ClInclude Include="RaytraceKernel.h" />
     <ClInclude Include="App.h" />
     <ClInclude Include="RaytraceLighting.h" />
-    <ClInclude Include="RaytraceSetup.h" />
+    <ClInclude Include="RaytraceDefines.h" />
     <ClInclude Include="RaytraceSurfaceMaterial.h" />
     <ClInclude Include="Scene.h" />
+    <ClInclude Include="TempController.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
@@ -231,6 +233,7 @@
     <ClCompile Include="RaytraceKernel.cpp" />
     <ClCompile Include="App.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="TempController.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="RaytraceKernelEntry.cu">

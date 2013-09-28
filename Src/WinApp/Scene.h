@@ -6,7 +6,7 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 #include <vector_types.h>
-#include "RaytraceSetup.h"
+#include "RaytraceDefines.h"
 #include "Primitives.h"
 #include "LightStructures.h"
 #include "RaytraceSurfaceMaterial.h"

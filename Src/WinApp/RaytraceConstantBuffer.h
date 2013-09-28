@@ -19,10 +19,11 @@
 struct RaytraceConstantBuffer
 {
 	int m_drawMode;
-	float a;
-	float b;
-	float c;
-	float d;
+	float m_rayDirScaleX;
+	float m_rayDirScaleY;
+	float m_time;
+	float m_cameraRotationMat[16];
+	float m_camPos[4];
 };
 
 #endif
