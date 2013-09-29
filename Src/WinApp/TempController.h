@@ -27,18 +27,37 @@ public:
 	TempController();
 	virtual ~TempController();
 
-	glm::mat4 calcRotationMatrix();
-	glm::vec4 getPos();
+	glm::mat4& getRotationMatrix();
+	glm::vec4& getPos();
 
 	void update(float p_dt);
 
 	void setFovFromAngle(float angle, float aspectRatio);
 	void setFovFromRad(float rad, float aspectRatio);
 
+	void moveThrust(const glm::vec3& p_dir);
+	void moveAngularThrust(const glm::vec3& p_dir);
+	void rotate(glm::vec3 p_angularVelocity);
+
 	bool isNewFovAvailable();
 	glm::vec2& getFovXY();
 protected:
 private:
+	void calcRotationMatrix();
+
+	glm::mat4 m_rotationMat;
+
+	glm::vec3 m_moveThrustDir;
+	glm::vec3 m_moveAngularThrustDir;
+
+	glm::vec4 m_velocity;
+	glm::vec3 m_angularVelocity;
+
+	float m_thrustPower;
+	float m_angularThrustPower;
+	float m_damping;
+	float m_angularDamping;
+
 	glm::vec4 m_position;
 	glm::quat m_rotation;
 

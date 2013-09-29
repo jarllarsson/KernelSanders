@@ -1,5 +1,6 @@
 #pragma once
 #include <d3d11.h>
+#include <Util.h>
 
 // =======================================================================================
 //                                      D3DUtil
@@ -14,7 +15,7 @@
 ///---------------------------------------------------------------------------------------
 
 #define SAFE_RELEASE(x) if( x ) { (x)->Release(); (x) = NULL; }
-#define SAFE_DELETE(x) if( x ) { delete (x); (x) = NULL; }
+
 
 
 static void setDebugName( ID3D11DeviceChild* obj,const char* name );

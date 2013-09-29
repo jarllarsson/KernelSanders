@@ -47,6 +47,9 @@
     <Filter Include="Source Files\Kernel\Kernels\Raytrace\Utils">
       <UniqueIdentifier>{2bfa1553-183e-44fd-99da-e1aef31fe1b1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\TempLogic\Input">
+      <UniqueIdentifier>{084f3a0b-3ec8-403c-a1d3-0f4e66903365}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h">
@@ -130,6 +133,12 @@
     <ClInclude Include="RaytraceDefines.h">
       <Filter>Source Files\Kernel\Kernels\Raytrace</Filter>
     </ClInclude>
+    <ClInclude Include="OISEventHandler.h">
+      <Filter>Source Files\TempLogic\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="OISHelper.h">
+      <Filter>Source Files\TempLogic\Input</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -152,6 +161,9 @@
     </ClCompile>
     <ClCompile Include="TempController.cpp">
       <Filter>Source Files\TempLogic</Filter>
+    </ClCompile>
+    <ClCompile Include="OISHelper.cpp">
+      <Filter>Source Files\TempLogic\Input</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

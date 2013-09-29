@@ -6,6 +6,7 @@ class Context;
 class GraphicsDevice;
 class KernelDevice;
 class TempController;
+class OISHelper;
 
 // =======================================================================================
 //                                      App
@@ -35,4 +36,5 @@ private:
 	float fpsUpdateTick;
 
 	TempController* m_controller;
+	OISHelper*		m_input;
 };

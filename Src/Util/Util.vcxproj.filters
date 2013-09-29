@@ -28,6 +28,9 @@
     <ClInclude Include="MathHelp.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="Util.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Util.cpp">

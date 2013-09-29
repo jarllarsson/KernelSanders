@@ -44,7 +44,7 @@ void KernelDevice::update( float p_dt, TempController* p_tmpCam )
 
 	// camera
 	memcpy(&m_cb.m_camPos, glm::value_ptr(p_tmpCam->getPos()), sizeof(m_cb.m_camPos));
-	memcpy(&m_cb.m_cameraRotationMat, glm::value_ptr(p_tmpCam->calcRotationMatrix()), sizeof(m_cb.m_cameraRotationMat));
+	memcpy(&m_cb.m_cameraRotationMat, glm::value_ptr(p_tmpCam->getRotationMatrix()), sizeof(m_cb.m_cameraRotationMat));
 	glm::vec2 rayscale=p_tmpCam->getFovXY();
 	m_cb.m_rayDirScaleX = rayscale.x;
 	m_cb.m_rayDirScaleY = rayscale.y;

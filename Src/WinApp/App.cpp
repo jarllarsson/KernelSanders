@@ -14,7 +14,7 @@
 #include "TempController.h"
 
 
-#include <SDL.h>
+#include "OISHelper.h"
 
 
 const double App::DTCAP=0.5;
@@ -55,25 +55,21 @@ App::App( HINSTANCE p_hInstance )
 		DEBUGWARNING((e.what()));
 	}
 
-	// For now init SDL2 here, no video
-	if (SDL_Init( SDL_INIT_EVENTS | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER )>0)
-	{
-		DEBUGWARNING((string("Unable to init SDL2!").c_str()));
-	}
 	//
 
 	fpsUpdateTick=0.0f;
 	m_controller = new TempController();
+	m_input = new OISHelper();
+	m_input->doStartup(m_context->getWindowHandle());
 }
 
 App::~App()
 {	
-	SDL_Quit();
-	delete m_kernelDevice;
-	delete m_graphicsDevice;
-	delete m_context;
-
-	delete m_controller;
+	SAFE_DELETE(m_kernelDevice);
+	SAFE_DELETE(m_graphicsDevice);
+	SAFE_DELETE(m_context);
+	SAFE_DELETE(m_input);
+	SAFE_DELETE(m_controller);
 }
 
 void App::run()
@@ -106,40 +102,41 @@ void App::run()
 		}
 		else
 		{
-			//Event handler
-			SDL_Event e;
-			//Handle events on queue
-			while( SDL_PollEvent( &e ) != 0 )
-			{
-				//User presses a key
-				if( e.type == SDL_KEYDOWN )
-				{
-					//Select surfaces based on key press
-					switch( e.key.keysym.sym )
-					{
-					case SDLK_ESCAPE:
-						run=false;
-						break;
+			m_input->run();
+			// Thrust
+			if (m_input->g_kb->isKeyDown(KC_LEFT) || m_input->g_kb->isKeyDown(KC_A))
+				m_controller->moveThrust(glm::vec3(-1.0f,0.0f,0.0f));
+			if (m_input->g_kb->isKeyDown(KC_RIGHT) || m_input->g_kb->isKeyDown(KC_D))
+				m_controller->moveThrust(glm::vec3(1.0f,0.0f,0.0f));
+			if (m_input->g_kb->isKeyDown(KC_UP) || m_input->g_kb->isKeyDown(KC_W))
+				m_controller->moveThrust(glm::vec3(0.0f,1.0f,0.0f));
+			if (m_input->g_kb->isKeyDown(KC_DOWN) || m_input->g_kb->isKeyDown(KC_S))
+				m_controller->moveThrust(glm::vec3(0.0f,-1.0f,0.0f));
+			if (m_input->g_kb->isKeyDown(KC_SPACE))
+				m_controller->moveThrust(glm::vec3(0.0f,0.0f,1.0f));
+			if (m_input->g_kb->isKeyDown(KC_B))
+				m_controller->moveThrust(glm::vec3(0.0f,0.0f,-1.0f));
+			// Angular thrust
+			if (m_input->g_kb->isKeyDown(KC_Q))
+				m_controller->moveAngularThrust(glm::vec3(0.0f,0.0f,-1.0f));
+			if (m_input->g_kb->isKeyDown(KC_E))
+				m_controller->moveAngularThrust(glm::vec3(0.0f,0.0f,1.0f));
+			if (m_input->g_kb->isKeyDown(KC_T))
+				m_controller->moveAngularThrust(glm::vec3(0.0f,1.0f,0.0f));
+			if (m_input->g_kb->isKeyDown(KC_R))
+				m_controller->moveAngularThrust(glm::vec3(0.0f,-1.0f,0.0f));
+			if (m_input->g_kb->isKeyDown(KC_U))
+				m_controller->moveAngularThrust(glm::vec3(1.0f,0.0f,0.0f));
+			if (m_input->g_kb->isKeyDown(KC_J))
+				m_controller->moveAngularThrust(glm::vec3(-1.0f,0.0f,0.0f));
 
-// 					case SDLK_DOWN:
-// 						gCurrentSurface = gKeyPressSurfaces[ KEY_PRESS_SURFACE_DOWN ];
-// 						break;
-// 
-// 					case SDLK_LEFT:
-// 						gCurrentSurface = gKeyPressSurfaces[ KEY_PRESS_SURFACE_LEFT ];
-// 						break;
-// 
-// 					case SDLK_RIGHT:
-// 						gCurrentSurface = gKeyPressSurfaces[ KEY_PRESS_SURFACE_RIGHT ];
-// 						break;
-// 
-// 					default:
-// 						gCurrentSurface = gKeyPressSurfaces[ KEY_PRESS_SURFACE_DEFAULT ];
-// 						break;
-					}
-				}
-			}
-
+			float mousemovemultiplier=0.001f;
+ 			float mouseX=(float)m_input->g_m->getMouseState().X.rel*mousemovemultiplier;
+ 			float mouseY=(float)m_input->g_m->getMouseState().Y.rel*mousemovemultiplier;
+ 			if (abs(mouseX)>0.0f || abs(mouseY)>0.0f)
+ 			{
+ 				m_controller->rotate(glm::vec3(clamp(-mouseY,-1.0f,1.0f),clamp(-mouseX,-1.0f,1.0f),0.0f));
+ 			}
 
 			// apply resizing on graphics device if it has been triggered by the context
 			if (m_context->isSizeDirty())
@@ -169,7 +166,7 @@ void App::run()
 
 			// temp controller update code
 			m_controller->setFovFromAngle(52.0f,m_graphicsDevice->getAspectRatio());
-			m_controller->update(dt);
+			m_controller->update((float)dt);
 
 			// Run the devices
 			// ---------------------------------------------------------------------------------------------

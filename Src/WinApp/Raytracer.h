@@ -164,10 +164,10 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 
 	//ray.origin = camPos;   
 
-	float4 viewFrameDir = cu_normalize( make_float4(u*rayDirScaleX, v*rayDirScaleY, -1.0f,0.0f) );
+	float4 viewFrameDir = cu_normalize( make_float4(u*rayDirScaleX, -v*rayDirScaleY, 1.0f,0.0f) );
 	//ray.dir = make_float4(0.0f,0.0f,-1.0f,0.0f);
 	ray.dir = viewFrameDir;
-	//mat4mul_ignoreW(viewMatrix,&viewFrameDir, &ray.dir); // transform viewFrameDir with the viewMatrix to get the world space ray
+	mat4mul(&camRotation,&viewFrameDir, &ray.dir); // transform viewFrameDir with the viewMatrix to get the world space ray
 
 	Ray shadowRay;
 

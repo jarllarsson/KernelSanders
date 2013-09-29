@@ -46,13 +46,13 @@ __device__ bool IntersectAll(const Scene* in_scene, const Ray* in_ray, Intersect
 			return true;
 	}	// for each sphere	
 
-// 	// #pragma unroll AMOUNTOFPLANES 
-// 	for (int i=0;i<AMOUNTOFPLANES;i++)
-// 	{
-// 		result|=IntersectPlane(&(in_scene->plane[i]), in_ray, inout_intersection,storeResults);
-// 		if (result && breakOnFirst) 
-// 			return true;
-// 	}	// for each plane
+	// #pragma unroll AMOUNTOFPLANES 
+	for (int i=0;i<AMOUNTOFPLANES;i++)
+	{
+		result|=IntersectPlane(&(in_scene->plane[i]), in_ray, inout_intersection,storeResults);
+		if (result && breakOnFirst) 
+			return true;
+	}	// for each plane
 
 
 	#pragma unroll AMOUNTOFTRIS
