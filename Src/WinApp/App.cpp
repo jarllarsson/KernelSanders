@@ -8,7 +8,7 @@
 #include <GraphicsException.h>
 
 #include "KernelDevice.h"
-#include "KernelException.h""
+#include "KernelException.h"
 
 #include <ValueClamp.h>
 #include "TempController.h"
@@ -93,6 +93,9 @@ void App::run()
 	// lets non-context systems quit the program
 	bool run=true;
 
+	int shadowMode=0;
+	int debugDrawMode=0;
+
 	while (!m_context->closeRequested() && run)
 	{
 		if( PeekMessage( &msg, NULL, 0, 0, PM_REMOVE) )
@@ -129,6 +132,25 @@ void App::run()
 				m_controller->moveAngularThrust(glm::vec3(1.0f,0.0f,0.0f));
 			if (m_input->g_kb->isKeyDown(KC_J))
 				m_controller->moveAngularThrust(glm::vec3(-1.0f,0.0f,0.0f));
+			// Settings
+			if (m_input->g_kb->isKeyDown(KC_B)) // Debug blocks
+				debugDrawMode=1;
+			if (m_input->g_kb->isKeyDown(KC_N)) // Debug off
+				debugDrawMode=0;
+			if (m_input->g_kb->isKeyDown(KC_0)) // Shadow off
+				shadowMode=0;
+			if (m_input->g_kb->isKeyDown(KC_1)) // Shadow on (hard shadows)
+				shadowMode=1;
+			if (m_input->g_kb->isKeyDown(KC_2)) // Shadow on (soft shadows fidelity=2)
+				shadowMode=2;
+			if (m_input->g_kb->isKeyDown(KC_3)) // Shadow on (soft shadows fidelity=5)
+				shadowMode=5;
+			if (m_input->g_kb->isKeyDown(KC_4)) // Shadow on (soft shadows fidelity=10)
+				shadowMode=10;
+			if (m_input->g_kb->isKeyDown(KC_5)) // Shadow on (soft shadows fidelity=15)
+				shadowMode=15;
+			if (m_input->g_kb->isKeyDown(KC_6)) // Shadow on (soft shadows fidelity=20)
+				shadowMode=20;
 
 			float mousemovemultiplier=0.001f;
  			float mouseX=(float)m_input->g_m->getMouseState().X.rel*mousemovemultiplier;
@@ -170,7 +192,7 @@ void App::run()
 
 			// Run the devices
 			// ---------------------------------------------------------------------------------------------
-			m_kernelDevice->update((float)dt,m_controller);								// Update kernel data
+			m_kernelDevice->update((float)dt,m_controller,debugDrawMode,shadowMode);	// Update kernel data
 
 
 

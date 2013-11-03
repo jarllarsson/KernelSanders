@@ -32,7 +32,7 @@ public:
 
 	void registerCanvas(void** p_texture);
 
-	void update(float p_dt, TempController* p_tmpCam );
+	void update(float p_dt, TempController* p_tmpCam, int p_drawMode, int p_shadowMode );
 
 	void executeKernelJob( float p_dt, KernelJob p_jobId );
 protected:

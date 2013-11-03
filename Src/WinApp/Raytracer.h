@@ -11,6 +11,7 @@
 #include "KernelHelper.h"
 #include "KernelMathHelper.h"
 #include "IntersectAll.h"
+#include "RaytraceShadow.h"
 #include "Scene.h"
 #include "Ray.h"
 #include "IntersectionInfo.h"
@@ -53,6 +54,9 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	float time = cb[0].m_time;
 	float rayDirScaleX = cb[0].m_rayDirScaleX;
 	float rayDirScaleY = cb[0].m_rayDirScaleY;
+	int drawMode=cb[0].m_drawMode;
+	int shadowMode=cb[0].m_shadowMode;
+	float partLit=1.0f/(float)shadowMode;
 	float4  camPos = make_float4(cb[0].m_camPos);
 	float4x4 camRotation = make_float4x4(cb[0].m_cameraRotationMat);
 
@@ -75,7 +79,7 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	scene.sphere[1].mat.diffuse = make_float4(0.0f, 1.0f, 0.0f,1.0f);
 	scene.sphere[1].mat.specular = make_float4(0.0f, 0.0f, 0.0f,0.0f);
 	scene.sphere[1].mat.reflection = 0.0f;
-
+	#pragma unroll AMOUNTOFSPHERES-2
 	for (int i=2;i<AMOUNTOFSPHERES;i++)
 	{
 		scene.sphere[i].pos = make_float4((float)(i%3),(float)i,(float)i,1.0f);
@@ -86,9 +90,10 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	}
 
 	// define a plane
+	#pragma unroll AMOUNTOFPLANES
 	for (int i=0;i<AMOUNTOFPLANES;i++)
 	{
-		scene.plane[i].distance = 10.0f;
+		scene.plane[i].distance = -5.0f;
 		scene.plane[i].normal = make_float4(0.0f,1.0f,0.0f,0.0f);
 		//scene.plane[i].mat.diffuse = (float4)( 71.0f/255.0f, 21.0f/255.0f, 87.0f/255.0f ,1.0f);
 		scene.plane[i].mat.diffuse = make_float4( 0.1f, 0.5f, 1.0f ,1.0f);
@@ -100,6 +105,7 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 
 
 	// define some tris
+	#pragma unroll AMOUNTOFTRIS
 	for (int i=0;i<AMOUNTOFTRIS;i++)
 	{
 
@@ -107,7 +113,7 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 		for (int x=0;x<3;x++)
 		{
 
-			scene.tri[i].vertices[x] = make_float4((float)i+x*0.5f, ((i%2)*2-1)*(float)(x%2)*0.5f, sin((float)(x+i)*0.5f)*-3.0f,0.0f);
+			scene.tri[i].vertices[x] = make_float4((float)i+x*0.5f, sin(time+(float)i+x*0.01f) + ((i%2)*2-1)*(float)(x%2)*0.5f, sin((float)(x+i)*0.5f)*-3.0f,0.0f);
 		}
 
 		scene.tri[i].mat.diffuse = make_float4( 1.0f-((float)i/(float)AMOUNTOFTRIS), (float)i/(float)AMOUNTOFTRIS, 1.0f-((float)i/(float)(AMOUNTOFTRIS*0.2f)) ,1.0f);
@@ -117,6 +123,7 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	}
 
 	// define some boxes
+	#pragma unroll AMOUNTOFBOXES
 	for (int i=0;i<AMOUNTOFBOXES;i++)
 	{
 		scene.box[i].pos = make_float4(-5.0f,10+sin((float)i)*10.0f*sin(time), i*10,0.0f) + make_float4(sin((float)i)*50.0f*(1.0f+sin(time)),
@@ -137,6 +144,7 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	}
 
 	// define some lights
+	#pragma unroll AMOUNTOFLIGHTS-1
 	for (int i=0;i<AMOUNTOFLIGHTS-1;i++)
 	{
 		// scene.light[i].vec = (float4)(i*5.0f*sin((1.0f+i)*time),i+sin(time),100.0f*sin(time) + i*2.0f*cos((1.0f+i)*time),1.0f);
@@ -149,7 +157,7 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 
 
 	// Create a directional light
-	scene.light[AMOUNTOFLIGHTS-1].vec = cu_normalize(make_float4(0.0f,sin(time*1.0f)*3.0f,-1.0f,0.0f));
+	scene.light[AMOUNTOFLIGHTS-1].vec = cu_normalize(make_float4(sin(time*0.1f),-1.0f,cos(time*0.1f),0.0f));
 	scene.light[AMOUNTOFLIGHTS-1].diffusePower = 1.0f;
 	scene.light[AMOUNTOFLIGHTS-1].specularPower = 1.0f;
 	scene.light[AMOUNTOFLIGHTS-1].diffuseColor = make_float4(1.0f, 1.0f,1.0f,1.0f);
@@ -216,6 +224,7 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 			currentColor=ambient; // ambient base add (note: on do this on current colour for ambient on shadows)
 
 			// add all lights
+			#pragma unroll AMOUNTOFLIGHTS
 			for (int i=0;i<AMOUNTOFLIGHTS;i++)
 			{				
 
@@ -224,14 +233,15 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 				lightColor+=intersection.surface.diffuse*dat.diffuseColor;
 				lightColor+=intersection.surface.specular*dat.specularColor;
 
-
 				// second intersection test for shadows, return true on very first hit
-				intersection.dist = MAX_INTERSECT_DIST; // reset
-				shadowRay.origin = intersection.pos;
-				shadowRay.dir = cu_normalize( intersection.pos * scene.light[i].vec.w - scene.light[i].vec );
+				float lightHits=0;
+				if (shadowMode!=RAYTRACESHADOWMODE_OFF ) // shadow
+					lightHits=ShadowCastAll(&(scene.light[i]),shadowMode,
+											&shadowRay,&intersection,&scene,u,v,partLit);
+				else              // no shadow
+					lightHits=1.0f;
 
-				if (!IntersectAll(&scene,&shadowRay,&intersection,true)) // only add light colour if no object is between current pixel and light*/
-					currentColor += lightColor;
+				currentColor += lightColor*lightHits;
 			}
 
 
@@ -242,14 +252,13 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 				finalColor += currentColor * reflectionfactor; 
 
 
-			reflectionfactor=0.0f;
-// 			reflectionfactor = intersection.surface.reflection;
-// 			if (reflectionfactor>0.01f)
-// 			{
-// 				ray.origin = intersection.pos;
-// 				cu_reflect(&(ray.dir),&(intersection.normal),&(ray.dir));
-// 				fast_normalize(ray.dir);
-// 			}
+			reflectionfactor = intersection.surface.reflection;
+			if (reflectionfactor>0.01f)
+			{
+				ray.origin = intersection.pos;
+				cu_reflect(ray.dir,intersection.normal,ray.dir);
+				cu_normalize(ray.dir);
+ 			}
 
 			intersection.dist = MAX_INTERSECT_DIST;
 
@@ -262,8 +271,8 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	}  while (reflectionfactor>0.01f && depth<max_depth);
 
 	// Set the color
-	float dbgGridX=cb[0].m_drawMode*((float)blockIdx.x/(float)gridDim.x);
-	float dbgGridY=cb[0].m_drawMode*((float)blockIdx.y/(float)gridDim.y);
+	float dbgGridX=drawMode*((float)blockIdx.x/(float)gridDim.x);
+	float dbgGridY=drawMode*((float)blockIdx.y/(float)gridDim.y);
 	p_outPixel[R_CH] = finalColor.x + dbgGridX; // red
 	p_outPixel[G_CH] = finalColor.y + dbgGridY; // green
 	p_outPixel[B_CH] = finalColor.z; // blue

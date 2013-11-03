@@ -139,6 +139,9 @@
     <ClInclude Include="OISHelper.h">
       <Filter>Source Files\TempLogic\Input</Filter>
     </ClInclude>
+    <ClInclude Include="RaytraceShadow.h">
+      <Filter>Source Files\Kernel\Kernels\Raytrace\Effects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

@@ -1,6 +1,5 @@
 #include "RenderStateHelper.h"
 
-
 void RenderStateHelper::fillBlendStateList(ID3D11Device* p_device,
 										   vector<ID3D11BlendState*>& p_blendStateList )
 {

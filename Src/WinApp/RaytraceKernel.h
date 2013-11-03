@@ -19,7 +19,7 @@ struct RaytraceKernelData : public KernelData
 	void*						   m_textureLinearMem;
 	cudaArray*					   m_textureView;
 	size_t*						   m_pitch;
-	RaytraceConstantBuffer* m_cb;
+	RaytraceConstantBuffer*		   m_cb;
 };
 
 // =======================================================================================

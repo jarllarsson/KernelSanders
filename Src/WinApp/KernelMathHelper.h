@@ -4,7 +4,9 @@
 #define G_CH 1
 #define B_CH 2
 #define A_CH 3
-#define __CUDACC__
+#ifndef __CUDACC__ 
+	#define __CUDACC__
+#endif
 
 // =======================================================================================
 //                                    KernelMathHelper
@@ -179,6 +181,21 @@ inline __device__ float3 cu_reflect(const float3& i, const float3& n)
 	return i - 2.0f * n * cu_dot(n,i);
 }
 
+inline __device__ void cu_reflect(const float3& i, const float3& n, float3& out_reflectedVector)
+{
+	out_reflectedVector=i - 2.0f * n * cu_dot(n,i);
+}
+
+inline __device__ float4 cu_reflect(const float4& i, const float4& n)
+{
+	return i - 2.0f * n * cu_dot(n,i);
+}
+
+inline __device__ void cu_reflect(const float4& i, const float4& n, float4& out_reflectedVector)
+{
+	out_reflectedVector=i - 2.0f * n * cu_dot(n,i);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // cross product
 ////////////////////////////////////////////////////////////////////////////////
@@ -217,3 +234,53 @@ static __inline__ __host__ __device__ float4x4 make_float4x4(float val[])
 	return t;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// decimals
+////////////////////////////////////////////////////////////////////////////////
+
+static __inline__ __host__ __device__ float frac(float v)
+{
+	return v - floor(v);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Random
+////////////////////////////////////////////////////////////////////////////////
+
+// Input: It uses texture coords as the random number seed.
+// Output: Random number: [0,1), that is between 0.0 and 0.999999... inclusive.
+// Author: Michael Pohoreski
+// Copyright: Copyleft 2012 :-)
+static __device__ float cu_random( float2 p )
+{
+	// We need irrationals for pseudo randomness.
+	// Most (all?) known transcendental numbers will (generally) work.
+	const float2 r = make_float2(
+		23.1406926327792690f,  // e^pi (Gelfond's constant)
+		2.6651441426902251f); // 2^sqrt(2) (Gelfond–Schneider constant)
+	return frac( cos( fmod( 123456789., 1e-7 + 256. *cu_dot(p,r) ) ) );  
+}
+
+static __device__ float2 cu_getRandomVector2( float2 uv )
+{
+	//return normalize(gRandomNormals.Sample(pointSampler, gRenderTargetSize*uv / randSize).xy * 2.0f - 1.0f);
+
+	float2 rand;
+	rand.x = cu_random( make_float2(uv.x,uv.y) );
+	rand.y = cu_random( make_float2(uv.y,uv.x) );
+	rand = cu_normalize( rand );
+	return rand;
+}
+
+static __device__ float3 cu_getRandomVector3( float2 uv )
+{
+	//return normalize(gRandomNormals.Sample(pointSampler, gRenderTargetSize*uv / randSize).xy * 2.0f - 1.0f);
+
+	float3 rand;
+	rand.x = cu_random( make_float2(uv.x,uv.y) );
+	rand.y = cu_random( make_float2(uv.y,uv.x) );
+	rand.z = cu_random( make_float2(rand.y,uv.y*0.5f) );
+	rand = cu_normalize( rand );
+	return rand;
+}

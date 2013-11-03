@@ -54,6 +54,7 @@ __device__ SurfaceLightingData* BlinnPhong(SurfaceLightingData* inout_surfaceLig
 	return inout_surfaceLight;
 }
 
+
 // __device__ SurfaceLightingData* BlinnPhongDir(SurfaceLightingData* inout_surfaceLight, 
 // 											  const Light* in_light, 
 // 											  const float4* in_viewDir, 

@@ -3,6 +3,9 @@
 
 #define RAYTRACEDRAWMODE_REGULAR 0
 #define RAYTRACEDRAWMODE_BLOCKDBG 1
+#define RAYTRACESHADOWMODE_OFF 0
+#define RAYTRACESHADOWMODE_HARD 1
+#define RAYTRACESHADOWMODE_SOFT 2 // add degree of softness to this value
 
 // =======================================================================================
 //                                   RaytraceConstantBuffer
@@ -18,12 +21,14 @@
 
 struct RaytraceConstantBuffer
 {
-	int m_drawMode;
-	float m_rayDirScaleX;
-	float m_rayDirScaleY;
-	float m_time;
-	float m_cameraRotationMat[16];
-	float m_camPos[4];
+	// TODO Split up per change rate
+	int m_drawMode; // per-frame
+	int m_shadowMode;  // per-frame
+	float m_rayDirScaleX; // per-window change
+	float m_rayDirScaleY; // per-window change
+	float m_time; // per-frame
+	float m_cameraRotationMat[16]; // per-frame
+	float m_camPos[4]; // per-frame
 };
 
 #endif

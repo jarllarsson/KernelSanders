@@ -36,11 +36,15 @@ KernelDevice::~KernelDevice()
 	delete m_raytracer;
 }
 
-void KernelDevice::update( float p_dt, TempController* p_tmpCam )
+void KernelDevice::update( float p_dt, TempController* p_tmpCam, int p_drawMode, int p_shadowMode )
 {
 	// CONST BUFFER DATA
 	// time
 	m_cb.m_time += p_dt;
+	
+	// settings
+	m_cb.m_shadowMode=p_shadowMode;
+	m_cb.m_shadowMode=p_drawMode;
 
 	// camera
 	memcpy(&m_cb.m_camPos, glm::value_ptr(p_tmpCam->getPos()), sizeof(m_cb.m_camPos));
