@@ -79,7 +79,7 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	scene.sphere[1].mat.diffuse = make_float4(0.0f, 1.0f, 0.0f,1.0f);
 	scene.sphere[1].mat.specular = make_float4(0.0f, 0.0f, 0.0f,0.0f);
 	scene.sphere[1].mat.reflection = 0.0f;
-	#pragma unroll AMOUNTOFSPHERES-2
+
 	for (int i=2;i<AMOUNTOFSPHERES;i++)
 	{
 		scene.sphere[i].pos = make_float4((float)(i%3),(float)i,(float)i,1.0f);
@@ -90,7 +90,7 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	}
 
 	// define a plane
-	#pragma unroll AMOUNTOFPLANES
+
 	for (int i=0;i<AMOUNTOFPLANES;i++)
 	{
 		scene.plane[i].distance = -5.0f;
@@ -105,7 +105,7 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 
 
 	// define some tris
-	#pragma unroll AMOUNTOFTRIS
+
 	for (int i=0;i<AMOUNTOFTRIS;i++)
 	{
 
@@ -123,7 +123,7 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	}
 
 	// define some boxes
-	#pragma unroll AMOUNTOFBOXES
+
 	for (int i=0;i<AMOUNTOFBOXES;i++)
 	{
 		scene.box[i].pos = make_float4(-5.0f,10+sin((float)i)*10.0f*sin(time), i*10,0.0f) + make_float4(sin((float)i)*50.0f*(1.0f+sin(time)),
@@ -144,7 +144,7 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	}
 
 	// define some lights
-	#pragma unroll AMOUNTOFLIGHTS-1
+
 	for (int i=0;i<AMOUNTOFLIGHTS-1;i++)
 	{
 		// scene.light[i].vec = (float4)(i*5.0f*sin((1.0f+i)*time),i+sin(time),100.0f*sin(time) + i*2.0f*cos((1.0f+i)*time),1.0f);
@@ -224,7 +224,7 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 			currentColor=ambient; // ambient base add (note: on do this on current colour for ambient on shadows)
 
 			// add all lights
-			#pragma unroll AMOUNTOFLIGHTS
+
 			for (int i=0;i<AMOUNTOFLIGHTS;i++)
 			{				
 
@@ -271,8 +271,8 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	}  while (reflectionfactor>0.01f && depth<max_depth);
 
 	// Set the color
-	float dbgGridX=drawMode*((float)blockIdx.x/(float)gridDim.x);
-	float dbgGridY=drawMode*((float)blockIdx.y/(float)gridDim.y);
+	float dbgGridX=(float)drawMode*((float)blockIdx.x/(float)gridDim.x);
+	float dbgGridY=(float)drawMode*((float)blockIdx.y/(float)gridDim.y);
 	p_outPixel[R_CH] = finalColor.x + dbgGridX; // red
 	p_outPixel[G_CH] = finalColor.y + dbgGridY; // green
 	p_outPixel[B_CH] = finalColor.z; // blue

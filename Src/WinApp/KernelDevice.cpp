@@ -44,7 +44,7 @@ void KernelDevice::update( float p_dt, TempController* p_tmpCam, int p_drawMode,
 	
 	// settings
 	m_cb.m_shadowMode=p_shadowMode;
-	m_cb.m_shadowMode=p_drawMode;
+	m_cb.m_drawMode=p_drawMode;
 
 	// camera
 	memcpy(&m_cb.m_camPos, glm::value_ptr(p_tmpCam->getPos()), sizeof(m_cb.m_camPos));
