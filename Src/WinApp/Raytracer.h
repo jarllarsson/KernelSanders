@@ -91,16 +91,16 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 
 	// define a plane
 
-	for (int i=0;i<AMOUNTOFPLANES;i++)
-	{
-		scene.plane[i].distance = -5.0f;
-		scene.plane[i].normal = make_float4(0.0f,1.0f,0.0f,0.0f);
-		//scene.plane[i].mat.diffuse = (float4)( 71.0f/255.0f, 21.0f/255.0f, 87.0f/255.0f ,1.0f);
-		scene.plane[i].mat.diffuse = make_float4( 0.1f, 0.5f, 1.0f ,1.0f);
-		scene.plane[i].mat.specular = make_float4(0.1f, 0.1f, 0.1f,0.1f);
-		scene.plane[i].mat.reflection = 0.0f;
-
-	}
+	// for (int i=0;i<AMOUNTOFPLANES;i++)
+	// {
+	// 	scene.plane[i].distance = -5.0f;
+	// 	scene.plane[i].normal = make_float4(0.0f,1.0f,0.0f,0.0f);
+	// 	//scene.plane[i].mat.diffuse = (float4)( 71.0f/255.0f, 21.0f/255.0f, 87.0f/255.0f ,1.0f);
+	// 	scene.plane[i].mat.diffuse = make_float4( 0.1f, 0.5f, 1.0f ,1.0f);
+	// 	scene.plane[i].mat.specular = make_float4(0.1f, 0.1f, 0.1f,0.1f);
+	// 	scene.plane[i].mat.reflection = 0.0f;
+	// 
+	// }
 
 
 
@@ -182,9 +182,9 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	// TRANSFORM
 
 	// 2. Declare var for final color storage
-	float4 finalColor = make_float4((1.0f+ray.dir.x)*0.5f,
-		(1.0f+ray.dir.z)*0.5f,
-		(1.0f+ray.dir.y)*0.5f,
+	float4 finalColor = make_float4((1.0f+ray.dir.x)*0.1f,
+		(1.0f+ray.dir.z)*0.1f,
+		(1.0f+ray.dir.y)*0.1f,
 		0.0f);
 
 	Intersection intersection;
@@ -199,7 +199,7 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	int max_depth = 4;
 	int depth = 0;
 
-	float4 currentColor;
+	float4 currentColor = make_float4(0.0f,0.0f,0.0f,0.0f);
 	SurfaceLightingData dat;
 	float4 lightColor = make_float4(0.0f,0.0f,0.0f,0.0f);	
 

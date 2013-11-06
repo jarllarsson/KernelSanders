@@ -58,6 +58,7 @@ __device__ bool IntersectSphere(const Sphere* in_sphere,
 
 
 // small difference, crazy results
+/*
 __device__ bool IntersectSphereCRAZYDREAMVERSION(const Sphere* in_sphere, 
 												 const Ray* in_ray, 
 												 Intersection* inout_intersection, 
@@ -97,7 +98,7 @@ __device__ bool IntersectSphereCRAZYDREAMVERSION(const Sphere* in_sphere,
 	}
 	return result;
 }
-
+*/
 
 // Distance estimator for a field of spheres
 __device__ float SphereFieldDE(float4 v)
@@ -126,9 +127,9 @@ __device__ float SphereSpaceDE(float4 in_v, float3* out_idx)
 	// for offset, shift ray here -------------------------v
 	float3 vv = make_float3(in_v.x,in_v.y,in_v.z)/* - (float3)(sin(in_v.x/localVolume)*30.0f,0,0)*/;
 	*out_idx = vv/localVolumeH;
-	(*out_idx).x = floor((*out_idx).x+0.5f);
-	(*out_idx).y = floor((*out_idx).y+0.5f);
-	(*out_idx).z = floor((*out_idx).z+0.5f);
+	out_idx->x = floor(out_idx->x+0.5f);
+	out_idx->y = floor(out_idx->y+0.5f);
+	out_idx->z = floor(out_idx->z+0.5f);
 
 	float vxS = in_v.x/fabs(in_v.x);
 	float vyS = in_v.y/fabs(in_v.y);
@@ -170,23 +171,25 @@ __device__ float RecursiveTetraDE1(float4 in_v,float3 in_pos)
 __device__ float RecursiveTetraDE2(float4 in_v,float3 in_pos)
 {
 	float3 z = make_float3(in_v.x,in_v.y,in_v.z)-in_pos;
-    float r;
-    int n = 0;
+	float3 g = z;
+	int n = 0;
 	float Scale = 2.0f;
 	float Offset = 1.0f;
-    while (n < 10) {
-		if(z.x+z.y<0) {z.x = -z.y; z.y = -z.x;} // fold 1
-		if(z.x+z.z<0) {z.x = -z.z; z.z = -z.x;} // fold 2
-		if(z.y+z.z<0) {z.z = -z.y; z.y = -z.z;} // fold 3	
-       z = z*Scale - Offset*(Scale-1.0);
-       n++;
-    }
-    return (cu_length(z) ) * pow(Scale, -(float)(n));
+	while (n < 10) {
+		g = z;
+		if(z.x+z.y<0) {z.x = -g.y; z.y = -g.x; g = z;} // fold 1
+		if(z.x+z.z<0) {z.x = -g.z; z.z = -g.x; g = z;} // fold 2
+		if(z.y+z.z<0) {z.z = -g.y; z.y = -g.z; } // fold 3	
+		z = z*Scale - Offset*(Scale-1.0);
+		n++;
+	}
+	return (cu_length(z) ) * pow(Scale, -(float)(n));
 }
 
 // ray marching
 __device__ bool MarchSphere(const Sphere* in_sphere, const Ray* in_ray, Intersection* inout_intersection, bool storeResult)
 {
+
 	float totalDistance = 0.0;
 	int steps;
 	int maximumRaySteps = 50;
@@ -197,7 +200,7 @@ __device__ bool MarchSphere(const Sphere* in_sphere, const Ray* in_ray, Intersec
 	{
 		p = in_ray->origin + totalDistance * in_ray->dir;
 		float distance = SphereSpaceDE(p,&sphereIdx);
-		// float distance =  RecursiveTetraDE2(p,(float3)(400.0f,400.0f,400.0f));
+		//float distance =  RecursiveTetraDE2(p,(float3)(400.0f,400.0f,400.0f));
 		totalDistance += distance;
 		if (distance < minimumDistance) break;
 	}
@@ -210,7 +213,10 @@ __device__ bool MarchSphere(const Sphere* in_sphere, const Ray* in_ray, Intersec
 			inout_intersection->dist = totalDistance;
 			inout_intersection->pos=p;
 			inout_intersection->surface.diffuse = make_float4(1.0f+sin(sphereIdx.x)*0.5f,1.0f+sin(sphereIdx.y)*0.5f,1.0f+sin(sphereIdx.z)*0.5f,1.0f);
+			inout_intersection->normal = make_float4(0.0f,1.0f,0.0f,0.0f);
 			// Run fractal
+			
+
 			// float3 offset = (float3)(p.x,p.y,p.z);
 			float3 offset = make_float3(sphereIdx.x,sphereIdx.y,sphereIdx.z)*200.0f; // * localVolumeH
 			
@@ -224,6 +230,7 @@ __device__ bool MarchSphere(const Sphere* in_sphere, const Ray* in_ray, Intersec
 				if (distance < minimumDistance) break;
 			}
 			
+
 			if (steps < maximumRaySteps && (totalDistance > 0.001f) && 
 				(totalDistance < inout_intersection->dist+400.0f))
 			{
@@ -242,12 +249,15 @@ __device__ bool MarchSphere(const Sphere* in_sphere, const Ray* in_ray, Intersec
 					inout_intersection->pos=p;
 
 					// Calculate the normal
-					/*float4 xDir = (float4)(1.0f,0.0f,0.0f,0.0f)*0.05f;
-					float4 yDir = (float4)(0.0f,1.0f,0.0f,0.0f)*0.05f;
-					float4 zDir = (float4)(0.0f,0.0f,1.0f,0.0f)*0.05f;
-					inout_intersection->normal=fast_normalize((float4)(SphereSpaceDE(p+xDir,&sphereIdx)-SphereSpaceDE(p-xDir,&sphereIdx),
+					/*
+					float4 xDir = make_float4(1.0f,0.0f,0.0f,0.0f)*0.1f;
+					float4 yDir = make_float4(0.0f,1.0f,0.0f,0.0f)*0.1f;
+					float4 zDir = make_float4(0.0f,0.0f,1.0f,0.0f)*0.1f;
+					inout_intersection->normal=cu_normalize(make_float4(SphereSpaceDE(p+xDir,&sphereIdx)-SphereSpaceDE(p-xDir,&sphereIdx),
 																	   SphereSpaceDE(p+yDir,&sphereIdx)-SphereSpaceDE(p-yDir,&sphereIdx),
-																	   SphereSpaceDE(p+zDir,&sphereIdx)-SphereSpaceDE(p-zDir,&sphereIdx),0.0f));*/
+																	   SphereSpaceDE(p+zDir,&sphereIdx)-SphereSpaceDE(p-zDir,&sphereIdx),0.0f));
+					*/
+					
 					float3 f = offset;
 					float4 xDir = make_float4(1.0f,0.0f,0.0f,0.0f)*0.0001f;
 					float4 yDir = make_float4(0.0f,1.0f,0.0f,0.0f)*0.0001f;
@@ -255,6 +265,9 @@ __device__ bool MarchSphere(const Sphere* in_sphere, const Ray* in_ray, Intersec
 					inout_intersection->normal=cu_normalize(make_float4(RecursiveTetraDE2(p+xDir,f)-RecursiveTetraDE2(p-xDir,f),
 																	   RecursiveTetraDE2(p+yDir,f)-RecursiveTetraDE2(p-yDir,f),
 																	   RecursiveTetraDE2(p+zDir,f)-RecursiveTetraDE2(p-zDir,f),0.0f));
+					
+
+
 					// inout_intersection->normal = (float4)(0.0f,1.0f,0.0f,0.0f);
 			}
 		}

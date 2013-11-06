@@ -38,7 +38,7 @@ __device__ bool IntersectAll(const Scene* in_scene, const Ray* in_ray, Intersect
 	bool result=false;
 	bool storeResults = !breakOnFirst;
 
-   #pragma unroll AMOUNTOFSPHERES 	
+   //#pragma unroll AMOUNTOFSPHERES 	
 	for (int i=0;i<AMOUNTOFSPHERES;i++)
 	{
 		result|=IntersectSphere(&(in_scene->sphere[i]), in_ray, inout_intersection, storeResults);
@@ -47,15 +47,15 @@ __device__ bool IntersectAll(const Scene* in_scene, const Ray* in_ray, Intersect
 	}	// for each sphere	
 
 	// #pragma unroll AMOUNTOFPLANES 
-	for (int i=0;i<AMOUNTOFPLANES;i++)
-	{
-		result|=IntersectPlane(&(in_scene->plane[i]), in_ray, inout_intersection,storeResults);
-		if (result && breakOnFirst) 
-			return true;
-	}	// for each plane
+	// for (int i=0;i<AMOUNTOFPLANES;i++)
+	// {
+	// 	result|=IntersectPlane(&(in_scene->plane[i]), in_ray, inout_intersection,storeResults);
+	// 	if (result && breakOnFirst) 
+	// 		return true;
+	// }	// for each plane
 
 
-	#pragma unroll AMOUNTOFTRIS
+	//#pragma unroll AMOUNTOFTRIS
 	for (int i=0;i<AMOUNTOFTRIS;i++)
 	{
 		result|=IntersectTriangle(&(in_scene->tri[i]), in_ray, inout_intersection,storeResults);
@@ -65,7 +65,7 @@ __device__ bool IntersectAll(const Scene* in_scene, const Ray* in_ray, Intersect
 	}	// for each tri
 
 
-	#pragma unroll AMOUNTOFBOXES
+	//#pragma unroll AMOUNTOFBOXES
 	for (int i=0;i<AMOUNTOFBOXES;i++)
 	{
 		result|=IntersectBox(&(in_scene->box[i]), in_ray, inout_intersection,storeResults);
@@ -74,7 +74,7 @@ __device__ bool IntersectAll(const Scene* in_scene, const Ray* in_ray, Intersect
 	}	// for each box
 
 
-	/*
+	
 	// Planet field
 	Sphere f;
 
@@ -87,10 +87,12 @@ __device__ bool IntersectAll(const Scene* in_scene, const Ray* in_ray, Intersect
 
 
 	result|=MarchSphere(&f, in_ray, inout_intersection, storeResults);
-	if (result && breakOnFirst) 
-		return true;
+	//if (result && breakOnFirst) 
+	//{	
+	//	return true;
+	//}
 
-
+/*
 
 	// debug for lights
 	if (!breakOnFirst)

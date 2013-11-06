@@ -95,6 +95,7 @@ void App::run()
 
 	int shadowMode=0;
 	int debugDrawMode=0;
+	float thrustPowInc=0.0f;
 
 	while (!m_context->closeRequested() && run)
 	{
@@ -106,19 +107,30 @@ void App::run()
 		else
 		{
 			m_input->run();
+			// Power
+			float thrustPow=0.2f;
+			if (m_input->g_kb->isKeyDown(KC_LCONTROL))
+			{
+				thrustPowInc+=(1.0f+0.01f*thrustPowInc)*dt;
+				thrustPow=10.0f+thrustPowInc;
+			}
+			else
+			{
+				thrustPowInc=0.0f;
+			}
 			// Thrust
 			if (m_input->g_kb->isKeyDown(KC_LEFT) || m_input->g_kb->isKeyDown(KC_A))
-				m_controller->moveThrust(glm::vec3(-1.0f,0.0f,0.0f));
+				m_controller->moveThrust(glm::vec3(-1.0f,0.0f,0.0f)*thrustPow);
 			if (m_input->g_kb->isKeyDown(KC_RIGHT) || m_input->g_kb->isKeyDown(KC_D))
-				m_controller->moveThrust(glm::vec3(1.0f,0.0f,0.0f));
+				m_controller->moveThrust(glm::vec3(1.0f,0.0f,0.0f)*thrustPow);
 			if (m_input->g_kb->isKeyDown(KC_UP) || m_input->g_kb->isKeyDown(KC_W))
-				m_controller->moveThrust(glm::vec3(0.0f,1.0f,0.0f));
+				m_controller->moveThrust(glm::vec3(0.0f,1.0f,0.0f)*thrustPow);
 			if (m_input->g_kb->isKeyDown(KC_DOWN) || m_input->g_kb->isKeyDown(KC_S))
-				m_controller->moveThrust(glm::vec3(0.0f,-1.0f,0.0f));
+				m_controller->moveThrust(glm::vec3(0.0f,-1.0f,0.0f)*thrustPow);
 			if (m_input->g_kb->isKeyDown(KC_SPACE))
-				m_controller->moveThrust(glm::vec3(0.0f,0.0f,1.0f));
+				m_controller->moveThrust(glm::vec3(0.0f,0.0f,1.0f)*thrustPow);
 			if (m_input->g_kb->isKeyDown(KC_B))
-				m_controller->moveThrust(glm::vec3(0.0f,0.0f,-1.0f));
+				m_controller->moveThrust(glm::vec3(0.0f,0.0f,-1.0f)*thrustPow);
 			// Angular thrust
 			if (m_input->g_kb->isKeyDown(KC_Q))
 				m_controller->moveAngularThrust(glm::vec3(0.0f,0.0f,-1.0f));
@@ -133,9 +145,9 @@ void App::run()
 			if (m_input->g_kb->isKeyDown(KC_J))
 				m_controller->moveAngularThrust(glm::vec3(-1.0f,0.0f,0.0f));
 			// Settings
-			if (m_input->g_kb->isKeyDown(KC_B)) // Debug blocks
+			if (m_input->g_kb->isKeyDown(KC_K)) // Debug blocks
 				debugDrawMode=1;
-			if (m_input->g_kb->isKeyDown(KC_N)) // Debug off
+			if (m_input->g_kb->isKeyDown(KC_L)) // Debug off
 				debugDrawMode=0;
 			if (m_input->g_kb->isKeyDown(KC_0)) // Shadow off
 				shadowMode=0;
