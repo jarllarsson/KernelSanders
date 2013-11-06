@@ -186,6 +186,37 @@ __device__ float RecursiveTetraDE2(float4 in_v,float3 in_pos)
 	return (cu_length(z) ) * pow(Scale, -(float)(n));
 }
 
+__device__ float RecursiveMBulbDE(float4 in_v,float3 in_pos)
+{
+	float3 pos=make_float3(in_v.x,in_v.y,in_v.z)-in_pos;
+	float3 z = pos;
+	float Power=5.0f;
+	float dr = 1.0f;
+	float r = 0.0f;
+	for (int i = 0; i < 30 ; i++) {
+		r = cu_length(z);
+		if (r>4000.0f) break; // bailout
+
+		// convert to polar coordinates
+		//float theta = acos(z.z/r);
+		//float phi = atan2(z.y,z.x);
+		float theta = asin( z.z/r );
+		float phi = atan2( z.y,z.x );
+		dr =  pow( r, Power-1.0f)*Power*dr + 1.0f;
+
+		// scale and rotate the point
+		float zr = pow( r,Power);
+		theta = theta*Power;
+		phi = phi*Power;
+
+		// convert back to Cartesian coordinates
+		//z = zr*make_float3(sin(theta)*cos(phi), sin(phi)*sin(theta), cos(theta));
+		z = zr*make_float3(cos(theta)*cos(phi), cos(theta)*sin(phi), sin(theta));
+		z+=/*2.0f**/pos;
+	}
+	return 0.2f*log(r)*r/dr;
+}
+
 // ray marching
 __device__ bool MarchSphere(const Sphere* in_sphere, const Ray* in_ray, Intersection* inout_intersection, bool storeResult)
 {
@@ -225,7 +256,8 @@ __device__ bool MarchSphere(const Sphere* in_sphere, const Ray* in_ray, Intersec
 			for (steps=0; steps < maximumRaySteps; steps++) 
 			{
 				p = in_ray->origin + totalDistance * in_ray->dir;
-				float distance = RecursiveTetraDE2(p,offset);
+				float distance = RecursiveMBulbDE(p,offset);
+					//RecursiveTetraDE2(p,offset);
 				totalDistance += distance;
 				if (distance < minimumDistance) break;
 			}
@@ -262,9 +294,9 @@ __device__ bool MarchSphere(const Sphere* in_sphere, const Ray* in_ray, Intersec
 					float4 xDir = make_float4(1.0f,0.0f,0.0f,0.0f)*0.0001f;
 					float4 yDir = make_float4(0.0f,1.0f,0.0f,0.0f)*0.0001f;
 					float4 zDir = make_float4(0.0f,0.0f,1.0f,0.0f)*0.0001f;
-					inout_intersection->normal=cu_normalize(make_float4(RecursiveTetraDE2(p+xDir,f)-RecursiveTetraDE2(p-xDir,f),
-																	   RecursiveTetraDE2(p+yDir,f)-RecursiveTetraDE2(p-yDir,f),
-																	   RecursiveTetraDE2(p+zDir,f)-RecursiveTetraDE2(p-zDir,f),0.0f));
+					inout_intersection->normal=cu_normalize(make_float4(RecursiveMBulbDE(p+xDir,f)-RecursiveMBulbDE(p-xDir,f),
+																	   RecursiveMBulbDE(p+yDir,f)-RecursiveMBulbDE(p-yDir,f),
+																	   RecursiveMBulbDE(p+zDir,f)-RecursiveMBulbDE(p-zDir,f),0.0f));
 					
 
 
