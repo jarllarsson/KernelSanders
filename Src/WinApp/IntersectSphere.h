@@ -142,7 +142,7 @@ __device__ float SphereSpaceDE(float4 in_v, float3* out_idx)
 		&& sin((*out_idx).z)>0.0f && sin((*out_idx).z)<1.0f)   // Culling can be done here, an example would be sampling against a 3d noise texture for a "cloud effect"
 		return fabs(fast_length(vv)+40.0f); // distance to next
 	else*/
-	   return fabs(cu_length(vv)-20.0f);		  // sphere DE
+	   return fabs(cu_length(vv)-5.0f);		  // sphere DE
 }
 
 __device__ float RecursiveTetraDE1(float4 in_v,float3 in_pos)
@@ -193,9 +193,9 @@ __device__ float RecursiveMBulbDE(float4 in_v,float3 in_pos)
 	float Power=5.0f;
 	float dr = 1.0f;
 	float r = 0.0f;
-	for (int i = 0; i < 30 ; i++) {
+	for (int i = 0; i < 100 ; i++) {
 		r = cu_length(z);
-		if (r>4000.0f) break; // bailout
+		if (r>100.0f) break; // bailout
 
 		// convert to polar coordinates
 		//float theta = acos(z.z/r);
@@ -206,15 +206,15 @@ __device__ float RecursiveMBulbDE(float4 in_v,float3 in_pos)
 
 		// scale and rotate the point
 		float zr = pow( r,Power);
-		theta = theta*Power;
-		phi = phi*Power;
+		theta = /*1.5f**/theta*Power;
+		phi = /*1.5f**/phi*Power;
 
 		// convert back to Cartesian coordinates
 		//z = zr*make_float3(sin(theta)*cos(phi), sin(phi)*sin(theta), cos(theta));
 		z = zr*make_float3(cos(theta)*cos(phi), cos(theta)*sin(phi), sin(theta));
 		z+=/*2.0f**/pos;
 	}
-	return 0.2f*log(r)*r/dr;
+	return 0.5f*log(r)*r/dr;
 }
 
 // ray marching
@@ -262,19 +262,18 @@ __device__ bool MarchSphere(const Sphere* in_sphere, const Ray* in_ray, Intersec
 				if (distance < minimumDistance) break;
 			}
 			
-
+			maximumRaySteps = 1000;
 			if (steps < maximumRaySteps && (totalDistance > 0.001f) && 
 				(totalDistance < inout_intersection->dist+400.0f))
-			{
-					maximumRaySteps = 1000;
+			{			
 					minimumDistance = totalDistance*0.5f;
 					inout_intersection->dist = totalDistance; // distance
 
 					inout_intersection->surface=in_sphere->mat; // material
 
 					// for now, do super simple AO
-					float c = (1.0f-(float)steps/(float)maximumRaySteps);
-					inout_intersection->surface.diffuse =make_float4((1.0f+sin(sphereIdx.x))*0.5f,(1.0f+sin(sphereIdx.y))*0.5f,(1.0f+sin(sphereIdx.z))*0.5f,1.0f)-make_float4(c,c,c,c);
+					float c = (float)steps/(float)maximumRaySteps;
+					inout_intersection->surface.diffuse =make_float4((1.0f+sin(sphereIdx.x))*0.5f,(1.0f+sin(sphereIdx.y))*0.5f,(1.0f+sin(sphereIdx.z))*0.5f,1.0f)/*-make_float4(c,c,c,c)*/;
 					// inout_intersection->surface.diffuse = (float4)(0.0f,1.0f,1.0f,0.0f);
 
 					// store pos

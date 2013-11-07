@@ -111,3 +111,8 @@ void TempController::rotate( glm::vec3 p_angularVelocity )
 		m_rotation = turn*m_rotation;
 	}
 }
+
+float TempController::getVelocityAmount()
+{
+	return m_velocity.length();
+}

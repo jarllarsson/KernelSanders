@@ -108,11 +108,11 @@ void App::run()
 		{
 			m_input->run();
 			// Power
-			float thrustPow=0.2f;
+			float thrustPow=0.05f;
 			if (m_input->g_kb->isKeyDown(KC_LCONTROL))
 			{
-				thrustPowInc+=(1.0f+0.01f*thrustPowInc)*dt;
-				thrustPow=10.0f+thrustPowInc;
+				thrustPowInc+=(1.0f+0.001f*thrustPowInc)*dt;
+				thrustPow=0.2f+thrustPowInc;
 			}
 			else
 			{
@@ -199,7 +199,8 @@ void App::run()
 			m_graphicsDevice->clearRenderTargets();									// Clear render targets
 
 			// temp controller update code
-			m_controller->setFovFromAngle(52.0f,m_graphicsDevice->getAspectRatio());
+			m_controller->setFovFromAngle(52.0f+min(thrustPow*0.01f,35.0f),
+										  m_graphicsDevice->getAspectRatio());
 			m_controller->update((float)dt);
 
 			// Run the devices

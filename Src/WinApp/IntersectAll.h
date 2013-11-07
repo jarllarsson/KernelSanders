@@ -82,7 +82,7 @@ __device__ bool IntersectAll(const Scene* in_scene, const Ray* in_ray, Intersect
 	f.pos = make_float4(0.0f,0.0f,0.0f,1.0f);
 	f.rad = 0.5f;
 	f.mat.diffuse = make_float4(1.0f, 0.0f, 1.0f,1.0f);
-	f.mat.specular = make_float4(1.0f, 1.0f, 1.0f,0.5f);
+	f.mat.specular = make_float4(0.0f, 0.0f, 0.0f,0.0f);
 	f.mat.reflection = 0.0f;
 
 

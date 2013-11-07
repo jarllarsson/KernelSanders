@@ -39,6 +39,8 @@ public:
 	void moveAngularThrust(const glm::vec3& p_dir);
 	void rotate(glm::vec3 p_angularVelocity);
 
+	float getVelocityAmount();
+
 	bool isNewFovAvailable();
 	glm::vec2& getFovXY();
 protected:
