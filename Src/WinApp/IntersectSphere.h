@@ -7,7 +7,7 @@
 #include <device_launch_parameters.h>
 #include <vector_types.h>
 
-
+#include "RaytraceDefines.h"
 #include "KernelMathHelper.h"
 #include "RaytraceLighting.h"
 #include "Primitives.h"
@@ -121,7 +121,7 @@ __device__ float SphereFieldDE(float4 v)
 // also returns unique index of sphere
 __device__ float SphereSpaceDE(float4 in_v, float3* out_idx)
 {	
-	float localVolume = 400.0f; // the local space containing the sphere
+	float localVolume = SPACEDIST; // the local space containing the sphere
 	float localVolumeH = localVolume*0.5f;
 
 	// for offset, shift ray here -------------------------v
@@ -190,10 +190,10 @@ __device__ float RecursiveMBulbDE(float4 in_v,float3 in_pos)
 {
 	float3 pos=make_float3(in_v.x,in_v.y,in_v.z)-in_pos;
 	float3 z = pos;
-	float Power=5.0f;
+	float Power=8.0f;
 	float dr = 1.0f;
 	float r = 0.0f;
-	for (int i = 0; i < 100 ; i++) {
+	for (int i = 0; i < 10 ; i++) {
 		r = cu_length(z);
 		if (r>100.0f) break; // bailout
 
@@ -211,10 +211,12 @@ __device__ float RecursiveMBulbDE(float4 in_v,float3 in_pos)
 
 		// convert back to Cartesian coordinates
 		//z = zr*make_float3(sin(theta)*cos(phi), sin(phi)*sin(theta), cos(theta));
-		z = zr*make_float3(cos(theta)*cos(phi), cos(theta)*sin(phi), sin(theta));
+		float costheta=cos(theta);
+		z = zr*make_float3(costheta*cos(phi), costheta*sin(phi), sin(theta));
 		z+=/*2.0f**/pos;
 	}
-	return 0.5f*log(r)*r/dr;
+	float detaiLv=0.1f;
+	return detaiLv*log(r)*r/dr;
 }
 
 // ray marching
@@ -243,13 +245,13 @@ __device__ bool MarchSphere(const Sphere* in_sphere, const Ray* in_ray, Intersec
 		{
 			inout_intersection->dist = totalDistance;
 			inout_intersection->pos=p;
-			inout_intersection->surface.diffuse = make_float4(1.0f+sin(sphereIdx.x)*0.5f,1.0f+sin(sphereIdx.y)*0.5f,1.0f+sin(sphereIdx.z)*0.5f,1.0f);
+			inout_intersection->surface.diffuse = ((float)steps/(float)maximumRaySteps)*make_float4(1.0f+sin(sphereIdx.x)*0.5f,1.0f+sin(sphereIdx.y)*0.5f,1.0f+sin(sphereIdx.z)*0.5f,1.0f);
 			inout_intersection->normal = make_float4(0.0f,1.0f,0.0f,0.0f);
 			// Run fractal
 			
 
 			// float3 offset = (float3)(p.x,p.y,p.z);
-			float3 offset = make_float3(sphereIdx.x,sphereIdx.y,sphereIdx.z)*200.0f; // * localVolumeH
+			float3 offset = make_float3(sphereIdx.x,sphereIdx.y,sphereIdx.z)*SPACEDIST*0.5f; // * localVolumeH
 			
 			totalDistance = 0.0;
 			// float4 new_orig = p;
@@ -264,7 +266,7 @@ __device__ bool MarchSphere(const Sphere* in_sphere, const Ray* in_ray, Intersec
 			
 			maximumRaySteps = 1000;
 			if (steps < maximumRaySteps && (totalDistance > 0.001f) && 
-				(totalDistance < inout_intersection->dist+400.0f))
+				(totalDistance < inout_intersection->dist+SPACEDIST))
 			{			
 					minimumDistance = totalDistance*0.5f;
 					inout_intersection->dist = totalDistance; // distance

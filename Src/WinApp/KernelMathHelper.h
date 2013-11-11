@@ -111,6 +111,10 @@ inline __device__ float squaredLen(const float4* in_vec)
 {
 	return in_vec->x*in_vec->x + in_vec->y*in_vec->y + in_vec->z*in_vec->z;
 }
+inline __device__ float squaredLen(const float3* in_vec)
+{
+	return in_vec->x*in_vec->x + in_vec->y*in_vec->y + in_vec->z*in_vec->z;
+}
 
 
 
