@@ -7,6 +7,7 @@
 #include <d3d11.h>
 #include <vector>
 #include <d3d11shader.h>
+#include <DebugPrint.h>
 
 
 ShaderFactory::ShaderFactory(ID3D11Device* p_device, ID3D11DeviceContext* p_deviceContext, 
@@ -105,8 +106,7 @@ void ShaderFactory::compileShaderStage( const LPCWSTR &p_sourceFile,
 		if (blobError!=NULL)
 			throw GraphicsException(blobError,__FILE__,__FUNCTION__,__LINE__);
 		else
-			throw GraphicsException(res,__FILE__,__FUNCTION__,__LINE__);
-
+			throw GraphicsException(res,__FILE__,__FUNCTION__,__LINE__);		
 		return;
 	}
 

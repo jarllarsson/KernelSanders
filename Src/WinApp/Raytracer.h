@@ -209,7 +209,7 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 
 	do
 	{
-		currentColor = make_float4(0.0f,0.0f,0.0f,0.0f);
+		currentColor = make_float4(0.0f,0.0f,0.0f,1.0f);
 		IntersectAll(&scene,&ray,&intersection,false);			// Do the intersection tests
 		
 		if (intersection.dist >= 0.0f && intersection.dist<MAX_INTERSECT_DIST)
@@ -246,10 +246,12 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 
 
 			// Add color of this pixel(modified by previous pixel's reflection value) to final
+			float alpha = intersection.surface.diffuse.w;
+			float4 alphablend=finalColor*(1.0f-alpha)+currentColor*alpha;
 			if (depth==0)
-				finalColor = currentColor;
+				finalColor = alphablend;
 			else
-				finalColor += currentColor * reflectionfactor; 
+				finalColor += alphablend * reflectionfactor; 
 
 
 			reflectionfactor = intersection.surface.reflection;

@@ -111,12 +111,26 @@ inline __device__ float squaredLen(const float4* in_vec)
 {
 	return in_vec->x*in_vec->x + in_vec->y*in_vec->y + in_vec->z*in_vec->z;
 }
+inline __device__ float squaredLen(const float4 in_vec)
+{
+	return in_vec.x*in_vec.x + in_vec.y*in_vec.y + in_vec.z*in_vec.z;
+}
+
 inline __device__ float squaredLen(const float3* in_vec)
 {
 	return in_vec->x*in_vec->x + in_vec->y*in_vec->y + in_vec->z*in_vec->z;
 }
+inline __device__ float squaredLen(const float3 in_vec)
+{
+	return in_vec.x*in_vec.x + in_vec.y*in_vec.y + in_vec.z*in_vec.z;
+}
 
-
+// project
+inline __device__ float4 cu_project(const float4& in_vec,const float4& in_normal)
+{
+	float dist=cu_dot(in_vec,in_normal);
+	return dist*in_normal;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // normalize
@@ -219,14 +233,34 @@ static __inline__ __host__ __device__ float2 make_float2(float val[])
 	float2 t; t.x = val[0]; t.y = val[1]; return t;
 }
 
+static __inline__ __host__ __device__ float2 make_float2(const float a)
+{
+	float2 t; t.x = a; t.y = a; return t;
+}
+
 static __inline__ __host__ __device__ float3 make_float3(float val[])
 {
 	float3 t; t.x = val[0]; t.y = val[1]; t.z = val[2]; return t;
 }
 
+static __inline__ __host__ __device__ float3 make_float3(const float a)
+{
+	float3 t; t.x = a; t.y = a; t.z = a; return t;
+}
+
 static __inline__ __host__ __device__ float4 make_float4(float val[])
 {
 	float4 t; t.x = val[0]; t.y = val[1]; t.z = val[2]; t.w = val[3]; return t;
+}
+
+static __inline__ __host__ __device__ float4 make_float4(const float3& val, float w)
+{
+	float4 t; t.x = val.x; t.y = val.y; t.z = val.z; t.w = w; return t;
+}
+
+static __inline__ __host__ __device__ float4 make_float4(const float a)
+{
+	float4 t; t.x = a; t.y = a; t.z = a; t.w = a; return t;
 }
 
 static __inline__ __host__ __device__ float4x4 make_float4x4(float val[])
