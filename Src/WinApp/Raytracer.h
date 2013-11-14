@@ -182,10 +182,10 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	// TRANSFORM
 
 	// 2. Declare var for final color storage
-	float4 finalColor = make_float4((1.0f+ray.dir.x)*0.1f,
-		(1.0f+ray.dir.z)*0.1f,
-		(1.0f+ray.dir.y)*0.1f,
-		0.0f);
+	float4 finalColor = make_float4((1.0f+ray.dir.x),
+		(1.0f+ray.dir.z),
+		(1.0f+ray.dir.y),
+		0.0f)*0.05f;
 
 	Intersection intersection;
 	intersection.dist = MAX_INTERSECT_DIST;
