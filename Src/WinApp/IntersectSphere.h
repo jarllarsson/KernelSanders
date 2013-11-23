@@ -190,7 +190,7 @@ __device__ float RecursiveMBulbDE(float4 in_v,float3 in_pos,float3 modifiers, fl
 {
 	float3 pos=make_float3(in_v.x,in_v.y,in_v.z)-in_pos;
 	float3 z = pos;
-	float Power=8.0f-(modifiers.z*0.5f);
+	float Power=10.0f-(modifiers.z*0.5f+0.5f)*5.0f;
 	float dr = 1.0f;
 	float r = 0.0f;
 	float xr=0.0f;
@@ -216,14 +216,14 @@ __device__ float RecursiveMBulbDE(float4 in_v,float3 in_pos,float3 modifiers, fl
 
 		// scale and rotate the point
 		float zr = pow( r,Power);
-		theta = (modifiers.y*0.5f+0.5f)*theta*Power;
-		phi = (modifiers.z*0.5f+0.5f)*phi*Power;
+		theta = ((modifiers.z*0.5f+0.5f)+(modifiers.y*0.5f+0.5f))*0.5f*theta*Power;
+		phi = ((modifiers.x*0.5f+0.5f)+(modifiers.y*0.5f+0.5f))*0.5f*phi*Power;
 
 		// convert back to Cartesian coordinates
 		//z = zr*make_float3(sin(theta)*cos(phi), sin(phi)*sin(theta), cos(theta));
 		float costheta=cos(theta);
 		z = zr*make_float3(costheta*cos(phi), costheta*sin(phi), sin(theta));		
-		z+=(modifiers.x+0.5f)*pos;
+		z+=((modifiers.x*0.5f+0.5f)+(modifiers.z*0.5f+0.5f))*0.5f*pos;
 
 	}
 	float detaiLv=0.1f;
@@ -333,7 +333,7 @@ __device__ bool MarchSphere(const Sphere* in_sphere, const Ray* in_ray, Intersec
 			for (steps=0; steps < maximumRaySteps; steps++) 
 			{
 				p = in_ray->origin + totalDistance * in_ray->dir;
-				float distance = RecursiveMBulbDE(p,offset,uidValMixed,smallestorbit);
+				float distance = RecursiveMBulbDE(p,offset,uidValLong,smallestorbit);
 					//RecursiveTetraDE2(p,offset);
 				totalDistance += distance;				
 				if (distance < minimumDistance) break;

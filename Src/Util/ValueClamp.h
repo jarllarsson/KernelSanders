@@ -47,6 +47,16 @@ static int clamp (int p_val, int p_min, int p_max)
 	return max(p_min,min(p_max,p_val));
 }
 
+
+// inverse clamp that returns zero when not outside minmax
+static int invclampcap (int p_val, int p_min, int p_max)
+{
+	if (p_val>p_max || p_val<p_min)
+		return p_val;
+	else
+		return 0;
+}
+
 ///-----------------------------------------------------------------------------------
 /// Saturate a value to be between 0 and 1
 /// \param val
