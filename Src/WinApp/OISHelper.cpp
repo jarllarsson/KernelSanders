@@ -10,6 +10,7 @@ OISHelper::OISHelper()
 	g_InputManager = NULL;
 	g_kb  = NULL;			
 	g_m   = NULL;			
+	m_hasJoysticks=false;
 	for (int i=0;i<4;i++) g_joys[i] = NULL;
 }
 
@@ -43,6 +44,7 @@ void OISHelper::doStartup( HWND p_hWnd )
 		<< "\nTotal Keyboards: " << g_InputManager->getNumberOfDevices(OISKeyboard)
 		<< "\nTotal Mice: " << g_InputManager->getNumberOfDevices(OISMouse)
 		<< "\nTotal JoySticks: " << g_InputManager->getNumberOfDevices(OISJoyStick);
+	m_hasJoysticks = g_InputManager->getNumberOfDevices(OISJoyStick)>0;
 
 	DEBUGPRINT((ss.str().c_str()));
 	ss.clear();
@@ -155,3 +157,7 @@ void OISHelper::run()
 	}
 }
 
+bool OISHelper::hasJoysticks()
+{
+	return m_hasJoysticks;
+}

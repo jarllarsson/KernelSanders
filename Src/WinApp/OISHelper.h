@@ -62,6 +62,7 @@ public:
 	void handleNonBufferedKeys();
 	void handleNonBufferedMouse();
 	void handleNonBufferedJoy( JoyStick* js );
+	bool hasJoysticks();
 	
 	static const char *g_DeviceType[6];
 
@@ -71,4 +72,5 @@ public:
 	JoyStick*		g_joys[4];			//Support up to 4 controllers
 protected:
 private:
+	bool m_hasJoysticks;
 };

@@ -109,10 +109,12 @@ void App::run()
 			m_input->run();
 			// get joystate
 			//Just dump the current joy state
-			const JoyStickState &joy = m_input->g_joys[0]->getJoyStickState();
+			JoyStick* joy = nullptr;
+			if (m_input->hasJoysticks()) 
+				joy = m_input->g_joys[0];
 			// Power
 			float thrustPow=0.05f;
-			if (m_input->g_kb->isKeyDown(KC_LCONTROL)  || joy.mButtons[0])
+			if (m_input->g_kb->isKeyDown(KC_LCONTROL)  || (joy!=nullptr && joy->getJoyStickState().mButtons[0]))
 			{
 				thrustPowInc+=(1.0f+0.001f*thrustPowInc)*dt;
 				thrustPow=2.2f+thrustPowInc;
@@ -135,14 +137,19 @@ void App::run()
 			if (m_input->g_kb->isKeyDown(KC_B))
 				m_controller->moveThrust(glm::vec3(0.0f,0.0f,-1.0f)*thrustPow);
 			// Joy thrust
-			m_controller->moveThrust(glm::vec3((float)(invclampcap(joy.mAxes[1].abs,-5000,5000))* 0.0001f,
-											   (float)(invclampcap(joy.mAxes[0].abs,-5000,5000))*-0.0001f,
-											   (float)(joy.mAxes[4].abs)*-0.0001f)*thrustPow);
+			if (joy!=nullptr)
+			{
+				const JoyStickState& js = joy->getJoyStickState();
+				m_controller->moveThrust(glm::vec3((float)(invclampcap(js.mAxes[1].abs,-5000,5000))* 0.0001f,
+												   (float)(invclampcap(js.mAxes[0].abs,-5000,5000))*-0.0001f,
+												   (float)(js.mAxes[4].abs)*-0.0001f)*thrustPow);
+			}
+
 
 			// Angular thrust
-			if (m_input->g_kb->isKeyDown(KC_Q) || joy.mButtons[4])
+			if (m_input->g_kb->isKeyDown(KC_Q) || (joy!=nullptr && joy->getJoyStickState().mButtons[4]))
 				m_controller->moveAngularThrust(glm::vec3(0.0f,0.0f,-1.0f));
-			if (m_input->g_kb->isKeyDown(KC_E) || joy.mButtons[5])
+			if (m_input->g_kb->isKeyDown(KC_E) || (joy!=nullptr && joy->getJoyStickState().mButtons[5]))
 				m_controller->moveAngularThrust(glm::vec3(0.0f,0.0f,1.0f));
 			if (m_input->g_kb->isKeyDown(KC_T))
 				m_controller->moveAngularThrust(glm::vec3(0.0f,1.0f,0.0f));
@@ -153,9 +160,13 @@ void App::run()
 			if (m_input->g_kb->isKeyDown(KC_J))
 				m_controller->moveAngularThrust(glm::vec3(-1.0f,0.0f,0.0f));
 			// Joy angular thrust
-			m_controller->moveAngularThrust(glm::vec3((float)(invclampcap(joy.mAxes[2].abs,-5000,5000))*-0.00001f,
-													  (float)(invclampcap(joy.mAxes[3].abs,-5000,5000))*-0.00001f,
-													  0.0f));
+			if (joy!=nullptr)
+			{
+				const JoyStickState& js = joy->getJoyStickState();
+				m_controller->moveAngularThrust(glm::vec3((float)(invclampcap(js.mAxes[2].abs,-5000,5000))*-0.00001f,
+														  (float)(invclampcap(js.mAxes[3].abs,-5000,5000))*-0.00001f,
+														  0.0f));
+			}
 			// Settings
 			if (m_input->g_kb->isKeyDown(KC_K)) // Debug blocks
 				debugDrawMode=1;
