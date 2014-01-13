@@ -5,11 +5,11 @@
 //                                      RaytraceSetup
 // =======================================================================================
 
-#define AMOUNTOFSPHERES 2
-#define AMOUNTOFPLANES 1
-#define AMOUNTOFTRIS 10
-#define AMOUNTOFBOXES 1
-#define AMOUNTOFLIGHTS 2
+#define AMOUNTOFSPHERES 0
+#define AMOUNTOFPLANES 0
+#define AMOUNTOFTRIS 0
+#define AMOUNTOFBOXES 0
+#define AMOUNTOFLIGHTS 1
 
 #define SPACEDIST 200.0
 #define SPHERERADIUS 5.0

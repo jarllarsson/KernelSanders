@@ -38,13 +38,15 @@ __device__ bool IntersectAll(const Scene* in_scene, const Ray* in_ray, Intersect
 	bool result=false;
 	bool storeResults = !breakOnFirst;
 
-   //#pragma unroll AMOUNTOFSPHERES 	
+   //#pragma unroll AMOUNTOFSPHERES 
+	/*
 	for (int i=0;i<AMOUNTOFSPHERES;i++)
 	{
 		result|=IntersectSphere(&(in_scene->sphere[i]), in_ray, inout_intersection, storeResults);
 		if (result && breakOnFirst) 
 			return true;
 	}	// for each sphere	
+	*/
 
 	// #pragma unroll AMOUNTOFPLANES 
 	// for (int i=0;i<AMOUNTOFPLANES;i++)
@@ -56,6 +58,7 @@ __device__ bool IntersectAll(const Scene* in_scene, const Ray* in_ray, Intersect
 
 
 	//#pragma unroll AMOUNTOFTRIS
+	/*
 	for (int i=0;i<AMOUNTOFTRIS;i++)
 	{
 		result|=IntersectTriangle(&(in_scene->tri[i]), in_ray, inout_intersection,storeResults);
@@ -72,7 +75,7 @@ __device__ bool IntersectAll(const Scene* in_scene, const Ray* in_ray, Intersect
 		if (result && breakOnFirst) 
 			return true;
 	}	// for each box
-
+	*/
 
 	
 	// Planet field

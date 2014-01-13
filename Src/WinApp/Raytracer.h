@@ -68,6 +68,7 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	Scene scene;
 
 	// define some spheres
+	/*
 	scene.sphere[0].pos = make_float4(0.0f,0.0f,0.0f,1.0f);
 	scene.sphere[0].rad = 0.5f;
 	scene.sphere[0].mat.diffuse = make_float4(0.5f, 0.79f, 0.22f,1.0f);
@@ -88,7 +89,7 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 		scene.sphere[i].mat.specular = make_float4(1.0f, 1.0f, 1.0f,0.8f);
 		scene.sphere[i].mat.reflection = (float)i/(float)AMOUNTOFSPHERES;
 	}
-
+	*/
 	// define a plane
 
 	// for (int i=0;i<AMOUNTOFPLANES;i++)
@@ -105,7 +106,7 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 
 
 	// define some tris
-
+	/*
 	for (int i=0;i<AMOUNTOFTRIS;i++)
 	{
 
@@ -142,9 +143,9 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 		scene.box[i].mat.specular = make_float4(0.1f, 0.1f, 0.1f,0.5f);
 		scene.box[i].mat.reflection = 0.2f;
 	}
-
+	*/
 	// define some lights
-
+	/*
 	for (int i=0;i<AMOUNTOFLIGHTS-1;i++)
 	{
 		// scene.light[i].vec = (float4)(i*5.0f*sin((1.0f+i)*time),i+sin(time),100.0f*sin(time) + i*2.0f*cos((1.0f+i)*time),1.0f);
@@ -154,7 +155,7 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 		scene.light[i].diffuseColor = make_float4(1.0f,1.0f,1.0f,1.0f);
 		scene.light[i].specularColor = make_float4(1.0f,1.0f,1.0f,0.0f);
 	}
-
+	*/
 
 	// Create a directional light
 	scene.light[AMOUNTOFLIGHTS-1].vec = cu_normalize(make_float4(sin(time*0.1f),-1.0f,cos(time*0.1f),0.0f));
