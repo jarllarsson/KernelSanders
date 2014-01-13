@@ -168,7 +168,7 @@ void App::run()
 														  0.0f));
 			}
 			// Settings
-			if (m_input->g_kb->isKeyDown(KC_K)) // Debug blocks
+		/*	if (m_input->g_kb->isKeyDown(KC_K)) // Debug blocks
 				debugDrawMode=1;
 			if (m_input->g_kb->isKeyDown(KC_L)) // Debug off
 				debugDrawMode=0;
@@ -185,7 +185,7 @@ void App::run()
 			if (m_input->g_kb->isKeyDown(KC_5)) // Shadow on (soft shadows fidelity=15)
 				shadowMode=15;
 			if (m_input->g_kb->isKeyDown(KC_6)) // Shadow on (soft shadows fidelity=20)
-				shadowMode=20;
+				shadowMode=20;*/
 
 			float mousemovemultiplier=0.001f;
  			float mouseX=(float)m_input->g_m->getMouseState().X.rel*mousemovemultiplier;
