@@ -204,12 +204,18 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="HostLightStructures.h" />
+    <ClInclude Include="HostMaterial.h" />
+    <ClInclude Include="HostPrimitives.h" />
+    <ClInclude Include="HostScene.h" />
+    <ClInclude Include="HostSceneManager.h" />
     <ClInclude Include="IntersectAll.h" />
     <ClInclude Include="IntersectBox.h" />
     <ClInclude Include="IntersectionInfo.h" />
     <ClInclude Include="IntersectPlane.h" />
     <ClInclude Include="IntersectSphere.h" />
     <ClInclude Include="IntersectTriangle.h" />
+    <ClInclude Include="KDTree.h" />
     <ClInclude Include="KernelMathMatrix.h" />
     <ClInclude Include="KernelMathOperators.h" />
     <ClInclude Include="LightStructures.h" />
@@ -235,7 +241,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="HostSceneManager.cpp" />
     <ClCompile Include="IKernelHandler.cpp" />
+    <ClCompile Include="KDTree.cpp" />
     <ClCompile Include="KernelDevice.cpp" />
     <ClCompile Include="OISHelper.cpp" />
     <ClCompile Include="RaytraceKernel.cpp" />

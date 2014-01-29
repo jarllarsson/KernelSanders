@@ -13,8 +13,8 @@
 #include "RaytraceSurfaceMaterial.h"
 
 
-
 using std::vector; 
+
 
 struct Box
 {
@@ -32,6 +32,17 @@ struct Tri
 	Material mat;
 };
 
+struct TriPart
+{
+	float4 vertices[3];
+};
+
+struct Mesh
+{
+	unsigned int polyCount;
+	TriPart* polygons;
+	Material mat;
+};
 
 struct Plane
 {
