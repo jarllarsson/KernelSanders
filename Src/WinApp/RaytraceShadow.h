@@ -11,6 +11,7 @@
 #include "IntersectionInfo.h"
 #include "IntersectAll.h"
 
+// Currently only shadows for non-fractals
 __device__ float ShadowCastAll(const Light* in_light,
 							   int shadowMode, 
 							   Ray* inout_shadowRay,
@@ -31,14 +32,16 @@ __device__ float ShadowCastAll(const Light* in_light,
 		{
 			float3 spread = cu_getRandomVector3(make_float2(u+(float)shadows,v+(float)shadows))*0.02f;
 			inout_shadowRay->dir = cu_normalize( inout_intersection->pos * in_light->vec.w - in_light->vec + make_float4(spread.x,spread.y,spread.z,0.0f));
-			if (!IntersectAll(in_scene,inout_shadowRay,inout_intersection,true)) // only add light colour if no object is between current pixel and light*/
+			bool result=!IntersectAll(in_scene,inout_shadowRay,inout_intersection,true,false);
+			if (result) // only add light colour if no object is between current pixel and light*/
 				lightHits+=partLit;
 		}	
 	}	
 	else if (shadowMode==RAYTRACESHADOWMODE_HARD) // hard shadow
 	{
 		inout_shadowRay->dir = cu_normalize( inout_intersection->pos * in_light->vec.w - in_light->vec );
-		if (!IntersectAll(in_scene,inout_shadowRay,inout_intersection,true)) // only add light colour if no object is between current pixel and light*/
+		bool result=!IntersectAll(in_scene,inout_shadowRay,inout_intersection,true,false);
+		if (result) // only add light colour if no object is between current pixel and light*/
 			lightHits=1.0f;
 	}
 

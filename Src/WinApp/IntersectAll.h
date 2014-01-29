@@ -33,32 +33,29 @@
 /// 25-4-2013 Jarl Larsson
 ///---------------------------------------------------------------------------------------
 
-__device__ bool IntersectAll(const Scene* in_scene, const Ray* in_ray, Intersection* inout_intersection, bool breakOnFirst)
+__device__ bool IntersectAll(const Scene* in_scene, const Ray* in_ray, Intersection* inout_intersection, bool breakOnFirst,bool previousResult)
 {
-	bool result=false;
+	bool result=previousResult;
 	bool storeResults = !breakOnFirst;
 
-   //#pragma unroll AMOUNTOFSPHERES 
-	/*
+    #pragma unroll AMOUNTOFSPHERES 
 	for (int i=0;i<AMOUNTOFSPHERES;i++)
 	{
 		result|=IntersectSphere(&(in_scene->sphere[i]), in_ray, inout_intersection, storeResults);
 		if (result && breakOnFirst) 
 			return true;
 	}	// for each sphere	
-	*/
 
-	// #pragma unroll AMOUNTOFPLANES 
-	// for (int i=0;i<AMOUNTOFPLANES;i++)
-	// {
-	// 	result|=IntersectPlane(&(in_scene->plane[i]), in_ray, inout_intersection,storeResults);
-	// 	if (result && breakOnFirst) 
-	// 		return true;
-	// }	// for each plane
+	#pragma unroll AMOUNTOFPLANES 
+	for (int i=0;i<AMOUNTOFPLANES;i++)
+	{
+		result|=IntersectPlane(&(in_scene->plane[i]), in_ray, inout_intersection,storeResults);
+		if (result && breakOnFirst) 
+			return true;
+	}	// for each plane
 
 
-	//#pragma unroll AMOUNTOFTRIS
-	/*
+	#pragma unroll AMOUNTOFTRIS
 	for (int i=0;i<AMOUNTOFTRIS;i++)
 	{
 		result|=IntersectTriangle(&(in_scene->tri[i]), in_ray, inout_intersection,storeResults);
@@ -68,35 +65,16 @@ __device__ bool IntersectAll(const Scene* in_scene, const Ray* in_ray, Intersect
 	}	// for each tri
 
 
-	//#pragma unroll AMOUNTOFBOXES
+	#pragma unroll AMOUNTOFBOXES
 	for (int i=0;i<AMOUNTOFBOXES;i++)
 	{
 		result|=IntersectBox(&(in_scene->box[i]), in_ray, inout_intersection,storeResults);
 		if (result && breakOnFirst) 
 			return true;
 	}	// for each box
-	*/
+	
 
 	
-	// Planet field
-	Sphere f;
-
-
-	f.pos = make_float4(0.0f,0.0f,0.0f,1.0f);
-	f.rad = 0.5f;
-	f.mat.diffuse = make_float4(1.0f, 0.0f, 1.0f,1.0f);
-	f.mat.specular = make_float4(0.0f, 0.0f, 0.0f,0.0f);
-	f.mat.reflection = 0.0f;
-
-
-	result|=MarchSphere(&f, in_ray, inout_intersection, storeResults);
-	//if (result && breakOnFirst) 
-	//{	
-	//	return true;
-	//}
-
-/*
-
 	// debug for lights
 	if (!breakOnFirst)
 	{
@@ -111,8 +89,28 @@ __device__ bool IntersectAll(const Scene* in_scene, const Ray* in_ray, Intersect
 			IntersectSphere(&(t), in_ray, inout_intersection,storeResults);
 		}	// debug for each light
 	}
-	*/
+
 	return result;
+}
+
+__device__ bool MarchAll(const Ray* in_ray, Intersection* inout_intersection, bool breakOnFirst, bool previousResult)
+{
+	bool result=previousResult;
+	bool storeResults = !breakOnFirst;
+
+	// Planet field
+	Sphere f;
+
+	f.pos = make_float4(0.0f,0.0f,0.0f,1.0f);
+	f.rad = 0.5f;
+	f.mat.diffuse = make_float4(1.0f, 0.0f, 1.0f,1.0f);
+	f.mat.specular = make_float4(0.0f, 0.0f, 0.0f,0.0f);
+	f.mat.reflection = 0.0f;
+
+
+	result|=MarchSphere(&f, in_ray, inout_intersection, storeResults);
+	
+	return true;
 }
 
 #endif
