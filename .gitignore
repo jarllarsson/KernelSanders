@@ -12,3 +12,5 @@ Bin/x64/*.txt
 *.lib
 
 *.nvuser
+
+*.zip
