@@ -7,6 +7,7 @@
 #include <cuda_runtime_api.h>
 #include <cuda_d3d11_interop.h>
 #include <vector>
+#include "HostScene.h"
 
 using namespace std;
 
@@ -15,11 +16,14 @@ using namespace std;
 struct RaytraceKernelData : public KernelData
 {
 	int m_width; int m_height;
-	cudaGraphicsResource*		   m_textureResource;
-	void*						   m_textureLinearMem;
-	cudaArray*					   m_textureView;
-	size_t*						   m_pitch;
-	RaytraceConstantBuffer*		   m_cb;
+	// Render Texture
+	cudaGraphicsResource*		m_textureResource;
+	void*						m_textureLinearMem;
+	cudaArray*					m_textureView;
+	size_t*						m_pitch;
+	RaytraceConstantBuffer*		m_cb;
+	// Scene data
+	HScene*						m_hostScene;
 };
 
 // =======================================================================================

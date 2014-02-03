@@ -12,7 +12,7 @@
 /// 29-1-2014 Jarl Larsson
 ///---------------------------------------------------------------------------------------
 
-struct Material
+struct HMaterial
 {
 	glm::vec4 diffuse;
 	glm::vec4 specular; // r,g,b,glossiness

@@ -51,10 +51,15 @@ __global__ void RaytraceKernel(unsigned char *p_outSurface,
  
 // Executes CUDA kernel 
 extern "C" void RunRaytraceKernel(void* p_cb,unsigned char *surface,
-			int width, int height, int pitch) 
+			int width, int height, int pitch,
+			void* p_tris,int numTris) 
 { 
 	// copy to constant buffer
 	cudaError_t res = cudaMemcpyToSymbol(cb, p_cb, sizeof(RaytraceConstantBuffer));
+	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
+
+	// copy geometry
+	res = cudaMemcpyToSymbol(geomTriangles, p_tris, numTris*3*sizeof(float)*4);
 	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
 
 	// Set up dimensions

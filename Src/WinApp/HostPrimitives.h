@@ -8,47 +8,47 @@
 #include "HostMaterial.h"
 
 
-struct Box
+struct HBox
 {
 	glm::vec4 pos;		    // The center point of the box in world coordinates
 	glm::vec4 sides[3];		// normalized side directions u,v,w
 	float hlengths[3];	// positive half-lengths from box center
-	Material mat;
+	HMaterial mat;
 	float pad;
 };
 
 
-struct Tri
+struct HTri
 {
 	glm::vec4 vertices[3];
-	Material mat;
+	HMaterial mat;
 };
 
-struct TriPart
+struct HTriPart
 {
 	glm::vec4 vertices[3];
 };
 
-struct Mesh
+struct HMesh
 {
 	unsigned int polyCount;
-	TriPart* polygons;
-	Material mat;
+	HTriPart* polygons;
+	HMaterial mat;
 };
 
-struct Plane
+struct HPlane
 {
 	float distance;
 	glm::vec4 normal;
-	Material mat;
+	HMaterial mat;
 	float pad[3];
 };
 
 
-struct Sphere
+struct HSphere
 {
 	glm::vec4 pos;
 	float rad;
-	Material mat;
+	HMaterial mat;
 	float pad[3];
 };

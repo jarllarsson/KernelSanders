@@ -8,6 +8,7 @@
 #include <DebugPrint.h>
 #include "KernelHelper.h"
 #include <glm\gtc\type_ptr.hpp>
+#include "RaytraceDefines.h"
 
 
 KernelDevice::KernelDevice( void* p_device )
@@ -101,6 +102,8 @@ void KernelDevice::executeKernelJob( float p_dt, KernelJob p_jobId )
 			blob.m_textureLinearMem = m_gbufferHandle.m_textureLinearMem;
 			blob.m_pitch = &m_gbufferHandle.m_pitch;
 			blob.m_cb=&m_cb;
+
+			blob.m_hostScene = m_scene.getScenePtr();
 
 			m_raytracer->Execute((KernelData*)&blob,p_dt);
 			break;

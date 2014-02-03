@@ -43,6 +43,8 @@ using std::vector;
 
 __device__ __constant__ RaytraceConstantBuffer cb[1];
 
+__device__ __constant__ float4 geomTriangles[MAXTRIS*3];
+
 
 __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 						 const int p_width, const int p_height)
@@ -83,18 +85,18 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	scene.sphere[1].mat.specular = make_float4(0.0f, 0.0f, 0.0f,0.0f);
 	scene.sphere[1].mat.reflection = 0.0f;
 
-	for (int i=2;i<AMOUNTOFSPHERES;i++)
+	for (int i=2;i<MAXSPHERES;i++)
 	{
 		scene.sphere[i].pos = make_float4((float)(i%3),(float)i,(float)i,1.0f);
 		scene.sphere[i].rad = i*0.1f;
-		scene.sphere[i].mat.diffuse = make_float4((float)i/(float)AMOUNTOFSPHERES, 1.0f-((float)i/(float)AMOUNTOFSPHERES), ((float)i/(float)(AMOUNTOFSPHERES*0.2f)) ,1.0f);
+		scene.sphere[i].mat.diffuse = make_float4((float)i/(float)MAXSPHERES, 1.0f-((float)i/(float)MAXSPHERES), ((float)i/(float)(MAXSPHERES*0.2f)) ,1.0f);
 		scene.sphere[i].mat.specular = make_float4(1.0f, 1.0f, 1.0f,0.8f);
-		scene.sphere[i].mat.reflection = (float)i/(float)AMOUNTOFSPHERES;
+		scene.sphere[i].mat.reflection = (float)i/(float)MAXSPHERES;
 	}
 
 	// define a plane
 
-	for (int i=0;i<AMOUNTOFPLANES;i++)
+	for (int i=0;i<MAXPLANES;i++)
 	{
 		scene.plane[i].distance = -5.0f;
 		scene.plane[i].normal = make_float4(0.0f,1.0f,0.0f,0.0f);
@@ -109,17 +111,18 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 
 	// define some tris
 
-	for (int i=0;i<AMOUNTOFTRIS;i++)
+	for (int i=0;i<MAXTRIS;i++)
 	{
 
 		#pragma unroll 3
 		for (int x=0;x<3;x++)
 		{
 
-			scene.tri[i].vertices[x] = make_float4((float)i+x*0.5f, sin(time+(float)i+x*0.01f) + ((i%2)*2-1)*(float)(x%2)*0.5f, sin((float)(x+i)*0.5f)*-3.0f,0.0f);
+			scene.tri[i].vertices[x] = geomTriangles[i];
+				//make_float4((float)i+x*0.5f, sin(time+(float)i+x*0.01f) + ((i%2)*2-1)*(float)(x%2)*0.5f, sin((float)(x+i)*0.5f)*-3.0f,0.0f);
 		}
 
-		scene.tri[i].mat.diffuse = make_float4( 1.0f-((float)i/(float)AMOUNTOFTRIS), (float)i/(float)AMOUNTOFTRIS, 1.0f-((float)i/(float)(AMOUNTOFTRIS*0.2f)) ,1.0f);
+		scene.tri[i].mat.diffuse = make_float4( 1.0f-((float)i/(float)MAXTRIS), (float)i/(float)MAXTRIS, 1.0f-((float)i/(float)(MAXTRIS*0.2f)) ,1.0f);
 		scene.tri[i].mat.specular = make_float4(1.0f, 1.0f, 1.0f,0.5f);
 		scene.tri[i].mat.reflection = 0.6f;
 
@@ -127,7 +130,7 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 
 	// define some boxes
 
-	for (int i=0;i<AMOUNTOFBOXES;i++)
+	for (int i=0;i<MAXBOXES;i++)
 	{
 		scene.box[i].pos = make_float4(-5.0f,10+sin((float)i)*10.0f*sin(time), i*10,0.0f) + make_float4(sin((float)i)*50.0f*(1.0f+sin(time)),
 			5.0f+sin(time*0.5f)*5.0f,
@@ -141,14 +144,14 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 		scene.box[i].hlengths[0] = (1+i);
 		scene.box[i].hlengths[1] = (1+i);
 		scene.box[i].hlengths[2] = (1+i);
-		scene.box[i].mat.diffuse = make_float4( (float)(i%5)*0.5f, 1.0f-sin((float)i), ((float)i/(float)(AMOUNTOFBOXES*2.0f)) ,1.0f);
+		scene.box[i].mat.diffuse = make_float4( (float)(i%5)*0.5f, 1.0f-sin((float)i), ((float)i/(float)(MAXBOXES*2.0f)) ,1.0f);
 		scene.box[i].mat.specular = make_float4(0.1f, 0.1f, 0.1f,0.5f);
 		scene.box[i].mat.reflection = 0.2f;
 	}
 
 	// define some lights
 	
-	for (int i=0;i<AMOUNTOFLIGHTS-1;i++)
+	for (int i=0;i<MAXLIGHTS-1;i++)
 	{
 		// scene.light[i].vec = (float4)(i*5.0f*sin((1.0f+i)*time),i+sin(time),100.0f*sin(time) + i*2.0f*cos((1.0f+i)*time),1.0f);
 		scene.light[i].vec = make_float4(-1.0f,2.0f,sin(time)*6.0f-3.0f,1.0f);
@@ -160,11 +163,11 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	
 
 	// Create a directional light
-	scene.light[AMOUNTOFLIGHTS-1].vec = cu_normalize(make_float4(sin(time*0.1f),-1.0f,cos(time*0.1f),0.0f));
-	scene.light[AMOUNTOFLIGHTS-1].diffusePower = 1.0f;
-	scene.light[AMOUNTOFLIGHTS-1].specularPower = 1.0f;
-	scene.light[AMOUNTOFLIGHTS-1].diffuseColor = make_float4(1.0f, 1.0f,1.0f,1.0f);
-  	scene.light[AMOUNTOFLIGHTS-1].specularColor = make_float4(1.0f,1.0f,1.0f,0.0f);
+	scene.light[MAXLIGHTS-1].vec = cu_normalize(make_float4(sin(time*0.1f),-1.0f,cos(time*0.1f),0.0f));
+	scene.light[MAXLIGHTS-1].diffusePower = 1.0f;
+	scene.light[MAXLIGHTS-1].specularPower = 1.0f;
+	scene.light[MAXLIGHTS-1].diffuseColor = make_float4(1.0f, 1.0f,1.0f,1.0f);
+  	scene.light[MAXLIGHTS-1].specularColor = make_float4(1.0f,1.0f,1.0f,0.0f);
 	
 
 	// 1. Create ray
@@ -232,7 +235,7 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 			currentColor=ambient; // ambient base add (note: on do this on current colour for ambient on shadows)
 
 			// add all lights
-			for (int i=0;i<AMOUNTOFLIGHTS;i++)
+			for (int i=0;i<MAXLIGHTS;i++)
 			{				
 
 				lightColor = make_float4(0.0f,0.0f,0.0f,0.0f);		

@@ -32,11 +32,11 @@ using std::vector;
 
 struct Scene
 {	
-	Light light[AMOUNTOFLIGHTS];
-	Sphere sphere[AMOUNTOFSPHERES];
-	Plane plane[AMOUNTOFPLANES];
-	Tri tri[AMOUNTOFTRIS];
-	Box box[AMOUNTOFBOXES];
+	Light light[MAXLIGHTS];
+	Sphere sphere[MAXSPHERES];
+	Plane plane[MAXPLANES];
+	Tri tri[MAXTRIS];
+	Box box[MAXBOXES];
 };
 
 #endif

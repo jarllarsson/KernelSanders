@@ -6,13 +6,13 @@
 
 
 
-struct SurfaceLightingData
+struct HSurfaceLightingData
 {
 	glm::vec4 diffuseColor;
 	glm::vec4 specularColor;
 };
 
-struct Light
+struct HLight
 {
 	float diffusePower;
 	float specularPower;

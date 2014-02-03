@@ -3,17 +3,25 @@
 #include "HostLightStructures.h"
 #include "HostMaterial.h"
 #include "HostPrimitives.h"
-#include "RaytraceDefines.h"
+#include <vector>
+
+using namespace std;
 // =======================================================================================
 //                                      HostScene
 // =======================================================================================
 
-struct Scene
+struct HScene
 {	
-	Light light[AMOUNTOFLIGHTS];
-	Sphere sphere[AMOUNTOFSPHERES];
-	Plane plane[AMOUNTOFPLANES];
-	Tri tri[AMOUNTOFTRIS];
-	Box box[AMOUNTOFBOXES];
+	/*Light light[MAXLIGHTS];
+	Sphere sphere[MAXSPHERES];
+	Plane plane[MAXPLANES];
+	Tri tri[MAXTRIS];
+	Box box[MAXBOXES];*/
+
+	vector<HLight> light;
+	vector<HSphere> sphere;
+	vector<HPlane> plane;
+	vector<HTri> tri;
+	vector<HBox> box;
 };
 
