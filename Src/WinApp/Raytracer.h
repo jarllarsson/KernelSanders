@@ -43,7 +43,7 @@ using std::vector;
 
 __device__ __constant__ RaytraceConstantBuffer cb[1];
 
-__device__ __constant__ float4 geomTriangles[MAXTRIS*3];
+__device__ __constant__ TriPart geomTriangles[MAXTRIS];
 
 
 __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
@@ -118,7 +118,7 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 		for (int x=0;x<3;x++)
 		{
 
-			scene.tri[i].vertices[x] = geomTriangles[i];
+			scene.tri[i].vertices[x] = geomTriangles[i/**3+x*/].vertices[x];
 				//make_float4((float)i+x*0.5f, sin(time+(float)i+x*0.01f) + ((i%2)*2-1)*(float)(x%2)*0.5f, sin((float)(x+i)*0.5f)*-3.0f,0.0f);
 		}
 

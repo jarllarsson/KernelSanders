@@ -45,12 +45,12 @@ void RaytraceKernel::Execute( KernelData* p_data, float p_dt )
 	res = cudaGraphicsSubResourceGetMappedArray(&blob->m_textureView, blob->m_textureResource/*[0]*/, 0, 0);
 	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
 
-	//HScene* scene = blob->m_hostScene;
+	HScene* scene = blob->m_hostScene;
 
 	// Run the kernel
 	RunRaytraceKernel(reinterpret_cast<void*>(constantBuffer),blob->m_textureLinearMem,
 		width,height,(int)pitch,
-		reinterpret_cast<void*>(&scene->tri),scene->tri.size()); 
+		reinterpret_cast<void*>(&scene->tri[0]),scene->tri.size()); 
 	// ---
 
 	// copy color array to texture (device->device)

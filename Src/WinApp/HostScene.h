@@ -21,7 +21,7 @@ struct HScene
 	vector<HLight> light;
 	vector<HSphere> sphere;
 	vector<HPlane> plane;
-	vector<HTri> tri;
+	vector<HTriPart> tri;
 	vector<HBox> box;
 };
 

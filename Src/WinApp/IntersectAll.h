@@ -38,7 +38,7 @@ __device__ bool IntersectAll(const Scene* in_scene, const Ray* in_ray, Intersect
 	bool result=previousResult;
 	bool storeResults = !breakOnFirst;
 
-    #pragma unroll AMOUNTOFSPHERES 
+    #pragma unroll MAXSPHERES
 	for (int i=0;i<MAXSPHERES;i++)
 	{
 		result|=IntersectSphere(&(in_scene->sphere[i]), in_ray, inout_intersection, storeResults);
@@ -46,7 +46,7 @@ __device__ bool IntersectAll(const Scene* in_scene, const Ray* in_ray, Intersect
 			return true;
 	}	// for each sphere	
 
-	#pragma unroll AMOUNTOFPLANES 
+	#pragma unroll MAXPLANES 
 	for (int i=0;i<MAXPLANES;i++)
 	{
 		result|=IntersectPlane(&(in_scene->plane[i]), in_ray, inout_intersection,storeResults);
@@ -55,7 +55,7 @@ __device__ bool IntersectAll(const Scene* in_scene, const Ray* in_ray, Intersect
 	}	// for each plane
 
 
-	#pragma unroll AMOUNTOFTRIS
+	#pragma unroll MAXTRIS
 	for (int i=0;i<MAXTRIS;i++)
 	{
 		result|=IntersectTriangle(&(in_scene->tri[i]), in_ray, inout_intersection,storeResults);
@@ -65,7 +65,7 @@ __device__ bool IntersectAll(const Scene* in_scene, const Ray* in_ray, Intersect
 	}	// for each tri
 
 
-	#pragma unroll AMOUNTOFBOXES
+	#pragma unroll MAXBOXES
 	for (int i=0;i<MAXBOXES;i++)
 	{
 		result|=IntersectBox(&(in_scene->box[i]), in_ray, inout_intersection,storeResults);

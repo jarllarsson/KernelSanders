@@ -59,7 +59,8 @@ extern "C" void RunRaytraceKernel(void* p_cb,unsigned char *surface,
 	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
 
 	// copy geometry
-	res = cudaMemcpyToSymbol(geomTriangles, p_tris, numTris*3*sizeof(float)*4);
+	int test=numTris*sizeof(TriPart);
+	res = cudaMemcpyToSymbol(geomTriangles, p_tris, numTris*sizeof(TriPart));
 	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
 
 	// Set up dimensions
