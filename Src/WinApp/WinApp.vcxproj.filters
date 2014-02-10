@@ -198,6 +198,9 @@
     <ClCompile Include="HostSceneManager.cpp">
       <Filter>Source Files\HostSceneManager</Filter>
     </ClCompile>
+    <ClCompile Include="HostScene.cpp">
+      <Filter>Source Files\HostSceneManager\Host Structures</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="RaytraceKernelEntry.cu">

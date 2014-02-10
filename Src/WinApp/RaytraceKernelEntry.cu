@@ -59,9 +59,11 @@ extern "C" void RunRaytraceKernel(void* p_cb,unsigned char *surface,
 	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
 
 	// copy geometry
-	int test=numTris*sizeof(TriPart);
-	res = cudaMemcpyToSymbol(geomTriangles, p_tris, numTris*sizeof(TriPart));
-	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
+	if (p_tris!=NULL)
+	{
+		res = cudaMemcpyToSymbol(geomTriangles, p_tris, numTris*sizeof(TriPart));
+		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
+	}
 
 	// Set up dimensions
 	dim3 Db = dim3(16, 16);   // block dimensions are fixed to be 256 threads
