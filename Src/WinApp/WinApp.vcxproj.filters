@@ -56,6 +56,9 @@
     <Filter Include="Source Files\HostSceneManager\Host Structures">
       <UniqueIdentifier>{a953dcc2-ce7f-498f-8c2f-b9c500f31f57}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ModelImporter">
+      <UniqueIdentifier>{5b2e1b80-a434-4b2d-b8d5-0945dd2bb936}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h">
@@ -166,6 +169,9 @@
     <ClInclude Include="HostSceneManager.h">
       <Filter>Source Files\HostSceneManager</Filter>
     </ClInclude>
+    <ClInclude Include="ModelImporter.h">
+      <Filter>ModelImporter</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -200,6 +206,9 @@
     </ClCompile>
     <ClCompile Include="HostScene.cpp">
       <Filter>Source Files\HostSceneManager\Host Structures</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelImporter.cpp">
+      <Filter>ModelImporter</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

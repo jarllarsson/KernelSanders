@@ -67,15 +67,15 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)Src\Context;$(SolutionDir)Src\Graphics;$(SolutionDir)Src\Util;$(SolutionDir)External\Visual Leak Detector\include\;$(SolutionDir)External\OIS\includes;$(SolutionDir)External\GLM\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)Lib\$(PlatformShortName)\;$(SolutionDir)External\Visual Leak Detector\lib\Win64;$(LibraryPath);$(SolutionDir)External\OIS\lib\x64</LibraryPath>
+    <IncludePath>$(SolutionDir)Src\Context;$(SolutionDir)Src\Graphics;$(SolutionDir)Src\Util;$(SolutionDir)External\Visual Leak Detector\include\;$(SolutionDir)External\OIS\includes;$(SolutionDir)External\Assimp\include;$(SolutionDir)External\GLM\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)Lib\$(PlatformShortName)\;$(SolutionDir)External\Visual Leak Detector\lib\Win64;$(LibraryPath);$(SolutionDir)External\OIS\lib\x64;$(SolutionDir)External\Assimp\lib\assimp_release-dll_x64</LibraryPath>
     <OutDir>$(SolutionDir)Bin\$(PlatformShortName)\</OutDir>
     <IntDir>$(SolutionDir)Obj\$(Configuration)\$(PlatformShortName)\</IntDir>
     <TargetName>$(ProjectName)_$(Configuration)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)Src\Context;$(SolutionDir)Src\Graphics;$(SolutionDir)Src\Util;$(SolutionDir)External\Visual Leak Detector\include\;$(SolutionDir)External\OIS\includes;$(SolutionDir)External\GLM\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)Lib\$(PlatformShortName)\;$(SolutionDir)External\Visual Leak Detector\lib\Win64;$(LibraryPath);$(SolutionDir)External\OIS\lib\x64</LibraryPath>
+    <IncludePath>$(SolutionDir)Src\Context;$(SolutionDir)Src\Graphics;$(SolutionDir)Src\Util;$(SolutionDir)External\Visual Leak Detector\include\;$(SolutionDir)External\OIS\includes;$(SolutionDir)External\Assimp\include;$(SolutionDir)External\GLM\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)Lib\$(PlatformShortName)\;$(SolutionDir)External\Visual Leak Detector\lib\Win64;$(LibraryPath);$(SolutionDir)External\OIS\lib\x64;$(SolutionDir)External\Assimp\lib\assimp_release-dll_x64</LibraryPath>
     <OutDir>$(SolutionDir)Bin\$(PlatformShortName)\</OutDir>
     <IntDir>$(SolutionDir)Obj\$(Configuration)\$(PlatformShortName)\</IntDir>
     <TargetName>$(ProjectName)_$(Configuration)</TargetName>
@@ -84,15 +84,15 @@
     <OutDir>$(SolutionDir)Bin\$(PlatformShortName)\</OutDir>
     <IntDir>$(SolutionDir)Obj\$(Configuration)\$(PlatformShortName)\</IntDir>
     <TargetName>$(ProjectName)_$(Configuration)</TargetName>
-    <IncludePath>$(SolutionDir)Src\Context;$(SolutionDir)Src\Graphics;$(SolutionDir)Src\Util;$(SolutionDir)External\Visual Leak Detector\include\;$(SolutionDir)External\OIS\includes;$(SolutionDir)External\GLM\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)Lib\$(PlatformShortName)\;$(SolutionDir)External\Visual Leak Detector\lib\Win32\;$(LibraryPath);$(SolutionDir)External\OIS\lib\Win32</LibraryPath>
+    <IncludePath>$(SolutionDir)Src\Context;$(SolutionDir)Src\Graphics;$(SolutionDir)Src\Util;$(SolutionDir)External\Visual Leak Detector\include\;$(SolutionDir)External\OIS\includes;$(SolutionDir)External\Assimp\include;$(SolutionDir)External\GLM\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)Lib\$(PlatformShortName)\;$(SolutionDir)External\Visual Leak Detector\lib\Win32\;$(LibraryPath);$(SolutionDir)External\OIS\lib\Win32;$(SolutionDir)External\Assimp\lib\assimp_release-dll_win32</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)Bin\$(PlatformShortName)\</OutDir>
     <IntDir>$(SolutionDir)Obj\$(Configuration)\$(PlatformShortName)\</IntDir>
     <TargetName>$(ProjectName)_$(Configuration)</TargetName>
-    <IncludePath>$(SolutionDir)Src\Context;$(SolutionDir)Src\Graphics;$(SolutionDir)Src\Util;$(SolutionDir)External\Visual Leak Detector\include\;$(SolutionDir)External\OIS\includes;$(SolutionDir)External\GLM\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)Lib\$(PlatformShortName)\;$(SolutionDir)External\Visual Leak Detector\lib\Win32\;$(LibraryPath);$(SolutionDir)External\OIS\lib\Win32</LibraryPath>
+    <IncludePath>$(SolutionDir)Src\Context;$(SolutionDir)Src\Graphics;$(SolutionDir)Src\Util;$(SolutionDir)External\Visual Leak Detector\include\;$(SolutionDir)External\OIS\includes;$(SolutionDir)External\Assimp\include;$(SolutionDir)External\GLM\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)Lib\$(PlatformShortName)\;$(SolutionDir)External\Visual Leak Detector\lib\Win32\;$(LibraryPath);$(SolutionDir)External\OIS\lib\Win32;$(SolutionDir)External\Assimp\lib\assimp_release-dll_win32</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -103,7 +103,7 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>Util_$(Configuration).lib;Graphics_$(Configuration).lib;Context_$(Configuration).lib;cudart.lib;OIS_static_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Util_$(Configuration).lib;Graphics_$(Configuration).lib;Context_$(Configuration).lib;cudart.lib;assimp.lib;OIS_static_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
     </Link>
     <CudaCompile>
@@ -128,7 +128,7 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>Util_$(Configuration).lib;Graphics_$(Configuration).lib;Context_$(Configuration).lib;cudart.lib;OIS_static_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Util_$(Configuration).lib;Graphics_$(Configuration).lib;Context_$(Configuration).lib;cudart.lib;assimp.lib;OIS_static_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
     </Link>
     <CudaCompile>
@@ -158,7 +158,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>Util_$(Configuration).lib;Graphics_$(Configuration).lib;Context_$(Configuration).lib;cudart.lib;OIS_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Util_$(Configuration).lib;Graphics_$(Configuration).lib;Context_$(Configuration).lib;cudart.lib;assimp.lib;OIS_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <CudaCompile>
       <KeepDir>$(IntDir)CUDA\</KeepDir>
@@ -186,7 +186,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>Util_$(Configuration).lib;Graphics_$(Configuration).lib;Context_$(Configuration).lib;cudart.lib;OIS_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Util_$(Configuration).lib;Graphics_$(Configuration).lib;Context_$(Configuration).lib;cudart.lib;assimp.lib;OIS_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
@@ -219,6 +219,7 @@
     <ClInclude Include="KernelMathMatrix.h" />
     <ClInclude Include="KernelMathOperators.h" />
     <ClInclude Include="LightStructures.h" />
+    <ClInclude Include="ModelImporter.h" />
     <ClInclude Include="OISEventHandler.h" />
     <ClInclude Include="OISHelper.h" />
     <ClInclude Include="Primitives.h" />
@@ -246,6 +247,7 @@
     <ClCompile Include="IKernelHandler.cpp" />
     <ClCompile Include="KDTree.cpp" />
     <ClCompile Include="KernelDevice.cpp" />
+    <ClCompile Include="ModelImporter.cpp" />
     <ClCompile Include="OISHelper.cpp" />
     <ClCompile Include="RaytraceKernel.cpp" />
     <ClCompile Include="App.cpp" />
