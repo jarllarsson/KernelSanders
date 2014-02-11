@@ -12,6 +12,8 @@
 
 #include <ValueClamp.h>
 #include "TempController.h"
+#include "ModelImporter.h"
+#include "HostSceneManager.h"
 
 
 #include "OISHelper.h"
@@ -55,12 +57,16 @@ App::App( HINSTANCE p_hInstance )
 		DEBUGWARNING((e.what()));
 	}
 
-	//
-
+	// other systems
 	fpsUpdateTick=0.0f;
 	m_controller = new TempController();
+	m_modelImporter = new ModelImporter();
 	m_input = new OISHelper();
 	m_input->doStartup(m_context->getWindowHandle());
+
+	// Finally create and register scene manager
+	m_sceneMgr = new HostSceneManager();
+	m_kernelDevice->registerSceneMgr(m_sceneMgr);
 }
 
 App::~App()
@@ -70,6 +76,8 @@ App::~App()
 	SAFE_DELETE(m_context);
 	SAFE_DELETE(m_input);
 	SAFE_DELETE(m_controller);
+	SAFE_DELETE(m_modelImporter);
+	SAFE_DELETE(m_sceneMgr);
 }
 
 void App::run()
@@ -96,6 +104,13 @@ void App::run()
 	int shadowMode=0;
 	int debugDrawMode=0;
 	float thrustPowInc=0.0f;
+
+	// load assets
+	int duck = m_modelImporter->loadFile("../Assets/sphere_triangulate.dae");
+	ModelImporter::ModelData* duckMdl=m_modelImporter->getStoredModel(duck);
+
+	m_sceneMgr->addTris(duckMdl->m_model->mMeshes[0]->mVertices,
+						duckMdl->m_model->mMeshes[0]->mNumVertices);
 
 	while (!m_context->closeRequested() && run)
 	{

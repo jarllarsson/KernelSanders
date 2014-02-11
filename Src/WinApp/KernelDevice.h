@@ -31,11 +31,8 @@ public:
 	KernelDevice(void* p_device);
 	virtual ~KernelDevice();
 
-	// Init cuda-only arrays 
-	void initLocalAllocations();
-
-
 	void registerCanvas(void** p_texture);
+	void registerSceneMgr(HostSceneManager* p_sceneMgr);
 
 	void update(float p_dt, TempController* p_tmpCam, int p_drawMode, int p_shadowMode );
 
@@ -51,5 +48,5 @@ private:
 	ID3D11Device*			m_device;
 
 	// Geometry
-	HostSceneManager m_scene;
+	HostSceneManager* m_sceneMgr;
 };

@@ -1,4 +1,5 @@
 #include "ModelImporter.h"
+#include <DebugPrint.h>
 
 ModelImporter::ModelImporter()
 {
@@ -17,11 +18,12 @@ ModelImporter::~ModelImporter()
 
 int ModelImporter::loadFile( const char* p_path )
 {
+	int result=-1;
 	// we are taking one of the postprocessing presets to avoid
 	// spelling out 20+ single postprocessing flags here.
 	const aiScene* tscene = aiImportFile(p_path,aiProcessPreset_TargetRealtime_MaxQuality);
 
-	if (tscene) 
+	if (tscene!=NULL) 
 	{
 		ModelData* model=new ModelData;
 		model->m_model=tscene;
@@ -30,10 +32,14 @@ int ModelImporter::loadFile( const char* p_path )
 		model->m_sceneCenter.y = (model->m_sceneMin.y + model->m_sceneMax.y) / 2.0f;
 		model->m_sceneCenter.z = (model->m_sceneMin.z + model->m_sceneMax.z) / 2.0f;
 		m_models.push_back(model);
-		int uid = static_cast<int>(m_models.size()-1);
-		return uid;
+		result = static_cast<int>(m_models.size()-1);
 	}
-	return -1;
+	else
+	{
+		DEBUGWARNING((aiGetErrorString()));
+	}
+
+	return result;
 }
 
 void ModelImporter::getBoundingBoxForNode( const aiScene* p_scene,
@@ -81,4 +87,11 @@ void ModelImporter::getBoundingBox(const aiScene* p_scene, aiVector3D* p_min,aiV
 	p_min->x = p_min->y = p_min->z =  1e10f;
 	p_max->x = p_max->y = p_max->z = -1e10f;
 	getBoundingBoxForNode(p_scene,p_min,p_max,&trafo);
+}
+
+ModelImporter::ModelData* ModelImporter::getStoredModel( int p_id )
+{
+	if (p_id<m_models.size() && p_id>=0)
+		return m_models[p_id];
+	return NULL;
 }

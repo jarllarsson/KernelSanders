@@ -20,13 +20,13 @@ struct HBox
 
 struct HTri
 {
-	glm::vec4 vertices[3];
+	glm::vec3 vertices[3];
 	HMaterial mat;
 };
 
 struct HTriPart
 {
-	glm::vec4 vertices[3];
+	glm::vec3 vertices[3];
 };
 
 struct HMesh

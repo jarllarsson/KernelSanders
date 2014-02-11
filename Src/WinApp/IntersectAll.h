@@ -55,8 +55,8 @@ __device__ bool IntersectAll(const Scene* in_scene, const Ray* in_ray, Intersect
 	}	// for each plane
 
 
-	#pragma unroll MAXTRIS
-	for (int i=0;i<MAXTRIS;i++)
+	//#pragma unroll MAXTRIS
+	for (int i=0;i<in_scene->numTris;i++)
 	{
 		result|=IntersectTriangle(&(in_scene->tri[i]), in_ray, inout_intersection,storeResults);
 		if (result && breakOnFirst) 

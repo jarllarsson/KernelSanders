@@ -47,7 +47,8 @@ __device__ __constant__ TriPart geomTriangles[MAXTRIS];
 
 
 __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
-						 const int p_width, const int p_height)
+						 const int p_width, const int p_height,
+						 int p_numTris)
 {
 	// Normalized device coordinates of pixel. (-1 to 1)
 	const float u = (p_x / (float) p_width)*2.0f-1.0f;
@@ -63,6 +64,7 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	float partLit=1.0f/(float)shadowMode;
 	float4  camPos = make_float4(cb[0].m_camPos);
 	float4x4 camRotation = make_float4x4(cb[0].m_cameraRotationMat);
+	int numTris=p_numTris;
 
 	// =======================================================
 	//                   TEST SETUP CODE
@@ -110,8 +112,8 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 
 
 	// define some tris
-
-	for (int i=0;i<MAXTRIS;i++)
+	scene.numTris=numTris;
+	for (int i=0;i<numTris;i++)
 	{
 
 		#pragma unroll 3
@@ -119,12 +121,12 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 		{
 
 			scene.tri[i].vertices[x] = geomTriangles[i/**3+x*/].vertices[x];
-				//make_float4((float)i+x*0.5f, sin(time+(float)i+x*0.01f) + ((i%2)*2-1)*(float)(x%2)*0.5f, sin((float)(x+i)*0.5f)*-3.0f,0.0f);
+				//make_float3((float)i+x*0.5f, sin(time+(float)i+x*0.01f) + ((i%2)*2-1)*(float)(x%2)*0.5f, sin((float)(x+i)*0.5f)*-3.0f);
 		}
 
 		scene.tri[i].mat.diffuse = make_float4( 1.0f-((float)i/(float)MAXTRIS), (float)i/(float)MAXTRIS, 1.0f-((float)i/(float)(MAXTRIS*0.2f)) ,1.0f);
 		scene.tri[i].mat.specular = make_float4(1.0f, 1.0f, 1.0f,0.5f);
-		scene.tri[i].mat.reflection = 0.6f;
+		scene.tri[i].mat.reflection = 0.0f;
 
 	}
 

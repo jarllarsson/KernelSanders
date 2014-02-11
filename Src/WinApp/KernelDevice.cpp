@@ -103,7 +103,7 @@ void KernelDevice::executeKernelJob( float p_dt, KernelJob p_jobId )
 			blob.m_pitch = &m_gbufferHandle.m_pitch;
 			blob.m_cb=&m_cb;
 
-			blob.m_hostScene = m_scene.getScenePtr();
+			blob.m_hostScene = m_sceneMgr->getScenePtr();
 
 			m_raytracer->Execute((KernelData*)&blob,p_dt);
 			break;
@@ -143,5 +143,12 @@ void KernelDevice::registerCanvas( void** p_texture )
 
 
 }
+
+
+void KernelDevice::registerSceneMgr( HostSceneManager* p_sceneMgr )
+{
+	m_sceneMgr=p_sceneMgr;
+}
+
 
 

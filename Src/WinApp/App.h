@@ -7,6 +7,8 @@ class GraphicsDevice;
 class KernelDevice;
 class TempController;
 class OISHelper;
+class ModelImporter;
+class HostSceneManager;
 
 // =======================================================================================
 //                                      App
@@ -36,5 +38,7 @@ private:
 	float fpsUpdateTick;
 
 	TempController* m_controller;
+	HostSceneManager* m_sceneMgr; // the "world"
+	ModelImporter*  m_modelImporter;
 	OISHelper*		m_input;
 };

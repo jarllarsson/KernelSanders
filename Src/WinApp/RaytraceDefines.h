@@ -7,7 +7,7 @@
 
 #define MAXSPHERES 2
 #define MAXPLANES 1
-#define MAXTRIS 10
+#define MAXTRIS 1000
 #define MAXBOXES 2
 #define MAXLIGHTS 1
 

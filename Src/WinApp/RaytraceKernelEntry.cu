@@ -34,7 +34,7 @@ using std::vector;
 texture<float, 2, cudaReadModeElementType> texRef;
 
 __global__ void RaytraceKernel(unsigned char *p_outSurface, 
-							   const int p_width, const int p_height, const size_t p_pitch)
+							   const int p_width, const int p_height, const size_t p_pitch,int p_numTris)
 {
     const int x = blockIdx.x*blockDim.x + threadIdx.x;
     const int y = blockIdx.y*blockDim.y + threadIdx.y;
@@ -46,13 +46,13 @@ __global__ void RaytraceKernel(unsigned char *p_outSurface,
     // get a pointer to the pixel at (x,y)
     pixel = (float *)(p_outSurface + y*p_pitch) + 4*x;
 
-	Raytrace(pixel,x,y, p_width, p_height);
+	Raytrace(pixel,x,y, p_width, p_height, p_numTris);
 }
  
 // Executes CUDA kernel 
 extern "C" void RunRaytraceKernel(void* p_cb,unsigned char *surface,
 			int width, int height, int pitch,
-			void* p_tris,int numTris) 
+			void* p_tris,int p_numTris) 
 { 
 	// copy to constant buffer
 	cudaError_t res = cudaMemcpyToSymbol(cb, p_cb, sizeof(RaytraceConstantBuffer));
@@ -61,7 +61,7 @@ extern "C" void RunRaytraceKernel(void* p_cb,unsigned char *surface,
 	// copy geometry
 	if (p_tris!=NULL)
 	{
-		res = cudaMemcpyToSymbol(geomTriangles, p_tris, numTris*sizeof(TriPart));
+		res = cudaMemcpyToSymbol(geomTriangles, p_tris, p_numTris*sizeof(TriPart));
 		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
 	}
 
@@ -71,7 +71,7 @@ extern "C" void RunRaytraceKernel(void* p_cb,unsigned char *surface,
 
 	//DEBUGPRINT(( ("\n"+toString(width)+" x "+toString(height)+" @ "+toString(1000*reinterpret_cast<RaytraceConstantBuffer*>(p_cb)->b)).c_str() ));
 
-    RaytraceKernel<<<Dg,Db>>>((unsigned char *)surface, width, height, pitch);
+    RaytraceKernel<<<Dg,Db>>>((unsigned char *)surface, width, height, pitch, p_numTris);
 
 	res = cudaDeviceSynchronize();
 	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);

@@ -28,13 +28,13 @@ struct Box
 
 struct Tri
 {
-	float4 vertices[3];
+	float3 vertices[3];
 	Material mat;
 };
 
 struct TriPart
 {
-	float4 vertices[3];
+	float3 vertices[3];
 };
 
 struct Mesh

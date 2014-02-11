@@ -32,6 +32,7 @@ using std::vector;
 
 struct Scene
 {	
+	int numTris;
 	Light light[MAXLIGHTS];
 	Sphere sphere[MAXSPHERES];
 	Plane plane[MAXPLANES];
