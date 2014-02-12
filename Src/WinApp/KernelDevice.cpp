@@ -23,6 +23,8 @@ KernelDevice::KernelDevice( void* p_device )
 	ZeroMemory(&m_cb,sizeof(RaytraceConstantBuffer));
 	m_cb.m_drawMode = RAYTRACEDRAWMODE_REGULAR;
 
+	m_trisArray=NULL;
+
 	m_raytracer = new RaytraceKernel();
 }
 
@@ -32,6 +34,10 @@ KernelDevice::~KernelDevice()
 	cudaError_t res = cudaGraphicsUnregisterResource( m_gbufferHandle.m_textureResource);
 	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
 	res = cudaFree(m_gbufferHandle.m_textureLinearMem);
+	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
+
+	// Global memory
+	res = cudaFree(m_trisArray);
 	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
 
 	delete m_raytracer;
@@ -99,11 +105,16 @@ void KernelDevice::executeKernelJob( float p_dt, KernelJob p_jobId )
 			RaytraceKernelData blob;
 			blob.m_width=m_width; blob.m_height=m_height;
 			blob.m_textureResource = m_gbufferHandle.m_textureResource;
-			blob.m_textureLinearMem = m_gbufferHandle.m_textureLinearMem;
+			blob.m_textureLinearMemDevice = m_gbufferHandle.m_textureLinearMem;
 			blob.m_pitch = &m_gbufferHandle.m_pitch;
-			blob.m_cb=&m_cb;
 
+			// Cuda memory
+			blob.m_cb=&m_cb;
+			blob.m_vertsLinearMemDeviceRef = &m_trisArray;
+
+			// Scene desc
 			blob.m_hostScene = m_sceneMgr->getScenePtr();
+
 
 			m_raytracer->Execute((KernelData*)&blob,p_dt);
 			break;

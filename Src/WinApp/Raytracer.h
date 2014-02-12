@@ -43,12 +43,10 @@ using std::vector;
 
 __device__ __constant__ RaytraceConstantBuffer cb[1];
 
-__device__ __constant__ TriPart geomTriangles[MAXTRIS];
-
 
 __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 						 const int p_width, const int p_height,
-						 int p_numTris)
+						 float3* p_inVerts, int p_numVerts)
 {
 	// Normalized device coordinates of pixel. (-1 to 1)
 	const float u = (p_x / (float) p_width)*2.0f-1.0f;
@@ -64,7 +62,7 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	float partLit=1.0f/(float)shadowMode;
 	float4  camPos = make_float4(cb[0].m_camPos);
 	float4x4 camRotation = make_float4x4(cb[0].m_cameraRotationMat);
-	int numTris=p_numTris;
+	int numVerts=p_numVerts;
 
 	// =======================================================
 	//                   TEST SETUP CODE
@@ -112,15 +110,17 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 
 
 	// define some tris
-	scene.numTris=numTris;
-	for (int i=0;i<numTris;i++)
+	// error right now, butr must be rewritten to
+	// vertex array and index array
+	scene.numTris=numVerts/3;
+	for (int i=0;i<numVerts;i+=3)
 	{
 
 		#pragma unroll 3
 		for (int x=0;x<3;x++)
 		{
 
-			scene.tri[i].vertices[x] = geomTriangles[i/**3+x*/].vertices[x];
+			scene.tri[i].vertices[x] = p_inVerts[i+x];
 				//make_float3((float)i+x*0.5f, sin(time+(float)i+x*0.01f) + ((i%2)*2-1)*(float)(x%2)*0.5f, sin((float)(x+i)*0.5f)*-3.0f);
 		}
 

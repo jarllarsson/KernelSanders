@@ -43,9 +43,14 @@ private:
 	RaytraceKernel* m_raytracer;
 
 	// Rendering and interop (DX and CUDA shared)
-	RaytraceConstantBuffer  m_cb;
 	InteropResourceMapping	m_gbufferHandle;
 	ID3D11Device*			m_device;
+
+	// CUDA device memory	
+	// Constant
+	RaytraceConstantBuffer  m_cb;
+	// Global
+	void* m_trisArray;
 
 	// Geometry
 	HostSceneManager* m_sceneMgr;

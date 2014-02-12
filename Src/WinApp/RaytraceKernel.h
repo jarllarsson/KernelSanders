@@ -18,12 +18,13 @@ struct RaytraceKernelData : public KernelData
 	int m_width; int m_height;
 	// Render Texture
 	cudaGraphicsResource*		m_textureResource;
-	void*						m_textureLinearMem;
+	void*						m_textureLinearMemDevice;
 	cudaArray*					m_textureView;
 	size_t*						m_pitch;
 	RaytraceConstantBuffer*		m_cb;
 	// Scene data
 	HScene*						m_hostScene;
+	void**						m_vertsLinearMemDeviceRef;
 };
 
 // =======================================================================================
