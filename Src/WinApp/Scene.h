@@ -38,6 +38,8 @@ struct Scene
 	Plane plane[MAXPLANES];
 	Tri tri[MAXTRIS];
 	Box box[MAXBOXES];
+	float3 meshVerts[MAXMESHLOCAL_VERTSBIN];
+	int meshVerts[MAXMESHLOCAL_VERTSBIN];
 };
 
 #endif

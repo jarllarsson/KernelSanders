@@ -109,7 +109,7 @@ void App::run()
 	int duck = m_modelImporter->loadFile("../Assets/sphere_triangulate.dae");
 	ModelImporter::ModelData* duckMdl=m_modelImporter->getStoredModel(duck);
 
-	m_sceneMgr->addTris(duckMdl->m_model->mMeshes[0]->mVertices,
+	m_sceneMgr->addMeshTris(duckMdl->m_model->mMeshes[0]->mVertices,
 						duckMdl->m_model->mMeshes[0]->mNumVertices);
 
 	while (!m_context->closeRequested() && run)

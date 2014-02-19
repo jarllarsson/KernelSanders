@@ -19,7 +19,7 @@ public:
 	virtual ~HostSceneManager();
 	HScene* getScenePtr();
 
-	void addTris(void* p_vec3ArrayXYZ, int p_count);
+	void addMeshTris(void* p_vec3ArrayXYZ, int p_vertCount,int* p_indexArray, int p_iCount);
 protected:
 private:
 	HScene m_scene;

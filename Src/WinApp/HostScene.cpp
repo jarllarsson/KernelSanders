@@ -8,6 +8,7 @@ HScene::HScene()
 	setDirty(HScene::PLANE);
 	setDirty(HScene::SPHERE);
 	setDirty(HScene::TRI);
+	setDirty(HScene::MESH);
 }
 
 void HScene::setDirty( OBJTYPE p_objType, bool p_status/*=true*/ )
@@ -28,6 +29,9 @@ void HScene::setDirty( OBJTYPE p_objType, bool p_status/*=true*/ )
 		break;
 	case OBJTYPE::BOX:
 		boxDirty=p_status;
+		break;
+	case OBJTYPE::MESH:
+		meshDirty=p_status;
 		break;
 	default:
 		break;		
@@ -55,6 +59,9 @@ bool HScene::isDirty( OBJTYPE p_objType )
 		break;
 	case OBJTYPE::BOX:
 		res=boxDirty;
+		break;
+	case OBJTYPE::MESH:
+		res=meshDirty;
 		break;
 	default:
 		res=false;
