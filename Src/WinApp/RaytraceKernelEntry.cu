@@ -35,7 +35,9 @@ texture<float, 2, cudaReadModeElementType> texRef;
 
 __global__ void RaytraceKernel(unsigned char *p_outSurface, 
 							   const int p_width, const int p_height, const size_t p_pitch,
-							   float3* p_inVerts,int p_numVerts)
+							   float3* p_verts,unsigned int p_numVerts,
+							   unsigned int* p_indices,unsigned int p_numIndices,
+							   TriPart* p_tris, unsigned int p_numTris)
 {
     const int x = blockIdx.x*blockDim.x + threadIdx.x;
     const int y = blockIdx.y*blockDim.y + threadIdx.y;
@@ -47,13 +49,18 @@ __global__ void RaytraceKernel(unsigned char *p_outSurface,
     // get a pointer to the pixel at (x,y)
     pixel = (float *)(p_outSurface + y*p_pitch) + 4*x;
 
-	Raytrace(pixel,x,y, p_width, p_height, p_inVerts,p_numVerts);
+	Raytrace(pixel,x,y, p_width, p_height, 
+			 p_verts,p_numVerts,
+			 p_indices,p_numIndices,
+			 p_tris, p_numTris);
 }
  
 // Executes CUDA kernel 
 extern "C" void RunRaytraceKernel(void* p_cb,void *surface,
 			int width, int height, int pitch,
-			void* p_verts,int p_numVerts) 
+			void* p_verts,unsigned int p_numVerts,
+			unsigned int* p_indices,unsigned int p_numIndices,
+			void* p_tris, unsigned int p_numTris) 
 { 
 	// copy to constant buffer
 	cudaError_t res = cudaMemcpyToSymbol(cb, p_cb, sizeof(RaytraceConstantBuffer));
@@ -66,7 +73,9 @@ extern "C" void RunRaytraceKernel(void* p_cb,void *surface,
 	//DEBUGPRINT(( ("\n"+toString(width)+" x "+toString(height)+" @ "+toString(1000*reinterpret_cast<RaytraceConstantBuffer*>(p_cb)->b)).c_str() ));
 
     RaytraceKernel<<<Dg,Db>>>((unsigned char *)surface, width, height, pitch, 
-							  (float3*)p_verts, p_numVerts);
+							  (float3*)p_verts, p_numVerts,
+							  p_indices, p_numIndices,
+							  (TriPart*)p_tris,p_numTris);
 
 	res = cudaDeviceSynchronize();
 	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);

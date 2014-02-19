@@ -7,7 +7,9 @@ extern "C"
 {
 	void RunRaytraceKernel(void* p_cb,void* colorArray,
 		int width, int height, int pitch,
-		void* p_verts,int p_numVerts);
+		void* p_verts,			unsigned int p_numVerts,
+		unsigned int* p_indices,unsigned int p_numIndices,
+		void* p_tris,			unsigned int p_numTris);
 }
 
 RaytraceKernel::RaytraceKernel() : IKernelHandler()
@@ -35,7 +37,9 @@ void RaytraceKernel::Execute( KernelData* p_data, float p_dt )
 	size_t pitch = *blob->m_pitch;	
 	// scene
 	HScene* scene = blob->m_hostScene;
-	int numverts=scene->tri.size()*3;
+	unsigned int numverts=scene->meshVerts.size();
+	unsigned int numindices=scene->meshIndices.size();
+	unsigned int numtris=scene->tri.size();
 
 
 	// Map render textures
@@ -50,21 +54,53 @@ void RaytraceKernel::Execute( KernelData* p_data, float p_dt )
 
 	// Get scene objects
 	void* verts = NULL;
+	unsigned int* indices = NULL;
+	void* tris = NULL;
 	void** devVerts=blob->m_vertsLinearMemDeviceRef;
+	unsigned int** devIndices=blob->m_indicesLinearMemDeviceRef;
+	void** devTris=blob->m_trisLinearMemDeviceRef;
+
+	// Vertices and indices
+	if (scene->isDirty(HScene::MESH)) // Mesh is updated
+	{
+		verts=reinterpret_cast<void*>(&scene->meshVerts[0]); // get verts as void* array
+		indices=&scene->meshIndices[0];
+		if (devVerts!=NULL && *devVerts!=NULL &&
+			devIndices!=NULL && *devIndices!=NULL) 
+		{
+			res = cudaFree(*devVerts);
+			KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
+			res = cudaFree(*devIndices);
+			KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
+		}
+		// Copy new data to device array
+		res = cudaMalloc((void**)devVerts, sizeof(glm::vec3) * numverts);
+		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
+		res = cudaMemcpy((void*)*devVerts, verts, sizeof(glm::vec3) * numverts, cudaMemcpyHostToDevice);
+		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
+		//
+		res = cudaMalloc((void**)devIndices, sizeof(int) * numindices);
+		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
+		res = cudaMemcpy((void*)*devIndices, verts, sizeof(int)*numindices, cudaMemcpyHostToDevice);
+		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
+
+		scene->setDirty(HScene::MESH,false);
+	}
+
+	// Tris
 	if (scene->isDirty(HScene::TRI)) // Tris are updated
 	{
-		verts=reinterpret_cast<void*>(&scene->tri[0]); // get triangles as void* array
-		if (devVerts!=NULL && *devVerts!=NULL) 
+		tris=reinterpret_cast<void*>(&scene->tri[0]); // get triangles as void* array
+		if (devTris!=NULL && *devTris!=NULL) 
 		{
-			res = cudaFree(devVerts);
+			res = cudaFree(*devTris);
 			KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
 		}
 		// Copy new data to device array
 		// for constant mem res = cudaMemcpyToSymbol(geomTriangles, p_tris, p_numTris*sizeof(TriPart));
-		res = cudaMalloc((void**)devVerts, sizeof(glm::vec3) * numverts);
+		res = cudaMalloc((void**)devTris, sizeof(HTriPart) * numtris);
 		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
-		res = cudaMemcpy((void*)*devVerts, verts, sizeof(glm::vec3) * numverts, 
-							cudaMemcpyHostToDevice);
+		res = cudaMemcpy((void*)*devTris, tris, sizeof(HTriPart) * numtris, cudaMemcpyHostToDevice);
 		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
 		
 		scene->setDirty(HScene::TRI,false);
@@ -74,7 +110,9 @@ void RaytraceKernel::Execute( KernelData* p_data, float p_dt )
 	RunRaytraceKernel(reinterpret_cast<void*>(constantBuffer),
 					  blob->m_textureLinearMemDevice,
 					  width,height,(int)pitch,
-					  *devVerts,numverts); 
+					  *devVerts,numverts,
+					  *devIndices,numindices,
+					  *devTris,numtris); 
 	// ---
 
 	// copy color array to texture (device->device)

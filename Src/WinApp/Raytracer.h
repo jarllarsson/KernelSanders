@@ -46,8 +46,10 @@ __device__ __constant__ RaytraceConstantBuffer cb[1];
 
 __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 						 const int p_width, const int p_height,
-						 float3* p_inVerts, int p_numVerts)
-{
+						 float3* p_verts,unsigned int p_numVerts,
+						 unsigned int* p_indices,unsigned int p_numIndices,
+						 TriPart* p_tris, unsigned int p_numTris)
+{	
 	// Normalized device coordinates of pixel. (-1 to 1)
 	const float u = (p_x / (float) p_width)*2.0f-1.0f;
 	const float v = (p_y / (float) p_height)*2.0f-1.0f;
@@ -62,7 +64,8 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	float partLit=1.0f/(float)shadowMode;
 	float4  camPos = make_float4(cb[0].m_camPos);
 	float4x4 camRotation = make_float4x4(cb[0].m_cameraRotationMat);
-	int numVerts=p_numVerts;
+	unsigned int numVerts=p_numVerts, numIndices=p_numIndices, numTris=p_numTris;
+
 
 	// =======================================================
 	//                   TEST SETUP CODE
@@ -95,7 +98,6 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	}
 
 	// define a plane
-
 	for (int i=0;i<MAXPLANES;i++)
 	{
 		scene.plane[i].distance = -5.0f;
@@ -112,15 +114,14 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	// define some tris
 	// error right now, butr must be rewritten to
 	// vertex array and index array
-	scene.numTris=numVerts/3;
-	for (int i=0;i<numVerts;i+=3)
+	scene.numTris=numTris;
+	for (int i=0;i<numTris;i++)
 	{
 
 		#pragma unroll 3
 		for (int x=0;x<3;x++)
 		{
-
-			scene.tri[i].vertices[x] = p_inVerts[i+x];
+			scene.tri[i].vertices[x] = p_tris[i].vertices[x];
 				//make_float3((float)i+x*0.5f, sin(time+(float)i+x*0.01f) + ((i%2)*2-1)*(float)(x%2)*0.5f, sin((float)(x+i)*0.5f)*-3.0f);
 		}
 

@@ -266,7 +266,7 @@ static __inline__ __host__ __device__ float4 make_float4(const float a)
 static __inline__ __host__ __device__ float4x4 make_float4x4(float val[])
 {
 	float4x4 t;
-	#pragma unroll
+	#pragma unroll 16
 	for (int i=0;i<16;i++)
 	{
 		t.m[i]=val[i];

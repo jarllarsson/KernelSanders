@@ -29,7 +29,7 @@ HScene* HostSceneManager::getScenePtr()
 	return &m_scene;
 }
 
-void HostSceneManager::addMeshTris( void* p_vec3ArrayXYZ, int p_vertCount,int* p_indexArray, int p_iCount )
+void HostSceneManager::addMeshTris( void* p_vec3ArrayXYZ, int p_vertCount,unsigned int* p_indexArray, int p_iCount )
 {
 	//int start=m_scene.tri.size();
 	//int maxcount=start+p_vertCount;

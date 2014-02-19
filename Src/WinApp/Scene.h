@@ -32,14 +32,14 @@ using std::vector;
 
 struct Scene
 {	
-	int numTris;
+	int numTris, numVerts, numIndices;
 	Light light[MAXLIGHTS];
 	Sphere sphere[MAXSPHERES];
 	Plane plane[MAXPLANES];
 	Tri tri[MAXTRIS];
 	Box box[MAXBOXES];
 	float3 meshVerts[MAXMESHLOCAL_VERTSBIN];
-	int meshVerts[MAXMESHLOCAL_VERTSBIN];
+	int meshIndices[MAXMESHLOCAL_INDICESBIN];
 };
 
 #endif

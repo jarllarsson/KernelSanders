@@ -108,9 +108,22 @@ void App::run()
 	// load assets
 	int duck = m_modelImporter->loadFile("../Assets/sphere_triangulate.dae");
 	ModelImporter::ModelData* duckMdl=m_modelImporter->getStoredModel(duck);
-
-	m_sceneMgr->addMeshTris(duckMdl->m_model->mMeshes[0]->mVertices,
-						duckMdl->m_model->mMeshes[0]->mNumVertices);
+	aiMesh* mmesh=duckMdl->m_model->mMeshes[0];
+	vector<unsigned int> indices;
+	int indexCount=0;
+	for (unsigned int i=0;i<mmesh->mNumFaces;i++)
+	{
+		aiFace* f = &mmesh->mFaces[i];
+		if (f->mNumIndices<3)
+			DEBUGWARNING(("Found a poly with less than 3 vertices, ignoring..."));
+		else
+		{
+			indices.insert(indices.end(),f->mIndices,f->mIndices+3); // NOTE! Only support for triangles!
+			indexCount+=3;
+		}
+	}
+	m_sceneMgr->addMeshTris(mmesh->mVertices,mmesh->mNumVertices,
+							&indices[0],indexCount);
 
 	while (!m_context->closeRequested() && run)
 	{
@@ -131,7 +144,7 @@ void App::run()
 			float thrustPow=0.05f;
 			if (m_input->g_kb->isKeyDown(KC_LCONTROL)  || (joy!=nullptr && joy->getJoyStickState().mButtons[0]))
 			{
-				thrustPowInc+=(1.0f+0.001f*thrustPowInc)*dt;
+				thrustPowInc+=(1.0f+0.001f*thrustPowInc)*(float)dt;
 				thrustPow=2.2f+thrustPowInc;
 			}
 			else

@@ -49,7 +49,9 @@ private:
 	// CUDA device memory	
 	// Constant
 	RaytraceConstantBuffer  m_cb;
-	// Global
+	// Global, storage between calls
+	void* m_vertArray;
+	unsigned int* m_indicesArray;
 	void* m_trisArray;
 
 	// Geometry

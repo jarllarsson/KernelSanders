@@ -36,7 +36,7 @@ struct HScene
 	vector<HBox> box;
 	// Mesh
 	vector<glm::vec3> meshVerts;
-	vector<int> meshIndices;
+	vector<unsigned int> meshIndices;
 	// flags
 	void setDirty(OBJTYPE p_objType, bool p_status=true);
 	bool isDirty(OBJTYPE p_objType);
