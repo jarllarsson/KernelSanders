@@ -46,7 +46,7 @@ __device__ __constant__ RaytraceConstantBuffer cb[1];
 
 __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 						 const int p_width, const int p_height,
-						 float3* p_verts,unsigned int p_numVerts,
+						 float3* p_verts,float3* p_norms,unsigned int p_numVerts,
 						 unsigned int* p_indices,unsigned int p_numIndices,
 						 TriPart* p_tris, unsigned int p_numTris)
 {	
@@ -64,7 +64,9 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	float partLit=1.0f/(float)shadowMode;
 	float4  camPos = make_float4(cb[0].m_camPos);
 	float4x4 camRotation = make_float4x4(cb[0].m_cameraRotationMat);
-	unsigned int numVerts=p_numVerts, numIndices=p_numIndices, numTris=p_numTris;
+	unsigned int numVerts=min(p_numVerts,MAXMESHLOCAL_VERTSBIN), 
+				 numIndices=min(p_numIndices,MAXMESHLOCAL_INDICESBIN), 
+				 numTris=min(p_numTris,MAXTRIS);
 
 
 	// =======================================================
@@ -80,13 +82,13 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	scene.sphere[0].rad = 0.5f;
 	scene.sphere[0].mat.diffuse = make_float4(0.5f, 0.79f, 0.22f,1.0f);
 	scene.sphere[0].mat.specular = make_float4(1.0f, 1.0f, 1.0f,500.0f);
-	scene.sphere[0].mat.reflection = 0.0f;
+	scene.sphere[0].mat.reflection = 0.5f;
 
 	scene.sphere[1].pos = make_float4(1.0f,0.0f,0.0f,1.0f);
 	scene.sphere[1].rad = 0.6f;
 	scene.sphere[1].mat.diffuse = make_float4(0.0f, 1.0f, 0.0f,1.0f);
 	scene.sphere[1].mat.specular = make_float4(0.0f, 0.0f, 0.0f,0.0f);
-	scene.sphere[1].mat.reflection = 0.0f;
+	scene.sphere[1].mat.reflection = 0.5f;
 
 	for (int i=2;i<MAXSPHERES;i++)
 	{
@@ -112,10 +114,8 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 
 
 	// define some tris
-	// error right now, butr must be rewritten to
-	// vertex array and index array
 	scene.numTris=numTris;
-	for (int i=0;i<numTris;i++)
+	for (unsigned int i=0;i<numTris;i++)
 	{
 
 		#pragma unroll 3
@@ -128,11 +128,22 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 		scene.tri[i].mat.diffuse = make_float4( 1.0f-((float)i/(float)MAXTRIS), (float)i/(float)MAXTRIS, 1.0f-((float)i/(float)(MAXTRIS*0.2f)) ,1.0f);
 		scene.tri[i].mat.specular = make_float4(1.0f, 1.0f, 1.0f,0.5f);
 		scene.tri[i].mat.reflection = 0.0f;
+	}
 
+	// copy data for mesh
+	scene.numIndices=numIndices;
+	scene.numVerts=numVerts;
+	for (unsigned int i=0;i<numIndices;i++)
+	{
+		scene.meshIndices[i]=p_indices[i];
+	}
+	for (unsigned int i=0;i<numVerts;i++)
+	{
+		scene.meshVerts[i]=p_verts[i];
+		scene.meshNorms[i]=p_norms[i];
 	}
 
 	// define some boxes
-
 	for (int i=0;i<MAXBOXES;i++)
 	{
 		scene.box[i].pos = make_float4(-5.0f,10+sin((float)i)*10.0f*sin(time), i*10,0.0f) + make_float4(sin((float)i)*50.0f*(1.0f+sin(time)),

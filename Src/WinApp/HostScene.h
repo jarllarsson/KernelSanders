@@ -37,6 +37,7 @@ struct HScene
 	// Mesh
 	vector<glm::vec3> meshVerts;
 	vector<unsigned int> meshIndices;
+	vector<glm::vec3> meshNorms;
 	// flags
 	void setDirty(OBJTYPE p_objType, bool p_status=true);
 	bool isDirty(OBJTYPE p_objType);

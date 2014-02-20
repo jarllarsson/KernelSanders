@@ -39,7 +39,8 @@ struct Scene
 	Tri tri[MAXTRIS];
 	Box box[MAXBOXES];
 	float3 meshVerts[MAXMESHLOCAL_VERTSBIN];
-	int meshIndices[MAXMESHLOCAL_INDICESBIN];
+	float3 meshNorms[MAXMESHLOCAL_VERTSBIN];
+	unsigned int meshIndices[MAXMESHLOCAL_INDICESBIN];
 };
 
 #endif

@@ -24,6 +24,7 @@ KernelDevice::KernelDevice( void* p_device )
 	m_cb.m_drawMode = RAYTRACEDRAWMODE_REGULAR;
 
 	m_vertArray=NULL;
+	m_normsArray=NULL;
 	m_indicesArray=NULL;
 	m_trisArray=NULL;
 
@@ -40,6 +41,8 @@ KernelDevice::~KernelDevice()
 
 	// Global memory
 	res = cudaFree(m_vertArray);
+	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
+	res = cudaFree(m_normsArray);
 	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
 	res = cudaFree(m_indicesArray);
 	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
@@ -117,6 +120,7 @@ void KernelDevice::executeKernelJob( float p_dt, KernelJob p_jobId )
 			// Cuda memory
 			blob.m_cb=&m_cb;
 			blob.m_vertsLinearMemDeviceRef = &m_vertArray;
+			blob.m_normsLinearMemDeviceRef = &m_normsArray;
 			blob.m_indicesLinearMemDeviceRef = &m_indicesArray;
 			blob.m_trisLinearMemDeviceRef = &m_trisArray;
 

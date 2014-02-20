@@ -106,7 +106,7 @@ void App::run()
 	float thrustPowInc=0.0f;
 
 	// load assets
-	int duck = m_modelImporter->loadFile("../Assets/sphere_triangulate.dae");
+	int duck = m_modelImporter->loadFile("../Assets/teapots.DAE");
 	ModelImporter::ModelData* duckMdl=m_modelImporter->getStoredModel(duck);
 	aiMesh* mmesh=duckMdl->m_model->mMeshes[0];
 	vector<unsigned int> indices;
@@ -123,7 +123,8 @@ void App::run()
 		}
 	}
 	m_sceneMgr->addMeshTris(mmesh->mVertices,mmesh->mNumVertices,
-							&indices[0],indexCount);
+							&indices[0],indexCount,
+							mmesh->mNormals);
 
 	while (!m_context->closeRequested() && run)
 	{

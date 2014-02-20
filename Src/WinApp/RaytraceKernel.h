@@ -25,7 +25,8 @@ struct RaytraceKernelData : public KernelData
 	// Scene data
 	HScene*						m_hostScene;
 	void**						m_vertsLinearMemDeviceRef;
-	unsigned int**				m_indicesLinearMemDeviceRef;
+	void**						m_normsLinearMemDeviceRef;
+	void**						m_indicesLinearMemDeviceRef;
 	void**						m_trisLinearMemDeviceRef;
 };
 
