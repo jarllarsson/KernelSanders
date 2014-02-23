@@ -14,3 +14,7 @@ Bin/x64/*.txt
 *.nvuser
 
 *.zip
+/Protos/kd-tree-test/Library
+/Protos/kd-tree-test/obj
+/Protos/kd-tree-test/*.sln
+/Protos/kd-tree-test/*.csproj
