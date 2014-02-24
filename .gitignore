@@ -15,6 +15,7 @@ Bin/x64/*.txt
 
 *.zip
 /Protos/kd-tree-test/Library
+/Protos/kd-tree-test/Temp
 /Protos/kd-tree-test/obj
 /Protos/kd-tree-test/*.sln
 /Protos/kd-tree-test/*.csproj
