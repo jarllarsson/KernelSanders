@@ -12,7 +12,7 @@ public class kdTree : MonoBehaviour
 	void Start () 
     {
         Random.seed=(int)(Time.time*1000.0f);
-        m_tree = new Node[256]; // pre-allocate
+        m_tree = new Node[8024]; // pre-allocate
 
         Node root = new Node();
         foreach (GameObject obj in m_objects)
@@ -27,7 +27,7 @@ public class kdTree : MonoBehaviour
             root.m_objects.Add(obj as object);
         }
         m_tree[1] = root;
-        buildTree(root, 0, 0, 1, Vector3.zero); // start at 1
+        buildTree(root, 0, 0, 1, transform.position,m_box); // start at 1
 
         /*
         tree = new Node();
@@ -80,20 +80,43 @@ public class kdTree : MonoBehaviour
         //m_tree[1].m_position = m_firstSplitDist;
 	}
 
-    void buildTree(Node p_node, int p_dimsz, int p_dim,  int p_idx, Vector3 p_accDist)
+    void buildTree(Node p_node, int p_dimsz, int p_dim, int p_idx, Vector3 pos, Vector3 parentSize)
     {
 
-        if (p_dimsz > 6 || p_node.m_objects.Count < 1 || p_idx<<1>m_tree.Length-2) 
+        if (p_dimsz > 24 || p_node.m_objects.Count < 1 || p_idx<<1>m_tree.Length-2) 
         {
             p_node.m_isLeaf = true;
             return;
         }
-        Debug.Log("dim: "+p_dim);
+        Debug.Log("dimsz: "+p_dimsz);
+        Debug.Log("idx: " + p_idx);
         if (p_dim > 2) p_dim = 0;
         
         AxisMark splitPlane=new AxisMark();
         splitPlane.setVec(p_dim);
 	    float splitpos = findOptimalSplitPos(p_node);
+
+        Vector3 split = splitPlane.getVec();
+        Vector3 offset = split * splitpos;
+        Vector3 currentOrigo = pos + offset;
+
+        Vector3 splitH = 0.5f * split;
+        Vector3 lsize = (parentSize - offset * 2.0f);
+        lsize = lsize - entrywiseMul(lsize, splitH);
+        Vector3 rsize = (parentSize - offset * 2.0f);
+        rsize = rsize - entrywiseMul(rsize, splitH);
+
+        Vector3 leftBoxPos = currentOrigo + 0.5f * entrywiseMul(lsize, split);
+        Vector3 rightBoxPos = currentOrigo - 0.5f * entrywiseMul(rsize, split);
+        Vector3 leftBox = lsize;
+        Vector3 rightBox = rsize;
+        Debug.Log("lbp" + leftBox);
+        Debug.Log("rbp" + rightBox);
+        //Debug.DrawLine(pos, leftBoxPos, Color.red, 100.0f);
+        //Debug.DrawLine(leftBoxPos, leftBoxPos + lsize * 0.5f, Color.yellow, 100.0f);
+        //Debug.DrawLine(pos, rightBoxPos, Color.green, 100.0f);
+        //Debug.DrawLine(rightBoxPos, rightBoxPos + rsize * 0.5f, Color.cyan, 100.0f);
+
 	    Node leftnode = new Node();
         Node rightnode = new Node(); 
         p_node.m_leftChildIdx = p_idx << 1;
@@ -105,42 +128,60 @@ public class kdTree : MonoBehaviour
         //
 	    foreach (object obj in p_node.m_objects)
 	    {
-            if (objIntersectNode(true, splitpos, p_accDist, splitPlane, obj)) 
+            if (objIntersectNode(true, splitpos, splitPlane, obj, leftBoxPos, leftBox)) 
             {
                 //p_node.m_objects.Remove(obj);
                 leftnode.m_objects.Add(obj);
                 Debug.Log("left");
             }
-            if (objIntersectNode(false, splitpos, p_accDist, splitPlane, obj))
+            if (objIntersectNode(false, splitpos, splitPlane, obj, rightBoxPos, rightBox))
             {
                 //p_node.m_objects.Remove(obj);
                 rightnode.m_objects.Add(obj);
                 Debug.Log("right");
             }
 	    }
-        buildTree(leftnode, p_dimsz + 1, p_dim + 1, p_node.m_leftChildIdx, p_accDist + splitpos * splitPlane.getVec()); // power of two structure
-        buildTree(rightnode, p_dimsz + 1, p_dim + 1, p_node.m_leftChildIdx + 1, p_accDist + splitpos * splitPlane.getVec());
+        buildTree(leftnode, p_dimsz + 1, p_dim + 1, p_node.m_leftChildIdx, leftBoxPos, leftBox); // power of two structure
+        buildTree(rightnode, p_dimsz + 1, p_dim + 1, p_node.m_leftChildIdx + 1, rightBoxPos, rightBox);
     }
 
-    bool objIntersectNode(bool p_isLeft, float p_splitpos, Vector3 p_accDist, AxisMark p_axis, object p_obj)
+    bool objIntersectNode(bool p_isLeft, float p_splitpos, AxisMark p_axis, object p_obj, Vector3 pos, Vector3 parentSize)
     {
         GameObject gobj = p_obj as GameObject;
+        //Debug.DrawLine(pos, pos + entrywiseMul(parentSize,Vector3.right)*0.5f, Color.white, 100.0f);
+        //Debug.Log((gobj.transform.position.x) + " > " + (pos.x + parentSize.x * 0.5f));
+        if (gobj.transform.position.x > pos.x + parentSize.x * 0.5f) return false;
+        //Debug.DrawLine(pos, pos + entrywiseMul(parentSize, -Vector3.right) * 0.5f, Color.blue, 100.0f);
+        if (gobj.transform.position.x < pos.x - parentSize.x * 0.5f) return false;
+        //Debug.DrawLine(pos, pos + entrywiseMul(parentSize, Vector3.up) * 0.5f, Color.white, 100.0f);
+        if (gobj.transform.position.y > pos.y + parentSize.y * 0.5f) return false;
+        //Debug.DrawLine(pos, pos + entrywiseMul(parentSize, -Vector3.up) * 0.5f, Color.blue, 100.0f);
+        if (gobj.transform.position.y < pos.y - parentSize.y * 0.5f) return false;
+        //Debug.DrawLine(pos, pos + entrywiseMul(parentSize, Vector3.forward) * 0.5f, Color.white, 100.0f);
+        if (gobj.transform.position.z > pos.z + parentSize.z * 0.5f) return false;
+        //Debug.DrawLine(pos, pos + entrywiseMul(parentSize, -Vector3.forward) * 0.5f, Color.blue, 100.0f);
+        if (gobj.transform.position.z < pos.z - parentSize.z * 0.5f) return false;
+        Debug.Log("!");
+        return true;
+        /*
         Vector3 axis = p_axis.getVec();
         //float val = Vector3.Dot(Vector3.Normalize(gobj.transform.position - transform.position - p_axis.getVec() * p_splitpos), axis);
-        Vector3 scaled = entrywiseMul(axis,p_accDist);
+        //Vector3 scaled = axis * p_splitpos;
+        // entrywiseMul(axis, p_accDist);
         Vector3 objlen = entrywiseMul(axis,gobj.transform.position-transform.position);
         float val = (scaled.x + scaled.y + scaled.z);
         float valcomp = (objlen.x + objlen.y + objlen.z);
         Debug.Log("val"+val);
         Debug.Log("valcmp" + valcomp);
-        if ((p_isLeft && val < valcomp ) || (!p_isLeft && val>valcomp))
+        if ((p_isLeft && val < valcomp ) || (!p_isLeft && val>=valcomp))
             return true;
         return false;
+        */
     }
 
     float findOptimalSplitPos(Node p_node)
     {
-        return 0.1f;
+        return 0.2f;
     }
 
     void OnDrawGizmos()
@@ -165,7 +206,7 @@ public class kdTree : MonoBehaviour
 
             // draw split plane
             Vector3 drawSize=parentSize-entrywiseMul(parentSize, split);
-            Gizmos.DrawWireCube(currentOrigo,drawSize);
+            if (!m_tree[idx].m_isLeaf) Gizmos.DrawWireCube(currentOrigo, drawSize);
 
             foreach (object obj in m_tree[idx].m_objects)
             {
@@ -178,10 +219,10 @@ public class kdTree : MonoBehaviour
                 Vector3 splitH = 0.5f * split;
                 Vector3 lsize = (parentSize-offset*2.0f);
                 lsize=lsize-entrywiseMul(lsize, splitH);
-                Vector3 rsize = (-parentSize-offset*2.0f);
+                Vector3 rsize = (parentSize-offset*2.0f);
                 rsize=rsize-entrywiseMul(rsize, splitH);
-                drawNode(currentOrigo+0.5f*entrywiseMul(lsize, split), lsize, m_tree[idx].m_leftChildIdx);
-                drawNode(currentOrigo+0.5f*entrywiseMul(rsize, split), rsize, m_tree[idx].m_leftChildIdx+1);
+                drawNode(currentOrigo + 0.5f * entrywiseMul(lsize, split), lsize, m_tree[idx].m_leftChildIdx);
+                drawNode(currentOrigo - 0.5f * entrywiseMul(rsize, split), rsize, m_tree[idx].m_leftChildIdx + 1);
             }
         }
 

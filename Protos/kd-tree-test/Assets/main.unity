@@ -194,7 +194,7 @@ MonoBehaviour:
   m_objects:
   - {fileID: 1572996071}
   m_tree: []
-  m_box: {x: 6.80000019, y: 4.21000004, z: 6.57999992}
+  m_box: {x: 67.8000031, y: 68.9000015, z: 67.0999985}
   m_firstSplitDist: 0
 --- !u!1 &1572996071
 GameObject:
@@ -258,7 +258,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1572996071}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: .353139877, y: .862168312, z: .71592772}
-  m_LocalScale: {x: .111911736, y: .111911736, z: .111911736}
+  m_LocalPosition: {x: -20.8392258, y: 5.6217308, z: -27.1560669}
+  m_LocalScale: {x: .943273842, y: .943273842, z: .943273842}
   m_Children: []
   m_Father: {fileID: 0}
