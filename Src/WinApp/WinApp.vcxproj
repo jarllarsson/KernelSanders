@@ -215,11 +215,13 @@
     <ClInclude Include="IntersectPlane.h" />
     <ClInclude Include="IntersectSphere.h" />
     <ClInclude Include="IntersectTriangle.h" />
-    <ClInclude Include="KDTree.h" />
+    <ClInclude Include="KDAxisMark.h" />
+    <ClInclude Include="KDTreeFactory.h" />
     <ClInclude Include="KernelMathMatrix.h" />
     <ClInclude Include="KernelMathOperators.h" />
     <ClInclude Include="LightStructures.h" />
     <ClInclude Include="ModelImporter.h" />
+    <ClInclude Include="KDNode.h" />
     <ClInclude Include="OISEventHandler.h" />
     <ClInclude Include="OISHelper.h" />
     <ClInclude Include="Primitives.h" />
@@ -245,7 +247,7 @@
     <ClCompile Include="HostScene.cpp" />
     <ClCompile Include="HostSceneManager.cpp" />
     <ClCompile Include="IKernelHandler.cpp" />
-    <ClCompile Include="KDTree.cpp" />
+    <ClCompile Include="KDNode.cpp" />
     <ClCompile Include="KernelDevice.cpp" />
     <ClCompile Include="ModelImporter.cpp" />
     <ClCompile Include="OISHelper.cpp" />

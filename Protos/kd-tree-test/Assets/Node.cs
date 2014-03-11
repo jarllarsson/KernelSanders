@@ -89,4 +89,7 @@ public class Node
     public float m_position = 0.0f;
     public int m_leftChildIdx = 0; // right child is always left child+1
     public List<object> m_objects = new List<object>();
+    // Debug
+    public Vector3 pos; 
+    public Vector3 size;
 }

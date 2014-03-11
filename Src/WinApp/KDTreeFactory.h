@@ -1,22 +1,29 @@
 #pragma once
 
 // =======================================================================================
-//                                      KDTree
+//                                      KDTreeFactory
 // =======================================================================================
 
 ///---------------------------------------------------------------------------------------
-/// \brief	Brief
+/// \brief	Generates an array describing a KD-tree based on a triangle mesh
 ///        
-/// # KDTree
+/// # KDTreeFactory
 /// 
-/// 29-1-2014 Jarl Larsson
+/// 11-3-2014 Jarl Larsson
 ///---------------------------------------------------------------------------------------
 
-class KDTree
+
+class KDTreeFactory
 {
 public:
-	KDTree();
-	virtual ~KDTree();
+
+
+	KDTreeFactory();
+	virtual ~KDTreeFactory();
+	int calculateKDTree(void* p_vec3ArrayXYZ, int p_vertCount,
+						 unsigned int* p_indexArray, int p_iCount);
+
+	
 protected:
 private:
 };

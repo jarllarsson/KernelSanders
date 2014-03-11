@@ -59,6 +59,9 @@
     <Filter Include="ModelImporter">
       <UniqueIdentifier>{5b2e1b80-a434-4b2d-b8d5-0945dd2bb936}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ModelImporter\KDTree">
+      <UniqueIdentifier>{2dfda083-62b2-4aec-abea-02d139873880}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h">
@@ -163,14 +166,20 @@
     <ClInclude Include="HostScene.h">
       <Filter>Source Files\HostSceneManager\Host Structures</Filter>
     </ClInclude>
-    <ClInclude Include="KDTree.h">
-      <Filter>Source Files\HostSceneManager</Filter>
-    </ClInclude>
     <ClInclude Include="HostSceneManager.h">
       <Filter>Source Files\HostSceneManager</Filter>
     </ClInclude>
     <ClInclude Include="ModelImporter.h">
       <Filter>ModelImporter</Filter>
+    </ClInclude>
+    <ClInclude Include="KDTreeFactory.h">
+      <Filter>ModelImporter\KDTree</Filter>
+    </ClInclude>
+    <ClInclude Include="KDNode.h">
+      <Filter>ModelImporter\KDTree</Filter>
+    </ClInclude>
+    <ClInclude Include="KDAxisMark.h">
+      <Filter>ModelImporter\KDTree</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -198,9 +207,6 @@
     <ClCompile Include="OISHelper.cpp">
       <Filter>Source Files\TempLogic\Input</Filter>
     </ClCompile>
-    <ClCompile Include="KDTree.cpp">
-      <Filter>Source Files\HostSceneManager</Filter>
-    </ClCompile>
     <ClCompile Include="HostSceneManager.cpp">
       <Filter>Source Files\HostSceneManager</Filter>
     </ClCompile>
@@ -209,6 +215,9 @@
     </ClCompile>
     <ClCompile Include="ModelImporter.cpp">
       <Filter>ModelImporter</Filter>
+    </ClCompile>
+    <ClCompile Include="KDNode.cpp">
+      <Filter>ModelImporter\KDTree</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

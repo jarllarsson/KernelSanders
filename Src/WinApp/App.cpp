@@ -125,6 +125,7 @@ void App::run()
 	m_sceneMgr->addMeshTris(mmesh->mVertices,mmesh->mNumVertices,
 							&indices[0],indexCount,
 							mmesh->mNormals);
+	//
 
 	while (!m_context->closeRequested() && run)
 	{
