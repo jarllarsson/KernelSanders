@@ -21,16 +21,16 @@ class KDNode
 public:
 	KDNode();
 	KDNode(int p_splitDim);
-	virtual ~KDNode();
+	~KDNode();
 
-	KDAxisMark getAxis();
-	bool isLeaf();
-	float getPos();
+	KDAxisMark getAxis() const;
+	bool isLeaf() const;
+	float getPos() const;
 	// Get id to index list if leaf
-	int getIndexListIdxFromLeaf();
+	int getIndexListIdxFromLeaf() const;
 	// Other child ids if ordinary
-	int getLeftChild();
-	int getRightChild();
+	int getLeftChild() const;
+	int getRightChild() const;
 
 	void setAxis(KDAxisMark p_split);
 	void setLeftChild(int p_idx);

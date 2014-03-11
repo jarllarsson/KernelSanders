@@ -27,7 +27,7 @@ public:
 		b_1=false;
 		b_2=false;
 	}
-	virtual ~KDAxisMark() {}
+	~KDAxisMark() {}
 	
 	void setVec(AXIS p_axis)
 	{

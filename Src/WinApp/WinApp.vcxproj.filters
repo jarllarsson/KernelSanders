@@ -219,6 +219,9 @@
     <ClCompile Include="KDNode.cpp">
       <Filter>ModelImporter\KDTree</Filter>
     </ClCompile>
+    <ClCompile Include="KDTreeFactory.cpp">
+      <Filter>ModelImporter\KDTree</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="RaytraceKernelEntry.cu">

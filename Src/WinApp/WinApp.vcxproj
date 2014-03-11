@@ -248,6 +248,7 @@
     <ClCompile Include="HostSceneManager.cpp" />
     <ClCompile Include="IKernelHandler.cpp" />
     <ClCompile Include="KDNode.cpp" />
+    <ClCompile Include="KDTreeFactory.cpp" />
     <ClCompile Include="KernelDevice.cpp" />
     <ClCompile Include="ModelImporter.cpp" />
     <ClCompile Include="OISHelper.cpp" />

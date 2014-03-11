@@ -16,22 +16,22 @@ KDNode::~KDNode()
 
 }
 
-KDAxisMark KDNode::getAxis()
+KDAxisMark KDNode::getAxis() const
 {
 	return m_split;
 }
 
-bool KDNode::isLeaf()
+bool KDNode::isLeaf() const
 {
 	return m_isLeaf;
 }
 
-float KDNode::getPos()
+float KDNode::getPos() const
 {
 	return m_position;
 }
 
-int KDNode::getIndexListIdxFromLeaf()
+int KDNode::getIndexListIdxFromLeaf() const
 {
 	return m_leftChildIdx;
 }
@@ -43,12 +43,12 @@ void KDNode::init()
 	int m_leftChildIdx=-1;
 }
 
-int KDNode::getLeftChild()
+int KDNode::getLeftChild() const
 {
 	return m_leftChildIdx;
 }
 
-int KDNode::getRightChild()
+int KDNode::getRightChild() const
 {
 	return m_leftChildIdx+1;
 }
