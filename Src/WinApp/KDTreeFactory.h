@@ -36,6 +36,12 @@ public:
 	
 protected:
 private:
+	enum EXTREME
+	{
+		RIGHT=-1,
+		LEFT =1
+	};
+
 	struct Triparam
 	{
 		int m_faceId;
@@ -49,12 +55,11 @@ private:
 	float findOptimalSplitPos(KDNode& p_node, const KDAxisMark& p_axis, 
 							  const glm::vec3&  p_currentSize,  const glm::vec3& p_currentPos);
 
-	float getLeftExtreme(int p_triangleIdx, const glm::vec3& p_axis);
+	void getTriangleExtents(const int p_vertexIndices3[], glm::vec3& p_outTriangleExtentsMax, glm::vec3& p_outTriangleExtentsMin);
 
-	float getRightExtreme(int p_triangleIdx, const glm::vec3& p_axis);
+	float getExtreme(const glm::vec3& p_triangleExtentsMax, const glm::vec3& p_triangleExtentsMin, const glm::vec3& p_axis, EXTREME p_side);
 
-	float calculatecost(const KDNode& p_node, float p_splitpos,  const glm::vec3& p_axis, 
-						const glm::vec3& p_currentSize, const glm::vec3& p_currentPos);
+	float calculatecost(const KDNode& p_node, vector<int>* p_tris, float p_splitpos, const glm::vec3& p_axis, const glm::vec3& p_currentSize, const glm::vec3& p_currentPos);
 
 	void calculatePrimitiveCount(const KDNode& p_node, vector<int>* p_objs,const glm::vec3& p_leftBox,const glm::vec3& p_rightBox, const glm::vec3& p_leftBoxPos, const glm::vec3& p_rightBoxPos, int& p_outLeftCount, int& p_outRightCount);
 
@@ -68,6 +73,10 @@ private:
 	int addTree(vector<KDNode>* p_tree, vector<KDLeaf>* p_leafList);
 
 	void clearTempStack();
+
+	// set traversal/intersection cost vars
+	float m_traversalCost;
+	float m_intersectionCost;
 
 	// Storage
 	vector<vector<KDNode>*> m_trees;

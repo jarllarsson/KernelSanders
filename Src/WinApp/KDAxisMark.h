@@ -63,7 +63,7 @@ public:
 		}
 	}
 
-	glm::vec3 getVec()
+	glm::vec3 getVec() const
 	{
 		glm::vec3 reval(0.0f,0.0f,0.0f);
 		switch (b_1)

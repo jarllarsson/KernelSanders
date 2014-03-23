@@ -94,6 +94,8 @@ int planeBoxOverlap(glm::vec3& normal,float d, float maxbox[3])
 KDTreeFactory::KDTreeFactory()
 {
 	m_tempObjectsStack=new stack<vector<int>*>;
+	m_traversalCost=0.3f;
+	m_intersectionCost=1.0f;
 }
 
 KDTreeFactory::~KDTreeFactory()
@@ -184,24 +186,78 @@ bool KDTreeFactory::triIntersectNode( const Triparam& p_tri, const glm::vec3& po
 	return true;
 }
 
-float KDTreeFactory::findOptimalSplitPos( KDNode& p_node, const KDAxisMark& p_axis, const glm::vec3& p_currentSize, const glm::vec3& p_currentPos )
+float KDTreeFactory::findOptimalSplitPos( KDNode& p_node, vector<int>* p_tris, const KDAxisMark& p_axis, const glm::vec3& p_currentSize, const glm::vec3& p_currentPos )
 {
-
+	float bestpos = 0.0f;
+	float bestcost = FLT_MAX;
+	glm::vec3 axis = p_axis.getVec();
+	glm::vec3 aabbMax, aabbMin;
+	unsigned int count=p_tris->size();
+	int triangle[3];
+	for (unsigned int i=0;i<count;i+=3)
+	{
+		for (unsigned int n=0;n<3;n++) triangle[n] = (*p_tris)[i+n]; // get face
+		// Get aabb for triangle
+		getTriangleExtents( triangle, aabbMax, aabbMin );
+		float left_extreme = getExtreme(aabbMax, aabbMin, axis, EXTREME::LEFT);
+		float right_extreme = getExtreme(aabbMax, aabbMin, axis, EXTREME::RIGHT);
+		float cost = calculatecost(p_node, p_tris, left_extreme, axis, p_currentSize,p_currentPos);
+		if (cost < bestcost)
+		{
+			bestcost = cost; bestpos = left_extreme;
+		}
+		//if (cost >= 1000000) Debug.Log("L!!! " + cost);
+		cost = calculatecost(p_node, p_tris, right_extreme, axis, p_currentSize, p_currentPos);
+		if (cost < bestcost)
+		{
+			bestcost = cost; bestpos = right_extreme;
+		}
+		//if (cost >= 1000000) Debug.Log("R!!! " + cost);
+	}
+	return bestpos;
 }
 
-float KDTreeFactory::getLeftExtreme( int p_triangleIdx, const glm::vec3& p_axis )
+void KDTreeFactory::getTriangleExtents( const int p_vertexIndices3[], glm::vec3& p_outTriangleExtentsMax, glm::vec3& p_outTriangleExtentsMin )
 {
-
+	glm::vec3 vert1=m_tempVertexList[p_vertexIndices3[0]];
+	glm::vec3 vert2=m_tempVertexList[p_vertexIndices3[1]];
+	glm::vec3 vert3=m_tempVertexList[p_vertexIndices3[2]];
+	glm::vec3 extMax(max(vert3.x,max(vert1.x,vert2.x)),max(vert3.y,max(vert1.y,vert2.y)),max(vert3.z,max(vert1.z,vert2.z)));
+	glm::vec3 extMin(min(vert3.x,min(vert1.x,vert2.x)),min(vert3.y,min(vert1.y,vert2.y)),min(vert3.z,min(vert1.z,vert2.z)));
+	p_outTriangleExtentsMax=extMax;
+	p_outTriangleExtentsMin=extMin;
 }
 
-float KDTreeFactory::getRightExtreme( int p_triangleIdx, const glm::vec3& p_axis )
+float KDTreeFactory::getExtreme( const glm::vec3& p_triangleExtentsMax, const glm::vec3& p_triangleExtentsMin, const glm::vec3& p_axis, EXTREME p_side )
 {
-
+	// find the the point furthest away in one direction (axis*side)
+	// Do this by masking extents values with axes.
+	// Compare abs of masked min and max extents, and return the one of largest absolute.
+	glm::vec3 pos = (float)p_side*entrywiseMul(p_triangleExtentsMax, p_axis); // mask
+	float val1=pos.x + pos.y + pos.z;
+	pos = (float)p_side*entrywiseMul(p_triangleExtentsMin, p_axis); // mask
+	float val2=pos.x + pos.y + pos.z;
+	float reval=val1;
+	if (abs(val2)>abs(val1)) reval=val2;
+	return reval;
 }
 
-float KDTreeFactory::calculatecost( const KDNode& p_node, float p_splitpos, const glm::vec3& p_axis, const glm::vec3& p_currentSize, const glm::vec3& p_currentPos )
-{
 
+float KDTreeFactory::calculatecost( const KDNode& p_node, vector<int>* p_tris, float p_splitpos, const glm::vec3& p_axis, const glm::vec3& p_currentSize, const glm::vec3& p_currentPos )
+{
+	glm::vec3 lsize;
+	glm::vec3 rsize;
+	getChildVoxelsMeasurement(p_splitpos, p_axis, p_currentSize,lsize, rsize);
+	float leftarea = calculateArea(lsize);
+	float rightarea = calculateArea(rsize);
+	int leftcount, rightcount;
+	glm::vec3 leftBoxPos = p_currentPos + 0.5f * entrywiseMul(lsize, p_axis);
+	glm::vec3 rightBoxPos = p_currentPos - 0.5f * entrywiseMul(rsize, p_axis);
+	calculatePrimitiveCount(p_node, p_tris, lsize,rsize,
+		leftBoxPos, rightBoxPos,
+		leftcount,rightcount);
+
+	return m_traversalCost + m_intersectionCost * (leftarea * (float)leftcount + rightarea * (float)rightcount);
 }
 
 void KDTreeFactory::calculatePrimitiveCount( const KDNode& p_node, vector<int>* p_tris,
