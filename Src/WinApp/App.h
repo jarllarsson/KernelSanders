@@ -1,6 +1,11 @@
 #pragma once
 
 #include <windows.h>
+#include <glm\gtc\type_ptr.hpp>
+
+#include <InstanceData.h>
+#include <CBuffers.h>
+#include <Buffer.h>
 
 class Context;
 class GraphicsDevice;
@@ -41,4 +46,8 @@ private:
 	HostSceneManager* m_sceneMgr; // the "world"
 	ModelImporter*  m_modelImporter;
 	OISHelper*		m_input;
+
+	glm::mat4 m_instance;
+	Buffer<InstanceData>* m_instances;
+	Buffer<Mat4CBuffer>* m_vp;
 };

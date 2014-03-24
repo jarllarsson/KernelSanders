@@ -6,6 +6,7 @@
 
 #include <GraphicsDevice.h>
 #include <GraphicsException.h>
+#include <BufferFactory.h>
 
 #include "KernelDevice.h"
 #include "KernelException.h"
@@ -17,6 +18,7 @@
 
 
 #include "OISHelper.h"
+
 
 
 const double App::DTCAP=0.5;
@@ -67,6 +69,10 @@ App::App( HINSTANCE p_hInstance )
 	// Finally create and register scene manager
 	m_sceneMgr = new HostSceneManager();
 	m_kernelDevice->registerSceneMgr(m_sceneMgr);
+
+	
+	m_instances=m_graphicsDevice->getBufferFactoryRef()->createMat4InstanceBuffer((void*)&m_instance,1);
+	m_vp=m_graphicsDevice->getBufferFactoryRef()->createMat4CBuffer();
 }
 
 App::~App()
@@ -78,6 +84,9 @@ App::~App()
 	SAFE_DELETE(m_controller);
 	SAFE_DELETE(m_modelImporter);
 	SAFE_DELETE(m_sceneMgr);
+	//
+	delete m_instances;
+	delete m_vp;
 }
 
 void App::run()
@@ -106,6 +115,7 @@ void App::run()
 	float thrustPowInc=0.0f;
 
 	// load assets
+	/*
 	int duck = m_modelImporter->loadFile("../Assets/teapots.DAE");
 	ModelImporter::ModelData* duckMdl=m_modelImporter->getStoredModel(duck);
 
@@ -113,6 +123,7 @@ void App::run()
 	m_sceneMgr->addMeshTris(mmesh->mVertices,mmesh->mNumVertices,
 							&duckMdl->m_trisIndices[0],duckMdl->m_trisIndices.size(),
 							mmesh->mNormals);
+							*/
 
 	//
 
@@ -244,6 +255,8 @@ void App::run()
 			m_controller->setFovFromAngle(60.0f+min(thrustPow*0.01f,35.0f),
 										  m_graphicsDevice->getAspectRatio());
 			m_controller->update((float)dt);
+			std::memcpy(&m_vp->accessBuffer,&m_controller->getViewProjMatrix(),sizeof(float)*4*4);
+			m_vp->update();
 
 			// Run the devices
 			// ---------------------------------------------------------------------------------------------
@@ -254,6 +267,8 @@ void App::run()
 			m_kernelDevice->executeKernelJob((float)dt,KernelDevice::J_RAYTRACEWORLD);		// Run kernels
 
 			m_graphicsDevice->executeRenderPass(GraphicsDevice::P_COMPOSEPASS);		// Run passes
+
+			//m_graphicsDevice->executeRenderPass(GraphicsDevice::P_WIREFRAMEPASS,m_vp,m_instances);		// Run passes
 			m_graphicsDevice->flipBackBuffer();										// Flip!
 			// ---------------------------------------------------------------------------------------------
 		}

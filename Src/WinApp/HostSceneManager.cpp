@@ -41,6 +41,7 @@ void HostSceneManager::addMeshTris( void* p_vec3ArrayXYZ, int p_vertCount,
 	m_scene.meshVerts.insert(m_scene.meshVerts.end(),arrV,arrV+p_vertCount);
 	m_scene.meshIndices.insert(m_scene.meshIndices.end(),p_indexArray,p_indexArray+p_iCount);
 	m_scene.meshNorms.insert(m_scene.meshNorms.end(),arrN,arrN+p_vertCount);
+	m_scene.setDirty(HScene::MESH);
 // 	for (int i=start;i<maxcount;i+=3)
 // 	{
 // 		HTriPart tri;

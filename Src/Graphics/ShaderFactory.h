@@ -8,6 +8,7 @@ using namespace std;
 
 class BufferFactory;
 class ComposeShader;
+class MeshShader;
 
 // =======================================================================================
 //                                      ShaderFactory
@@ -31,7 +32,7 @@ public:
 	virtual ~ShaderFactory();
 
 	ComposeShader* createComposeShader( const LPCWSTR& p_filePath);
-
+	MeshShader* createMeshShader( const LPCWSTR& p_filePath);
 protected:
 	///-----------------------------------------------------------------------------------
 	/// A helper function that takes arguments and then compiles the given shader file 

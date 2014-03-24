@@ -8,7 +8,7 @@ HScene::HScene()
 	setDirty(HScene::PLANE);
 	setDirty(HScene::SPHERE);
 	setDirty(HScene::TRI);
-	setDirty(HScene::MESH);
+	setDirty(HScene::MESH,false);
 }
 
 void HScene::setDirty( OBJTYPE p_objType, bool p_status/*=true*/ )

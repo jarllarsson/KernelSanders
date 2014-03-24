@@ -10,7 +10,10 @@ class BufferFactory;
 class ShaderFactory;
 class TextureFactory;
 class ComposeShader;
+class MeshShader;
 class Texture;
+class Mesh;
+
 
 
 // =======================================================================================
@@ -51,12 +54,14 @@ public:
 	enum ShaderId {
 		SI_NONE,
 		SI_COMPOSESHADER,
+		SI_WIREFRAMESHADER,
 		SI_COUNT,
 	};
 
 	enum RenderPass {
 		P_BASEPASS,
 		P_COMPOSEPASS,
+		P_WIREFRAMEPASS,
 		P_COUNT,
 	};
 
@@ -79,11 +84,15 @@ public:
 	int getHeight();
 
 	// Stages
-	void executeRenderPass(RenderPass p_pass);
+	void executeRenderPass(RenderPass p_pass,
+						   BufferBase* p_cbuf=NULL, 
+						   BufferBase* p_instances=NULL );
+
 
 	// Getters
 	void* getDevicePointer();
 	void** getInteropCanvasHandle();
+	BufferFactory* getBufferFactoryRef();
 
 protected:
 private:	
@@ -118,6 +127,7 @@ private:
 
 	// Draw
 	void drawFullscreen();
+	void drawInstancedAABB(UINT32 p_instanceElementCount, int p_instanceElemSz, void* p_instanceRef);
 
 	// Initialisations
 	void initSwapChain(HWND p_hWnd);
@@ -146,9 +156,11 @@ private:
 
 	// Shaders
 	ComposeShader* m_composeShader;
+	MeshShader* m_wireframeShader;
 
 	// Fullscreen quad for drawing
 	Buffer<PVertex>* m_fullscreenQuad;
+	Mesh* m_aabbMesh;
 
 	// Blend states
 	vector<ID3D11BlendState*> m_blendStates;
@@ -176,4 +188,5 @@ private:
 	Texture**					m_interopCanvasHandle; ///< Handle enabling texture reallocation
 	ID3D11RenderTargetView*		m_gRtv[GBufferChannel::GBUF_COUNT];
 	ID3D11ShaderResourceView*	m_gSrv[GBufferChannel::GBUF_COUNT];
+
 };

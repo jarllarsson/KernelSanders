@@ -6,9 +6,11 @@
 #include "TextureFactory.h"
 #include "Texture.h"
 #include "D3DUtil.h"
+#include "Mesh.h"
 
 
 #include "ComposeShader.h"
+#include "MeshShader.h"
 
 
 GraphicsDevice::GraphicsDevice( HWND p_hWnd, int p_width, int p_height, bool p_windowMode )
@@ -35,6 +37,7 @@ GraphicsDevice::GraphicsDevice( HWND p_hWnd, int p_width, int p_height, bool p_w
 
 	// 4. init shaders
 	m_composeShader = m_shaderFactory->createComposeShader(L"../Shaders/ComposeShader.hlsl");
+	m_wireframeShader = m_shaderFactory->createMeshShader(L"../Shaders/WireframeShader.hlsl");
 
 	// 5. build states
 	buildBlendStates();
@@ -47,7 +50,7 @@ GraphicsDevice::GraphicsDevice( HWND p_hWnd, int p_width, int p_height, bool p_w
 
 	// 6. Create draw-quad
 	m_fullscreenQuad = m_bufferFactory->createFullScreenQuadBuffer();
-
+	m_aabbMesh = m_bufferFactory->createBoxMesh();
 
 	fitViewport();
 }
@@ -66,8 +69,10 @@ GraphicsDevice::~GraphicsDevice()
 	delete m_interopCanvasHandle;
 	//
 	delete m_composeShader;
+	delete m_wireframeShader;
 	//
 	delete m_fullscreenQuad;
+	delete m_aabbMesh;
 	//
 	for (unsigned int i = 0; i < m_blendStates.size(); i++){
 		SAFE_RELEASE(m_blendStates[i]);
@@ -154,7 +159,9 @@ void GraphicsDevice::setWireframeMode( bool p_wireframe )
 	m_wireframeMode = p_wireframe;
 }
 
-void GraphicsDevice::executeRenderPass( RenderPass p_pass )
+void GraphicsDevice::executeRenderPass( RenderPass p_pass, 
+									    BufferBase* p_cbuf/*=NULL*/, 
+										BufferBase* p_instances/*=NULL*/ )
 {
 	switch(p_pass)
 	{	
@@ -169,7 +176,17 @@ void GraphicsDevice::executeRenderPass( RenderPass p_pass )
 		setShader(SI_COMPOSESHADER);
 		drawFullscreen();
 		break;
-
+	case RenderPass::P_WIREFRAMEPASS:
+		m_deviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		setBlendState(BlendState::NORMAL);
+		setRasterizerStateSettings(RasterizerState::FILLED_NOCULL,false);
+		setRenderTarget(RT_BACKBUFFER_NODEPTHSTENCIL);		
+		p_cbuf->apply();
+		setShader(SI_WIREFRAMESHADER);
+		drawInstancedAABB(p_instances->getElementCount(),
+						  p_instances->getElementSize(),
+						  p_instances->getBufferPointer());
+		break;
 	}
 }
 
@@ -275,7 +292,9 @@ void GraphicsDevice::setShader( ShaderId p_shaderId )
 		mapGBuffer();
 		m_composeShader->apply();
 		break;
-
+	case ShaderId::SI_WIREFRAMESHADER:	
+		m_wireframeShader->apply();
+		break;
 	}
 }
 
@@ -348,6 +367,29 @@ void GraphicsDevice::drawFullscreen()
 {
 	m_fullscreenQuad->apply();
 	m_deviceContext->Draw(6,0);
+}
+
+
+void GraphicsDevice::drawInstancedAABB( UINT32 p_instanceElementCount, int p_instanceElemSz, void* p_instanceRef )
+{
+	UINT strides[2] = { sizeof(PVertex), p_instanceElemSz };
+	UINT offsets[2] = { 0, 0 };
+	// Set up an array of the buffers for the vertices
+	ID3D11Buffer* buffers[2] = { 
+		m_aabbMesh->getVertexBuffer()->getBufferPointer(), 
+		static_cast<ID3D11Buffer*>(p_instanceRef) 
+	};
+	// Set array of buffers to context 
+	m_deviceContext->IASetVertexBuffers(0, 2, buffers, strides, offsets);
+
+	// And the index buffer
+	m_deviceContext->IASetIndexBuffer(m_aabbMesh->getIndexBuffer()->getBufferPointer(), 
+		DXGI_FORMAT_R32_UINT, 0);
+
+
+	// Draw instanced data
+	UINT32 indexCount=m_aabbMesh->getIndexBuffer()->getElementCount();
+	m_deviceContext->DrawIndexedInstanced( indexCount, p_instanceElementCount, 0,0,0);
 }
 
 
@@ -499,4 +541,9 @@ int GraphicsDevice::getWidth()
 int GraphicsDevice::getHeight()
 {
 	return m_height;
+}
+
+BufferFactory* GraphicsDevice::getBufferFactoryRef()
+{
+	return m_bufferFactory;
 }
