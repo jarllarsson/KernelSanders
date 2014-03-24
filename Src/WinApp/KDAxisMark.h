@@ -24,8 +24,8 @@ public:
 
 	KDAxisMark()
 	{
-		b_1=false;
-		b_2=false;
+		b_1=0;
+		b_2=0;
 	}
 	KDAxisMark(const KDAxisMark& p_copy)
 	{
@@ -43,29 +43,29 @@ public:
 	void setVec(int p_xyz)
 	{
 		if (p_xyz == 0)
-			setVec(true, false, false);
+			setVec(1, 0, 0);
 		else if (p_xyz == 1)
-			setVec(false, true, false);
+			setVec(0, 1, 0);
 		else
-			setVec(false, false, true);
+			setVec(0, 0, 1);
 	}
 
-	void setVec(bool p_x, bool p_y, bool p_z)
+	void setVec(int p_x, int p_y, int p_z)
 	{
 		if (p_x)
 		{
-			b_1 = false;
-			b_2 = false;
+			b_1 = 0;
+			b_2 = 0;
 		}
 		else if (p_y)
 		{
-			b_1 = true;
-			b_2 = false;
+			b_1 = 1;
+			b_2 = 0;
 		}
 		else
 		{
-			b_1 = false;
-			b_2 = true;
+			b_1 = 0;
+			b_2 = 1;
 		}
 	}
 
@@ -81,16 +81,16 @@ public:
 		glm::vec3 reval(0.0f,0.0f,0.0f);
 		switch (b_1)
 		{
-		case false:
+		case 0:
 			{
 				switch (b_2)
 				{
-				case false:
+				case 0:
 					{
 						reval.x = 1.0f; // right
 						break;
 					}
-				case true:
+				case 1:
 					{
 						reval.z = 1.0f; // forward
 						break;
@@ -98,7 +98,7 @@ public:
 				}
 				break;
 			}
-		case true:
+		case 1:
 			{
 				reval.y = 1.0f; // up
 				break;
@@ -111,8 +111,10 @@ protected:
 	// 00 - x
 	// 01 - y
 	// 10 - z
-	bool b_1;
-	bool b_2;
+	//bool b_1;
+	//bool b_2;
+	int b_1; // use ints while testing
+	int b_2;
 private:
 
 };

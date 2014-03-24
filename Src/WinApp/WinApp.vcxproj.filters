@@ -181,6 +181,9 @@
     <ClInclude Include="KDAxisMark.h">
       <Filter>ModelImporter\KDTree</Filter>
     </ClInclude>
+    <ClInclude Include="DeviceKDStructures.h">
+      <Filter>Source Files\Kernel\Kernels\Raytrace\Structures</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

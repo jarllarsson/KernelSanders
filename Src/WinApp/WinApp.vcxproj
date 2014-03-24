@@ -204,6 +204,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="DeviceKDStructures.h" />
     <ClInclude Include="HostLightStructures.h" />
     <ClInclude Include="HostMaterial.h" />
     <ClInclude Include="HostPrimitives.h" />
