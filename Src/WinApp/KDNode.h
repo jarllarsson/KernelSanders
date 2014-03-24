@@ -44,7 +44,7 @@ private:
 	void init();
 
 	KDAxisMark m_split;
-	bool m_isLeaf;
+	int m_isLeaf;
 	float m_position;
 	int m_leftChildIdx; // right child is always left child+1
 						// and if leaf then this is the index to

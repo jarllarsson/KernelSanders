@@ -48,7 +48,12 @@ KernelDevice::~KernelDevice()
 	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
 	res = cudaFree(m_trisArray);
 	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
-
+	res = cudaFree(m_nodesArray);
+	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
+	res = cudaFree(m_leafArray);
+	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
+	res = cudaFree(m_nodeIndicesArray);
+	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
 	delete m_raytracer;
 }
 
@@ -123,6 +128,9 @@ void KernelDevice::executeKernelJob( float p_dt, KernelJob p_jobId )
 			blob.m_normsLinearMemDeviceRef = &m_normsArray;
 			blob.m_indicesLinearMemDeviceRef = &m_indicesArray;
 			blob.m_trisLinearMemDeviceRef = &m_trisArray;
+			blob.m_nodesLinearMemDeviceRef			= &m_nodesArray;
+			blob.m_nodeLeavesLinearMemDeviceRef		= &m_leafArray;
+			blob.m_nodeIndicesLinearMemDeviceRef	= &m_nodeIndicesArray;
 
 			// Scene desc
 			blob.m_hostScene = m_sceneMgr->getScenePtr();

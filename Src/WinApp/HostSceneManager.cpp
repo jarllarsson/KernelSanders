@@ -53,3 +53,11 @@ void HostSceneManager::addMeshTris( void* p_vec3ArrayXYZ, int p_vertCount,
 // 	}
 }
 
+void HostSceneManager::addKDTree( KDNode* p_nodeArray, int p_nodeCount, KDLeaf* p_leafArray, int p_leafCount, int* p_nodeIndices, int p_iCount )
+{
+	m_scene.KDnode.insert(m_scene.KDnode.end(),p_nodeArray,p_nodeArray+p_nodeCount);
+	m_scene.KDleaves.insert(m_scene.KDleaves.end(),p_leafArray,p_leafArray+p_leafCount);
+	m_scene.KDindices.insert(m_scene.KDindices.end(),p_nodeIndices,p_nodeIndices+p_iCount);
+	m_scene.setDirty(HScene::MESH);
+}
+

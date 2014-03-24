@@ -40,6 +40,10 @@ void RaytraceKernel::Execute( KernelData* p_data, float p_dt )
 	unsigned int numverts=scene->meshVerts.size();
 	unsigned int numindices=scene->meshIndices.size();
 	unsigned int numtris=scene->tri.size();
+	//
+	unsigned int numKDnodes  =scene->KDnode.size();
+	unsigned int numKDleaves =scene->KDleaves.size();
+	unsigned int numKDindices=scene->KDindices.size();
 
 
 	// Map render textures
@@ -62,12 +66,23 @@ void RaytraceKernel::Execute( KernelData* p_data, float p_dt )
 	void** devIndices=blob->m_indicesLinearMemDeviceRef;
 	void** devTris=blob->m_trisLinearMemDeviceRef;
 
+	void* KDnodes = NULL;
+	void* KDleaves = NULL;
+	void* KDindices = NULL;
+	void** devKDNodes = blob->m_nodesLinearMemDeviceRef;
+	void** devKDLeaves = blob->m_nodeLeavesLinearMemDeviceRef;
+	void** devKDIndices = blob->m_nodeIndicesLinearMemDeviceRef;
+
 	// Vertices and indices
 	if (scene->isDirty(HScene::MESH)) // Mesh is updated
 	{
 		verts=reinterpret_cast<void*>(&scene->meshVerts[0]); // get verts as void* array
 		norms=reinterpret_cast<void*>(&scene->meshNorms[0]);
 		indices=reinterpret_cast<void*>(&scene->meshIndices[0]);
+		//
+		KDnodes  =reinterpret_cast<void*>(&scene->KDnode[0]);
+		KDleaves =reinterpret_cast<void*>(&scene->KDleaves[0]);
+		KDindices=reinterpret_cast<void*>(&scene->KDindices[0]);
 		if (devVerts!=NULL && *devVerts!=NULL &&
 			devIndices!=NULL && *devIndices!=NULL) 
 		{
@@ -81,6 +96,17 @@ void RaytraceKernel::Execute( KernelData* p_data, float p_dt )
 			res = cudaFree(*devNorms);
 			KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
 		}
+		if (devKDNodes!=NULL && *devKDNodes!=NULL &&
+			devKDLeaves!=NULL && *devKDLeaves!=NULL &&
+			devKDIndices!=NULL && *devKDIndices!=NULL) 
+		{
+			res = cudaFree(*devKDNodes);
+			KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
+			res = cudaFree(*devKDLeaves);
+			KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
+			res = cudaFree(*devKDIndices);
+			KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
+		}
 		// Copy new data to device array
 		res = cudaMalloc((void**)devVerts, sizeof(glm::vec3) * numverts);
 		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
@@ -89,12 +115,28 @@ void RaytraceKernel::Execute( KernelData* p_data, float p_dt )
 		//
 		res = cudaMalloc((void**)devNorms, sizeof(glm::vec3) * numverts);
 		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
-		res = cudaMemcpy((void*)*devNorms, verts, sizeof(glm::vec3) * numverts, cudaMemcpyHostToDevice);
+		res = cudaMemcpy((void*)*devNorms, norms, sizeof(glm::vec3) * numverts, cudaMemcpyHostToDevice);
 		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
 		//
 		res = cudaMalloc((void**)devIndices, sizeof(unsigned int) * numindices);
 		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
 		res = cudaMemcpy((void*)*devIndices, indices, sizeof(unsigned int)*numindices, cudaMemcpyHostToDevice);
+		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
+		//
+		// KD data ---------------------------------------------------------------------------------------------
+		res = cudaMalloc((void**)devKDNodes, sizeof(glm::vec3) * numverts);
+		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
+		res = cudaMemcpy((void*)*devKDNodes, KDnodes, sizeof(glm::vec3) * numverts, cudaMemcpyHostToDevice);
+		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
+		//
+		res = cudaMalloc((void**)devKDLeaves, sizeof(glm::vec3) * numverts);
+		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
+		res = cudaMemcpy((void*)*devKDLeaves, KDleaves, sizeof(glm::vec3) * numverts, cudaMemcpyHostToDevice);
+		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
+		//
+		res = cudaMalloc((void**)devKDIndices, sizeof(unsigned int) * numindices);
+		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
+		res = cudaMemcpy((void*)*devKDIndices, KDindices, sizeof(unsigned int)*numindices, cudaMemcpyHostToDevice);
 		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
 
 		scene->setDirty(HScene::MESH,false);

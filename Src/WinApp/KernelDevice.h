@@ -54,7 +54,12 @@ private:
 	void* m_normsArray;
 	void* m_indicesArray;
 	void* m_trisArray;
+	//
+	void* m_nodesArray;
+	void* m_leafArray;
+	void* m_nodeIndicesArray;
 
 	// Geometry
 	HostSceneManager* m_sceneMgr;
+
 };

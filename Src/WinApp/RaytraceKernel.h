@@ -28,6 +28,9 @@ struct RaytraceKernelData : public KernelData
 	void**						m_normsLinearMemDeviceRef;
 	void**						m_indicesLinearMemDeviceRef;
 	void**						m_trisLinearMemDeviceRef;
+	void**						m_nodesLinearMemDeviceRef;
+	void**						m_nodeLeavesLinearMemDeviceRef;
+	void**						m_nodeIndicesLinearMemDeviceRef;
 };
 
 // =======================================================================================

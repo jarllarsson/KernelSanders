@@ -4,6 +4,7 @@
 #include "HostMaterial.h"
 #include "HostPrimitives.h"
 #include <vector>
+#include "KDNode.h"
 
 using namespace std;
 // =======================================================================================
@@ -38,6 +39,11 @@ struct HScene
 	vector<glm::vec3> meshVerts;
 	vector<unsigned int> meshIndices;
 	vector<glm::vec3> meshNorms;
+	// KD
+	vector<KDNode> KDnode;	
+	vector<KDLeaf> KDleaves;
+	vector<unsigned int> KDindices;
+
 	// flags
 	void setDirty(OBJTYPE p_objType, bool p_status=true);
 	bool isDirty(OBJTYPE p_objType);

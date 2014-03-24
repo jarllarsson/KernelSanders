@@ -123,7 +123,14 @@ void App::run()
 	m_sceneMgr->addMeshTris(mmesh->mVertices,mmesh->mNumVertices,
 							&duckMdl->m_trisIndices[0],duckMdl->m_trisIndices.size(),
 							mmesh->mNormals);
-							
+
+	int treeId=duckMdl->m_treeId;
+	vector<KDNode>* KDnodes=m_modelImporter->getKDTree(treeId);
+	vector<KDLeaf>* KDleaves=m_modelImporter->getKDLeafList(treeId);
+	vector<int>* KDindices=m_modelImporter->getKDLeafDataList(treeId);
+	m_sceneMgr->addKDTree(&(*KDnodes)[0]  ,KDnodes->size(),
+						  &(*KDleaves)[0] ,KDleaves->size(),
+						  &(*KDindices)[0],KDindices->size());						
 
 	//
 

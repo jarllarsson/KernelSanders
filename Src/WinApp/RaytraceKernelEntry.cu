@@ -37,7 +37,9 @@ __global__ void RaytraceKernel(unsigned char *p_outSurface,
 							   const int p_width, const int p_height, const size_t p_pitch,
 							   float3* p_verts,float3* p_norms,unsigned int p_numVerts,
 							   unsigned int* p_indices,unsigned int p_numIndices,
-							   TriPart* p_tris, unsigned int p_numTris)
+							   TriPart* p_tris, unsigned int p_numTris,
+							   DKDNode* p_nodes, DKDLeaf* p_leaflist, unsigned int* p_nodeIndices,
+							   unsigned int p_numNodes,unsigned int p_numLeaves,unsigned int p_numNodeIndices)
 {
     const int x = blockIdx.x*blockDim.x + threadIdx.x;
     const int y = blockIdx.y*blockDim.y + threadIdx.y;
@@ -52,7 +54,9 @@ __global__ void RaytraceKernel(unsigned char *p_outSurface,
 	Raytrace(pixel,x,y, p_width, p_height, 
 			 p_verts,p_norms,p_numVerts,
 			 p_indices,p_numIndices,
-			 p_tris, p_numTris);
+			 p_tris, p_numTris,
+			 p_nodes, p_leaflist, p_nodeIndices,
+			 p_numNodes,p_numLeaves,p_numNodeIndices);
 }
  
 // Executes CUDA kernel 
@@ -60,7 +64,9 @@ extern "C" void RunRaytraceKernel(void* p_cb,void *surface,
 			int width, int height, int pitch,
 			void* p_verts,void* p_norms,unsigned int p_numVerts,
 			void* p_indices,unsigned int p_numIndices,
-			void* p_tris, unsigned int p_numTris) 
+			void* p_tris, unsigned int p_numTris,
+			void* p_nodes, void* p_leaflist, unsigned int* p_nodeIndices,
+			unsigned int p_numNodes,unsigned int p_numLeaves,unsigned int p_numNodeIndices) 
 { 
 	// copy to constant buffer
 	cudaError_t res = cudaMemcpyToSymbol(cb, p_cb, sizeof(RaytraceConstantBuffer));
@@ -75,7 +81,9 @@ extern "C" void RunRaytraceKernel(void* p_cb,void *surface,
     RaytraceKernel<<<Dg,Db>>>((unsigned char *)surface, width, height, pitch, 
 							  (float3*)p_verts, (float3*)p_norms,p_numVerts,
 							  (unsigned int*)p_indices, p_numIndices,
-							  (TriPart*)p_tris,p_numTris);
+							  (TriPart*)p_tris,p_numTris,
+							  (DKDNode*)p_nodes, (DKDLeaf*)p_leaflist, p_nodeIndices,
+							   p_numNodes,p_numLeaves,p_numNodeIndices);
 
 	res = cudaDeviceSynchronize();
 	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);

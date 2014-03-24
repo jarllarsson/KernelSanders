@@ -17,6 +17,7 @@
 #include "Scene.h"
 #include "Ray.h"
 #include "IntersectionInfo.h"
+#include "DeviceKDStructures.h"
 
  
 #pragma comment(lib, "cudart") 
@@ -48,7 +49,9 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 						 const int p_width, const int p_height,
 						 float3* p_verts,float3* p_norms,unsigned int p_numVerts,
 						 unsigned int* p_indices,unsigned int p_numIndices,
-						 TriPart* p_tris, unsigned int p_numTris)
+						 TriPart* p_tris, unsigned int p_numTris,
+						 DKDNode* p_nodes, DKDLeaf* p_leaflist, unsigned int* p_nodeIndices,
+						 unsigned int p_numNodes,unsigned int p_numLeaves,unsigned int p_numNodeIndices)
 {	
 	// Normalized device coordinates of pixel. (-1 to 1)
 	const float u = (p_x / (float) p_width)*2.0f-1.0f;

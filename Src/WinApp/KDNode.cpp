@@ -23,7 +23,7 @@ KDAxisMark KDNode::getAxis() const
 
 bool KDNode::isLeaf() const
 {
-	return m_isLeaf;
+	return m_isLeaf==1;
 }
 
 float KDNode::getPos() const
@@ -38,7 +38,7 @@ int KDNode::getIndexListIdxFromLeaf() const
 
 void KDNode::init()
 {
-	m_isLeaf=false;
+	m_isLeaf=0;
 	m_position=0.0f;
 	int m_leftChildIdx=-1;
 }
@@ -60,7 +60,7 @@ void KDNode::setAxis( const KDAxisMark& p_split )
 
 void KDNode::setToLeaf()
 {
-	m_isLeaf=true;
+	m_isLeaf=1;
 }
 
 void KDNode::setLeafData( int p_leafDataIdx )
