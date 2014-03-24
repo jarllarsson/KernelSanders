@@ -53,6 +53,11 @@ int KDNode::getRightChild() const
 	return m_leftChildIdx+1;
 }
 
+void KDNode::setAxis( const KDAxisMark& p_split )
+{
+	m_split=p_split;
+}
+
 void KDNode::setToLeaf()
 {
 	m_isLeaf=true;
@@ -61,4 +66,14 @@ void KDNode::setToLeaf()
 void KDNode::setLeafData( int p_leafDataIdx )
 {
 	m_leftChildIdx=p_leafDataIdx;
+}
+
+void KDNode::setPos( float p_pos )
+{
+	m_position=p_pos;
+}
+
+void KDNode::setLeftChild( int p_idx )
+{
+	m_leftChildIdx=p_idx;
 }

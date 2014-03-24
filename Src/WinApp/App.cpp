@@ -108,23 +108,12 @@ void App::run()
 	// load assets
 	int duck = m_modelImporter->loadFile("../Assets/teapots.DAE");
 	ModelImporter::ModelData* duckMdl=m_modelImporter->getStoredModel(duck);
+
 	aiMesh* mmesh=duckMdl->m_model->mMeshes[0];
-	vector<unsigned int> indices;
-	int indexCount=0;
-	for (unsigned int i=0;i<mmesh->mNumFaces;i++)
-	{
-		aiFace* f = &mmesh->mFaces[i];
-		if (f->mNumIndices<3)
-			DEBUGWARNING(("Found a poly with less than 3 vertices, ignoring..."));
-		else
-		{
-			indices.insert(indices.end(),f->mIndices,f->mIndices+3); // NOTE! Only support for triangles!
-			indexCount+=3;
-		}
-	}
 	m_sceneMgr->addMeshTris(mmesh->mVertices,mmesh->mNumVertices,
-							&indices[0],indexCount,
+							&duckMdl->m_trisIndices[0],duckMdl->m_trisIndices.size(),
 							mmesh->mNormals);
+
 	//
 
 	while (!m_context->closeRequested() && run)

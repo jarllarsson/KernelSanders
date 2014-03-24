@@ -8,8 +8,8 @@ public class kdTree : MonoBehaviour
     public Node[] m_tree;
     public Vector3 m_box;
     public float m_firstSplitDist = 0.0f;
-    public float m_intersectionCost = 1.0f;
-    public float m_traversalCost = 0.3f;
+    public float m_intersectionCost = 0.01f;
+    public float m_traversalCost = 100000.3f;
 
     private Stack<List<object>> m_tempObjectsStack=new Stack<List<object>>();
 
@@ -107,7 +107,7 @@ public class kdTree : MonoBehaviour
                 rightObjects.Add(obj);
             }
 	    }
-        Debug.Log("stack: "+m_tempObjectsStack.Count);
+        //Debug.Log("stack: "+m_tempObjectsStack.Count);
         buildTree(leftnode, leftObjects, p_dimsz + 1, p_dim + 1, p_node.m_leftChildIdx, leftBoxPos, leftBox); // power of two structure
         m_tempObjectsStack.Pop();
         buildTree(rightnode, rightObjects,p_dimsz + 1, p_dim + 1, p_node.m_leftChildIdx + 1, rightBoxPos, rightBox);
@@ -209,13 +209,26 @@ public class kdTree : MonoBehaviour
     void getChildVoxelsMeasurement(float p_inSplitpos, Vector3 p_axis, Vector3 p_inParentSize,
                                    out Vector3 outLeftSz, out Vector3 outRightSz)
     {
-        Vector3 offset = p_axis * p_inSplitpos;
+//         if (p_inSplitpos < 0.0f)
+//             Debug.Log(p_inSplitpos);
+        Vector3 offset = p_axis * p_inSplitpos; // where to split from origo
 
-        Vector3 splitH = 0.5f * p_axis;
-        Vector3 lsize = (p_inParentSize - offset * 2.0f);
+        Vector3 splitH = 0.5f * p_axis; // half divider 
+        // subtract offset from amound of parent-voxel in set direction 
+        Vector3 lsize = (p_inParentSize - offset*2.0f);
         lsize = lsize - entrywiseMul(lsize, splitH);
-        Vector3 rsize = (p_inParentSize - offset * 2.0f);
-        rsize = rsize - entrywiseMul(rsize, splitH);
+        // Now we thus have the sizes, but we only want the size for the relevant axis:
+        // lsize = lsize - entrywiseMul(lsize, p_axis); // Masking 
+        // The other is thus the remainder, along active axes
+        // The other axes are the same. So use masking:
+        Vector3 rsize = (p_inParentSize - entrywiseMul(lsize, p_axis));
+        //Vector3 lsize = (p_inParentSize - offset * 2.0f); 
+        //lsize = lsize - entrywiseMul(lsize, splitH);
+        //Vector3 rsize = (p_inParentSize - offset * 2.0f);
+        //rsize = rsize - entrywiseMul(rsize, splitH);
+
+        //if (rsize != lsize)
+        //    Debug.Log("L: " + lsize.ToString() + " R: " + rsize.ToString());
 
         outLeftSz = lsize;
         outRightSz = rsize;

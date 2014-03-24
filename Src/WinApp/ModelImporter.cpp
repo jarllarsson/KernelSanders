@@ -27,10 +27,31 @@ int ModelImporter::loadFile( const char* p_path )
 	{
 		ModelData* model=new ModelData;
 		model->m_model=tscene;
-		getBoundingBox(tscene, &model->m_sceneMin,&model->m_sceneMax);
+		getBoundingBox(tscene, (aiVector3D*)&model->m_sceneMin,(aiVector3D*)&model->m_sceneMax);
 		model->m_sceneCenter.x = (model->m_sceneMin.x + model->m_sceneMax.x) / 2.0f;
 		model->m_sceneCenter.y = (model->m_sceneMin.y + model->m_sceneMax.y) / 2.0f;
 		model->m_sceneCenter.z = (model->m_sceneMin.z + model->m_sceneMax.z) / 2.0f;
+		// Create index list that is guaranteed to only contain triangle faces (list size multiple of 3)
+		aiMesh* mmesh=tscene->mMeshes[0];
+		int indexCount=0;
+		for (unsigned int i=0;i<mmesh->mNumFaces;i++)
+		{
+			aiFace* f = &mmesh->mFaces[i];
+			if (f->mNumIndices<3)
+				DEBUGWARNING(("Found a poly with less than 3 vertices, ignoring..."));
+			else
+			{
+				model->m_trisIndices.insert(model->m_trisIndices.end(),f->mIndices,f->mIndices+3); // NOTE! Only support for triangles!
+				indexCount+=3;
+			}
+		}
+		// build kd-tree representation of the index list for the mesh
+		glm::vec3 extents(max(abs(model->m_sceneMax.x),abs(model->m_sceneMin.x)),
+			max(abs(model->m_sceneMax.y),abs(model->m_sceneMin.y)),
+			max(abs(model->m_sceneMax.z),abs(model->m_sceneMin.z)));
+		int treeId = m_treeFactory.buildKDTree((void*)mmesh->mVertices,(void*)mmesh->mNormals,mmesh->mNumVertices,
+								  &model->m_trisIndices[0],model->m_trisIndices.size(),extents);
+		model->m_treeId=treeId;
 		m_models.push_back(model);
 		result = static_cast<int>(m_models.size()-1);
 	}
@@ -94,4 +115,19 @@ ModelImporter::ModelData* ModelImporter::getStoredModel( int p_id )
 	if (p_id<m_models.size() && p_id>=0)
 		return m_models[p_id];
 	return NULL;
+}
+
+vector<KDNode>* ModelImporter::getKDTree( int p_idx )
+{
+	return m_treeFactory.getTree(p_idx);
+}
+
+vector<KDLeaf>* ModelImporter::getKDLeafList( int p_idx )
+{
+	return m_treeFactory.getLeafList(p_idx);
+}
+
+vector<int>* ModelImporter::getKDLeafDataList( int p_idx )
+{
+	return m_treeFactory.getLeafDataList(p_idx);
 }

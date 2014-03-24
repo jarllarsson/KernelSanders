@@ -1,6 +1,11 @@
 #pragma once
 
+#include <GraphicsDevice.h>
+#include <ToString.h>
+#include <DebugPrint.h>
 #include "KDTreeFactory.h"
+
+
 
 // Defines for Box-Triangle test
 // By Akenine-Möller
@@ -93,15 +98,15 @@ int planeBoxOverlap(glm::vec3& normal,float d, float maxbox[3])
 
 KDTreeFactory::KDTreeFactory()
 {
-	m_tempObjectsStack=new stack<vector<int>*>;
+	//m_tempTriListStack=new stack<vector<Tri>*>;
 	m_traversalCost=0.3f;
 	m_intersectionCost=1.0f;
 }
 
 KDTreeFactory::~KDTreeFactory()
 {
-	clearTempStack();
-	delete m_tempObjectsStack;
+	//clearTempStack();
+	//delete m_tempTriListStack;
 	for (int i=0;i<m_trees.size();i++)
 	{
 		delete m_trees[i];
@@ -112,29 +117,151 @@ KDTreeFactory::~KDTreeFactory()
 		delete m_leafLists[i];
 	}
 	m_leafLists.clear();
+	for (int i=0;i<m_leafDataLists.size();i++)
+	{
+		delete m_leafDataLists[i];
+	}
+	m_leafDataLists.clear();
 }
 
-int KDTreeFactory::calculateKDTree( void* p_vec3ArrayXYZ,void* p_normArrayXYZ, int p_vertCount, unsigned int* p_indexArray, int p_iCount )
+int KDTreeFactory::buildKDTree( void* p_vec3ArrayXYZ,void* p_normArrayXYZ, int p_vertCount, unsigned int* p_indexArray, int p_iCount, glm::vec3 p_extents )
 {
 	m_tempVertexList=(glm::vec3*)p_vec3ArrayXYZ;
 	m_tempNormalsList=(glm::vec3*)p_normArrayXYZ;
+	vector<Tri> triList((Tri*)p_indexArray,(Tri*)p_indexArray+p_iCount/3);
 	// Create root node
+	KDNode root;
+	//m_tempTriListStack->push(&triList);
+	vector<KDNode>* tree=new vector<KDNode>(sc_treeListMaxSize);
+	vector<KDLeaf>*	leafList=new vector<KDLeaf>;
+	vector<int>*	leafDataList=new vector<int>;
+	int treeId=addTree(tree,leafList,leafDataList);
+	glm::vec3 offset(0.0f,0.0f,0.0f);
+		
+	__int64 countsPerSec = 0;
+	QueryPerformanceFrequency((LARGE_INTEGER*)&countsPerSec);
+	double secsPerCount = 1.0f / (float)countsPerSec;
 
+	__int64 prevTimeStamp = 0;
+	__int64 currTimeStamp = 0;
+	QueryPerformanceCounter((LARGE_INTEGER*)&prevTimeStamp);
+
+
+
+	subdivide(treeId, root, &triList, 0, 0, 1, offset, p_extents); // start at 1	
+
+	QueryPerformanceCounter((LARGE_INTEGER*)&currTimeStamp);
+
+	double timing=((currTimeStamp - prevTimeStamp) * secsPerCount);
+	DEBUGWARNING(( (string("KD Tree build time for ")+toString(p_vertCount)+string(" vertices :")+toString(timing)+string(" seconds.")).c_str() ));
+
+	//m_tempObjectsStack.pop();
+	//Debug.Log("fin stack: " + m_tempObjectsStack.Count);
 	// Build rest of tree using it
+	return treeId;
 }
 
 
 
-void KDTreeFactory::subdivide( KDNode& p_node, int p_dimsz, int p_dim, int p_idx, const glm::vec3& pos, const glm::vec3& parentSize )
+void KDTreeFactory::subdivide( unsigned int p_treeId, KDNode& p_node, vector<Tri>* p_tris, 
+							   int p_dimsz, int p_dim, int p_idx, 
+							   const glm::vec3& pos, const glm::vec3& parentSize )
 {
+	//p_node.pos = pos;
+	//p_node.size = parentSize;
+	vector<KDNode>* tree = m_trees[p_treeId];
+	vector<KDLeaf>* leaflist = m_leafLists[p_treeId];
+	vector<int>* leafdatalist = m_leafDataLists[p_treeId];
+	// End condition
+	if (p_dimsz > 24 || p_tris->size() < KD_MIN_INDICES_IN_NODE/3 || p_idx<<1>sc_treeListMaxSize-2) 
+	{
+		int rem=(int)p_tris->size();
+		//
+		p_node.setToLeaf();
+		if (rem>0)
+		{// Generate leaf
+			vector<KDLeaf>* leaflist = m_leafLists[p_treeId];
+			KDLeaf leaf={0,0};
+			int offset=leafdatalist->size();
+			for (int i=0;i<rem;i++)
+			for (int j=0;j<3;j++)
+			{
+				leafdatalist->push_back((*p_tris)[i].m_ids[j]);
+				leaf.m_count++;
+			}		
+			leaf.m_offset=offset;
+			p_node.setLeafData((int)leaflist->size());
+			// append leaf as well to separate list
+			leaflist->push_back(leaf);
+		}
+		else
+		{
+			p_node.setLeafData(KD_EMPTY_LEAF);
+		}
+		// all changes made to node, add it to list
+		(*tree)[p_idx]=p_node;
+		return;
+	}
 
+	if (p_dim > 2) p_dim = 0;
+
+	KDAxisMark splitPlane;
+	splitPlane.setVec(p_dim);
+	float splitpos = findOptimalSplitPos(p_node, p_tris, splitPlane,parentSize,pos);
+
+	glm::vec3 split = splitPlane.getVec();
+	glm::vec3 offset = split * splitpos;
+	glm::vec3 currentOrigo = pos + offset;
+
+	glm::vec3 lsize;
+	glm::vec3 rsize;
+	getChildVoxelsMeasurement(splitpos, split, parentSize,lsize, rsize);
+
+	glm::vec3 leftBoxPos = currentOrigo + 0.5f * entrywiseMul(lsize, split);
+	glm::vec3 rightBoxPos = currentOrigo - 0.5f * entrywiseMul(rsize, split);
+	glm::vec3 leftBox = lsize;
+	glm::vec3 rightBox = rsize;
+
+	KDNode leftnode;
+	KDNode rightnode; 
+	p_node.setLeftChild(p_idx << 1);
+	p_node.setAxis(splitPlane);
+	p_node.setPos(splitpos);
+	// all changes made to node, add it to list
+	(*tree)[p_idx]=p_node; 
+	//
+	vector<Tri> leftTris;
+	vector<Tri> rightTris;
+	//m_tempTriListStack->push(&rightTris);
+	//m_tempTriListStack->push(&leftTris);
+	//
+	unsigned int count=p_tris->size();
+	for (unsigned int i=0;i<count;i++)
+	{
+		Triparam param = {i,(*p_tris)[i]};
+		if (triIntersectNode(param,leftBoxPos, leftBox)) 
+		{
+			//p_node.m_objects.Remove(obj);
+			leftTris.push_back(param.m_tri);
+		}
+		if (triIntersectNode(param, rightBoxPos, rightBox))
+		{
+			//p_node.m_objects.Remove(obj);
+			rightTris.push_back(param.m_tri);
+		}
+	}
+	//Debug.Log("stack: "+m_tempTriListStack.Count);
+	subdivide(p_treeId, leftnode, &leftTris, p_dimsz + 1, p_dim + 1, p_node.getLeftChild(), leftBoxPos, leftBox); // power of two structure
+	//m_tempTriListStack->pop();
+	subdivide(p_treeId, rightnode, &rightTris,p_dimsz + 1, p_dim + 1, p_node.getRightChild(), rightBoxPos, rightBox);
+	//m_tempTriListStack->pop();
 }
 
 bool KDTreeFactory::triIntersectNode( const Triparam& p_tri, const glm::vec3& pos, const glm::vec3& parentSize )
 {
-	glm::vec3* pv0=m_tempVertexList+(p_tri.m_ids[0]);
-	glm::vec3* pv1=m_tempVertexList+(p_tri.m_ids[1]);
-	glm::vec3* pv2=m_tempVertexList+(p_tri.m_ids[2]);
+	glm::vec3* pv0=m_tempVertexList+(p_tri.m_tri.m_ids[0]);
+	glm::vec3* pv1=m_tempVertexList+(p_tri.m_tri.m_ids[1]);
+	glm::vec3* pv2=m_tempVertexList+(p_tri.m_tri.m_ids[2]);
 	glm::vec3* normal=m_tempNormalsList+(p_tri.m_faceId);
 	float boxhalfsize[3]={parentSize.x*0.5f,parentSize.y*0.5f,parentSize.z*0.5f};
 	// Use triangle-box overlap from Realtime rendering III pp.760-762
@@ -186,19 +313,17 @@ bool KDTreeFactory::triIntersectNode( const Triparam& p_tri, const glm::vec3& po
 	return true;
 }
 
-float KDTreeFactory::findOptimalSplitPos( KDNode& p_node, vector<int>* p_tris, const KDAxisMark& p_axis, const glm::vec3& p_currentSize, const glm::vec3& p_currentPos )
+float KDTreeFactory::findOptimalSplitPos( KDNode& p_node, vector<Tri>* p_tris, const KDAxisMark& p_axis, const glm::vec3& p_currentSize, const glm::vec3& p_currentPos )
 {
 	float bestpos = 0.0f;
 	float bestcost = FLT_MAX;
 	glm::vec3 axis = p_axis.getVec();
 	glm::vec3 aabbMax, aabbMin;
 	unsigned int count=p_tris->size();
-	int triangle[3];
-	for (unsigned int i=0;i<count;i+=3)
+	for (unsigned int i=0;i<count;i++)
 	{
-		for (unsigned int n=0;n<3;n++) triangle[n] = (*p_tris)[i+n]; // get face
 		// Get aabb for triangle
-		getTriangleExtents( triangle, aabbMax, aabbMin );
+		getTriangleExtents( (*p_tris)[i], aabbMax, aabbMin );
 		float left_extreme = getExtreme(aabbMax, aabbMin, axis, EXTREME::LEFT);
 		float right_extreme = getExtreme(aabbMax, aabbMin, axis, EXTREME::RIGHT);
 		float cost = calculatecost(p_node, p_tris, left_extreme, axis, p_currentSize,p_currentPos);
@@ -217,11 +342,11 @@ float KDTreeFactory::findOptimalSplitPos( KDNode& p_node, vector<int>* p_tris, c
 	return bestpos;
 }
 
-void KDTreeFactory::getTriangleExtents( const int p_vertexIndices3[], glm::vec3& p_outTriangleExtentsMax, glm::vec3& p_outTriangleExtentsMin )
+void KDTreeFactory::getTriangleExtents( const Tri& p_triRef, glm::vec3& p_outTriangleExtentsMax, glm::vec3& p_outTriangleExtentsMin )
 {
-	glm::vec3 vert1=m_tempVertexList[p_vertexIndices3[0]];
-	glm::vec3 vert2=m_tempVertexList[p_vertexIndices3[1]];
-	glm::vec3 vert3=m_tempVertexList[p_vertexIndices3[2]];
+	glm::vec3 vert1=m_tempVertexList[p_triRef.m_ids[0]];
+	glm::vec3 vert2=m_tempVertexList[p_triRef.m_ids[1]];
+	glm::vec3 vert3=m_tempVertexList[p_triRef.m_ids[2]];
 	glm::vec3 extMax(max(vert3.x,max(vert1.x,vert2.x)),max(vert3.y,max(vert1.y,vert2.y)),max(vert3.z,max(vert1.z,vert2.z)));
 	glm::vec3 extMin(min(vert3.x,min(vert1.x,vert2.x)),min(vert3.y,min(vert1.y,vert2.y)),min(vert3.z,min(vert1.z,vert2.z)));
 	p_outTriangleExtentsMax=extMax;
@@ -243,7 +368,7 @@ float KDTreeFactory::getExtreme( const glm::vec3& p_triangleExtentsMax, const gl
 }
 
 
-float KDTreeFactory::calculatecost( const KDNode& p_node, vector<int>* p_tris, float p_splitpos, const glm::vec3& p_axis, const glm::vec3& p_currentSize, const glm::vec3& p_currentPos )
+float KDTreeFactory::calculatecost( const KDNode& p_node, vector<Tri>* p_tris, float p_splitpos, const glm::vec3& p_axis, const glm::vec3& p_currentSize, const glm::vec3& p_currentPos )
 {
 	glm::vec3 lsize;
 	glm::vec3 rsize;
@@ -260,16 +385,13 @@ float KDTreeFactory::calculatecost( const KDNode& p_node, vector<int>* p_tris, f
 	return m_traversalCost + m_intersectionCost * (leftarea * (float)leftcount + rightarea * (float)rightcount);
 }
 
-void KDTreeFactory::calculatePrimitiveCount( const KDNode& p_node, vector<int>* p_tris,
-											 const glm::vec3& p_leftBox,const glm::vec3& p_rightBox, 
-											 const glm::vec3& p_leftBoxPos, const glm::vec3& p_rightBoxPos, 
-											 int& p_outLeftCount, int& p_outRightCount )
+void KDTreeFactory::calculatePrimitiveCount( const KDNode& p_node, vector<Tri>* p_tris,const glm::vec3& p_leftBox,const glm::vec3& p_rightBox, const glm::vec3& p_leftBoxPos, const glm::vec3& p_rightBoxPos, int& p_outLeftCount, int& p_outRightCount )
 {
 	p_outLeftCount=0;
 	p_outRightCount=0;
-	for (int i=0;i<p_tris->size();i+=3)
+	for (int i=0;i<p_tris->size();i++)
 	{
-		Triparam param = {i/3,(*p_tris)[i],(*p_tris)[i+1],(*p_tris)[i+2]};
+		Triparam param = {i,(*p_tris)[i]};
 		if (triIntersectNode(param, p_leftBoxPos, p_leftBox))
 		{
 			p_outLeftCount++;
@@ -292,10 +414,18 @@ void KDTreeFactory::getChildVoxelsMeasurement( float p_inSplitpos, const glm::ve
 	glm::vec3 offset = p_axis * p_inSplitpos;
 
 	glm::vec3 splitH = 0.5f * p_axis;
-	glm::vec3 lsize = (p_inParentSize - offset * 2.0f);
+// 	glm::vec3 lsize = (p_inParentSize - offset * 2.0f);
+// 	lsize = lsize - entrywiseMul(lsize, splitH);
+// 	glm::vec3 rsize = (p_inParentSize - offset * 2.0f);
+// 	rsize = rsize - entrywiseMul(rsize, splitH);
+	// subtract offset from amound of parent-voxel in set direction 
+	glm::vec3 lsize = (p_inParentSize - offset*2.0f);
 	lsize = lsize - entrywiseMul(lsize, splitH);
-	glm::vec3 rsize = (p_inParentSize - offset * 2.0f);
-	rsize = rsize - entrywiseMul(rsize, splitH);
+	// Now we thus have the sizes, but we only want the size for the relevant axis:
+	// lsize = lsize - entrywiseMul(lsize, p_axis); // Masking 
+	// The other is thus the remainder, along active axes
+	// The other axes are the same. So use masking:
+	glm::vec3 rsize = (p_inParentSize - entrywiseMul(lsize, p_axis));
 
 	p_outLeftSz = lsize;
 	p_outRightSz = rsize;
@@ -303,25 +433,41 @@ void KDTreeFactory::getChildVoxelsMeasurement( float p_inSplitpos, const glm::ve
 
 glm::vec3 KDTreeFactory::entrywiseMul( const glm::vec3& p_a, const glm::vec3& p_b )
 {
-	return glm::vec3(p_a.x*p_b.x,p_a.y*p_b.y,p_a.z*p_b.z);
+	return glm::vec3(p_a.x*p_b.x, p_a.y*p_b.y, p_a.z*p_b.z);
 }
 
-int KDTreeFactory::addTree( vector<KDNode>* p_tree, vector<KDLeaf>* p_leafList )
+int KDTreeFactory::addTree( vector<KDNode>* p_tree, vector<KDLeaf>* p_leafList, vector<int>* p_leafDataList )
 {
 	m_trees.push_back(p_tree);
 	m_leafLists.push_back(p_leafList);
+	m_leafDataLists.push_back(p_leafDataList);
 	return m_trees.size()-1;
 }
 
-void KDTreeFactory::clearTempStack()
+vector<KDNode>* KDTreeFactory::getTree( int p_idx )
 {
-	if (m_tempObjectsStack->size()>0)
-	{
-		for (int i=0;i<m_tempObjectsStack->size();i++)
-		{
-			vector<int>* elem = m_tempObjectsStack->top();
-			delete elem;
-			m_tempObjectsStack->pop();
-		}
-	}
+	return m_trees[p_idx];
 }
+
+vector<KDLeaf>* KDTreeFactory::getLeafList( int p_idx )
+{
+	return m_leafLists[p_idx];
+}
+
+vector<int>* KDTreeFactory::getLeafDataList( int p_idx )
+{
+	return m_leafDataLists[p_idx];
+}
+
+//void KDTreeFactory::clearTempStack()
+//{
+//	if (m_tempTriListStack->size()>0)
+//	{
+//		for (int i=0;i<m_tempTriListStack->size();i++)
+//		{
+//			vector<Tri>* elem = m_tempTriListStack->top();
+//			delete elem;
+//			m_tempTriListStack->pop();
+//		}
+//	}
+//}

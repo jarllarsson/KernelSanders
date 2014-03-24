@@ -27,6 +27,12 @@ public:
 		b_1=false;
 		b_2=false;
 	}
+	KDAxisMark(const KDAxisMark& p_copy)
+	{
+		b_1=p_copy.b_1;
+		b_2=p_copy.b_2;
+	}
+
 	~KDAxisMark() {}
 	
 	void setVec(AXIS p_axis)
@@ -63,6 +69,13 @@ public:
 		}
 	}
 
+	KDAxisMark& operator =(const KDAxisMark& p_other)
+	{
+		b_1=p_other.b_1;
+		b_2=p_other.b_2;
+		return *this;
+	}
+
 	glm::vec3 getVec() const
 	{
 		glm::vec3 reval(0.0f,0.0f,0.0f);
@@ -93,12 +106,13 @@ public:
 		}
 		return reval;
 	}
-protected:
-private:
+protected:	
 	// b_2 b_1
 	// 00 - x
 	// 01 - y
 	// 10 - z
 	bool b_1;
 	bool b_2;
+private:
+
 };
