@@ -8,8 +8,8 @@ public class kdTree : MonoBehaviour
     public Node[] m_tree;
     public Vector3 m_box;
     public float m_firstSplitDist = 0.0f;
-    public float m_intersectionCost = 0.01f;
-    public float m_traversalCost = 100000.3f;
+    public float m_intersectionCost = 1.0f;
+    public float m_traversalCost = 1.0f;
 
     private Stack<List<object>> m_tempObjectsStack=new Stack<List<object>>();
 
@@ -37,9 +37,9 @@ public class kdTree : MonoBehaviour
             rootobjects.Add(obj as object);
         }
         m_tree[1] = root;
-        buildTree(root, rootobjects, 0, 0, 1, transform.position, m_box); // start at 1
+        buildTree(root, rootobjects, 0, 0, 1, transform.position, m_box, float.MaxValue); // start at 1
         m_tempObjectsStack.Pop();
-        Debug.Log("fin stack: " + m_tempObjectsStack.Count);
+        //Debug.Log("fin stack: " + m_tempObjectsStack.Count);
 	}
 	
 	// Update is called once per frame
@@ -48,11 +48,11 @@ public class kdTree : MonoBehaviour
         //m_tree[1].m_position = m_firstSplitDist;
 	}
 
-    void buildTree(Node p_node, List<object> p_objects, int p_dimsz, int p_dim, int p_idx, Vector3 pos, Vector3 parentSize)
+    void buildTree(Node p_node, List<object> p_objects, int p_dimsz, int p_dim, int p_idx, Vector3 pos, Vector3 parentSize, float p_cost)
     {
         p_node.pos = pos;
         p_node.size = parentSize;
-        if (p_dimsz > 24 || p_objects.Count < 3 || p_idx<<1>m_tree.Length-2) 
+        if (p_dimsz > 20 || p_objects.Count < 3 || p_idx<<1>m_tree.Length-2) 
         {
             p_node.m_objects = p_objects; // in c++ do deep copy here
             p_node.m_isLeaf = true;
@@ -63,7 +63,18 @@ public class kdTree : MonoBehaviour
         
         AxisMark splitPlane=new AxisMark();
         splitPlane.setVec(p_dim);
-	    float splitpos = findOptimalSplitPos(p_node, p_objects, splitPlane,parentSize,pos);
+        float costLeft = p_cost;
+        float costRight = p_cost;
+        float splitpos = findOptimalSplitPos(p_node, p_objects, splitPlane, parentSize, pos, out costLeft, out costRight);
+        // extra break condition if too expensive
+        Debug.Log(costRight + costLeft + " " + p_cost);
+        if (splitpos!=0.0f && costRight + costLeft > p_cost/* && p_objects.Count < 6 */)
+        {
+            p_node.m_objects = p_objects; // in c++ do deep copy here
+            p_node.m_isLeaf = true;
+            Debug.DrawLine(pos, pos + Vector3.up * 10.0f, Color.red, 100000.0f);
+            return;
+        }
 
         Vector3 split = splitPlane.getVec();
         Vector3 offset = split * splitpos;
@@ -108,9 +119,9 @@ public class kdTree : MonoBehaviour
             }
 	    }
         //Debug.Log("stack: "+m_tempObjectsStack.Count);
-        buildTree(leftnode, leftObjects, p_dimsz + 1, p_dim + 1, p_node.m_leftChildIdx, leftBoxPos, leftBox); // power of two structure
+        buildTree(leftnode, leftObjects, p_dimsz + 1, p_dim + 1, p_node.m_leftChildIdx, leftBoxPos, leftBox, costLeft); // power of two structure
         m_tempObjectsStack.Pop();
-        buildTree(rightnode, rightObjects,p_dimsz + 1, p_dim + 1, p_node.m_leftChildIdx + 1, rightBoxPos, rightBox);
+        buildTree(rightnode, rightObjects, p_dimsz + 1, p_dim + 1, p_node.m_leftChildIdx + 1, rightBoxPos, rightBox, costRight);
         m_tempObjectsStack.Pop();
     }
 
@@ -126,45 +137,56 @@ public class kdTree : MonoBehaviour
         return true;
     }
 
-    float findOptimalSplitPos(Node p_node, List<object> p_objects,AxisMark p_axis, Vector3 p_currentSize, Vector3 p_currentPos)
+    float findOptimalSplitPos(Node p_node, List<object> p_objects, AxisMark p_axis, Vector3 p_currentSize, Vector3 p_currentPos,
+                                 out float outLeftCost, out float outRightCost)
     {
         float bestpos = 0.0f;
-        float bestcost = float.MaxValue;
+        float bestcost = 9999999.0f;
+        float leftC = bestcost, rightC = bestcost;
+        outLeftCost = leftC;
+        outRightCost = rightC;
         Vector3 axis = p_axis.getVec();
         foreach (object obj in p_objects)
         {
             GameObject gobj = obj as GameObject;
-	        float left_extreme = getLeftExtreme(gobj, axis);
-	        float right_extreme = getRightExtreme(gobj, axis);
-            float cost = calculatecost(p_node, p_objects, left_extreme, axis, p_currentSize,p_currentPos);
+            float left_extreme = getLeftExtreme(gobj, axis, p_currentPos);
+            float right_extreme = getRightExtreme(gobj, axis, p_currentPos);           
+            float cost = calculatecost(p_node, p_objects, left_extreme, axis, p_currentSize,p_currentPos,
+                out leftC, out rightC);
 	        if (cost < bestcost)
             {
 	            bestcost = cost; bestpos = left_extreme;
+                outLeftCost = leftC;
+                outRightCost = rightC;
             }
             //if (cost >= 1000000) Debug.Log("L!!! " + cost);
-            cost = calculatecost(p_node, p_objects, right_extreme, axis, p_currentSize, p_currentPos);
+            cost = calculatecost(p_node, p_objects, right_extreme, axis, p_currentSize, p_currentPos,
+                out leftC, out rightC);
             if (cost < bestcost)
             {
 	            bestcost = cost; bestpos = right_extreme;
+                outLeftCost = leftC;
+                outRightCost = rightC;
             }
             //if (cost >= 1000000) Debug.Log("R!!! " + cost);
         }
         return bestpos;
     }
 
-    float getLeftExtreme(GameObject p_obj, Vector3 p_axis)
+    float getLeftExtreme(GameObject p_obj, Vector3 p_axis, Vector3 p_parentPos)
     {
-        Vector3 pos=entrywiseMul(p_obj.collider.bounds.extents, p_axis);
+        Vector3 pos=entrywiseMul(p_obj.transform.position+p_obj.collider.bounds.extents-p_parentPos, p_axis);
         return pos.x + pos.y + pos.z;
     }
 
-    float getRightExtreme(GameObject p_obj, Vector3 p_axis)
+    float getRightExtreme(GameObject p_obj, Vector3 p_axis, Vector3 p_parentPos)
     {
-        Vector3 pos = -entrywiseMul(p_obj.collider.bounds.extents, p_axis);
+        Vector3 pos = -entrywiseMul(p_obj.transform.position + p_obj.collider.bounds.extents - p_parentPos, p_axis);
         return pos.x + pos.y + pos.z;
     }
 
-    float calculatecost(Node p_node, List<object> p_objects,float p_splitpos, Vector3 p_axis, Vector3 p_currentSize, Vector3 p_currentPos)
+    float calculatecost(Node p_node, List<object> p_objects,float p_splitpos, Vector3 p_axis, Vector3 p_currentSize, Vector3 p_currentPos, 
+        out float leftCost, out float rightCost)
     {
         Vector3 lsize;
         Vector3 rsize;
@@ -172,13 +194,14 @@ public class kdTree : MonoBehaviour
                                   out lsize, out rsize);
         float leftarea = calculateArea(lsize);
         float rightarea = calculateArea(rsize);
-	    int leftcount, rightcount;
+	    int leftcount=0, rightcount=0;
         Vector3 leftBoxPos = p_currentPos + 0.5f * entrywiseMul(lsize, p_axis);
         Vector3 rightBoxPos = p_currentPos - 0.5f * entrywiseMul(rsize, p_axis);
         calculatePrimitiveCount(p_node, p_objects, lsize,rsize,
                                 leftBoxPos, rightBoxPos,
                                 out leftcount,out rightcount);
-
+        leftCost=m_traversalCost*0.5f + m_intersectionCost * (leftarea * (float)leftcount);
+        rightCost=m_traversalCost*0.5f + m_intersectionCost * (rightarea * (float)rightcount);
         return m_traversalCost + m_intersectionCost * (leftarea * (float)leftcount + rightarea * (float)rightcount);
     }
 
@@ -259,8 +282,8 @@ public class kdTree : MonoBehaviour
 
             // draw split plane
             Vector3 drawSize=parentSize-entrywiseMul(parentSize, split);
-            Gizmos.DrawWireCube(m_tree[idx].pos, m_tree[idx].size*0.99f);
-            Gizmos.DrawWireCube(m_tree[idx].pos, m_tree[idx].size*0.999f);
+            //Gizmos.DrawWireCube(m_tree[idx].pos, m_tree[idx].size*0.99f);
+            //Gizmos.DrawWireCube(m_tree[idx].pos, m_tree[idx].size*0.999f);
             Gizmos.DrawWireCube(m_tree[idx].pos, m_tree[idx].size);
             //if (!m_tree[idx].m_isLeaf) 
             //Gizmos.DrawWireCube(currentOrigo, drawSize);

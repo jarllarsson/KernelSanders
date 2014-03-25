@@ -213,6 +213,7 @@
     <ClInclude Include="IntersectAll.h" />
     <ClInclude Include="IntersectBox.h" />
     <ClInclude Include="IntersectionInfo.h" />
+    <ClInclude Include="IntersectKDTree.h" />
     <ClInclude Include="IntersectPlane.h" />
     <ClInclude Include="IntersectSphere.h" />
     <ClInclude Include="IntersectTriangle.h" />

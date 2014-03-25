@@ -184,6 +184,9 @@
     <ClInclude Include="DeviceKDStructures.h">
       <Filter>Source Files\Kernel\Kernels\Raytrace\Structures</Filter>
     </ClInclude>
+    <ClInclude Include="IntersectKDTree.h">
+      <Filter>Source Files\Kernel\Kernels\Raytrace\Intersections</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
