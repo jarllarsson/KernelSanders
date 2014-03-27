@@ -32,4 +32,12 @@ struct DKDLeaf
 	int m_count; // number of indices for this node
 };
 
+struct DKDStack
+{
+	int m_nodeIdx;				// idx to node in array
+	float m_t;					// distance
+	float pb[3];				// point on box
+	int prev, dummy1, dummy2;
+};
+
 #endif

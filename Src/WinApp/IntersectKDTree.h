@@ -16,43 +16,52 @@
 
 int Engine::FindNearest( Ray& a_Ray, real& a_Dist, Primitive*& a_Prim )
 {
-	real tnear = 0, tfar = a_Dist, t;
+	float tnear = 0.0f, tfar = a_Dist, t;
 	int retval = 0;
-	vector3 p1 = m_Scene->GetExtends().GetPos();				// Get box center
-	vector3 p2 = p1 + m_Scene->GetExtends().GetSize();			// Get box extents (world space)
-	vector3 D = a_Ray.GetDirection(), O = a_Ray.GetOrigin();	// Get ray
+	float3 p1 = m_Scene->GetExtends().GetPos();				// Get box center
+	float3 p2 = p1 + m_Scene->GetExtends().GetSize();			// Get box extents (world space)
+	float3 D = a_Ray.GetDirection(), 
+		   O = a_Ray.GetOrigin();	// Get ray
+	// store in small arrays for axis access
+	float ap1[3]={p1.x,p1.y,p1.z};
+	float ap2[3]={p2.x,p2.y,p2.z};
+	float aD[3]  ={D.x, D.y, D.z};
+	float aO[3]  ={O.x, O.y, O.z};
+
 	// Exclude rays which are pointing to the left (for axis) and with an origin (axis) less than box negative extents
 	// or if right to axis and origin more than positive extents
 	// For which there zero chance of hit
 	///////////////////////////////////////////
+	#pragma unroll 3
 	for ( int i = 0; i < 3; i++ ) 
 	{
-		if (D.cell[i] < 0) 
+		if (aD[i] < 0) 
 		{
-			if (O.cell[i] < p1.cell[i]) return 0; // Negative extents(note that author has anchor in corner here)
+			if (aO[i] < ap1[i]) return 0; // Negative extents(note that author has anchor in corner here)
 		}
-		else if (O.cell[i] > p2.cell[i]) return 0;// positive extents
+		else if (aO[i] > ap2[i]) return 0;// positive extents
 	}
 	///////////////////////////////////////////
 	///////////////////////////////////////////
 	// clip ray segment to box
 	///////////////////////////////////////////
-	for ( i = 0; i < 3; i++ )
+	#pragma unroll 3
+	for (int i = 0; i < 3; i++ )
 	{
-		real pos = O.cell[i] + tfar * D.cell[i];
-		if (D.cell[i] < 0)
+		float pos = aO[i] + tfar * aD[i];
+		if (aD[i] < 0.0f)
 		{
 			// clip end point
-			if (pos < p1.cell[i]) tfar = tnear + (tfar - tnear) * ((O.cell[i] - p1.cell[i]) / (O.cell[i] - pos));
+			if (pos < ap1[i]) tfar = tnear + (tfar - tnear) * ((aO[i] - ap1[i]) / (aO[i] - pos));
 			// clip start point
-			if (O.cell[i] > p2.cell[i]) tnear += (tfar - tnear) * ((O.cell[i] - p2.cell[i]) / (tfar * D.cell[i]));
+			if (aO[i] > ap2[i]) tnear += (tfar - tnear) * ((aO[i] - ap2[i]) / (tfar * aD[i]));
 		}
 		else
 		{
 			// clip end point
-			if (pos > p2.cell[i]) tfar = tnear + (tfar - tnear) * ((p2.cell[i] - O.cell[i]) / (pos - O.cell[i]));
+			if (pos > ap2[i]) tfar = tnear + (tfar - tnear) * ((ap2[i] - aO[i]) / (pos - aO[i]));
 			// clip start point
-			if (O.cell[i] < p1.cell[i]) tnear += (tfar - tnear) * ((p1.cell[i] - O.cell[i]) / (tfar * D.cell[i]));
+			if (aO[i] < ap1[i]) tnear += (tfar - tnear) * ((ap1[i] - aO[i]) / (tfar * aD[i]));
 		}
 		if (tnear > tfar) return 0;
 	}
@@ -67,6 +76,13 @@ int Engine::FindNearest( Ray& a_Ray, real& a_Dist, Primitive*& a_Prim )
 	////////		vector3 pb;
 	////////		int prev, dummy1, dummy2;
 	////////	};
+	////////struct DKDStack
+	////////{
+	////////	int m_nodeIdx;				// idx to node in array
+	////////	float m_t;					// distance
+	////////	float pb[3];				// point on box
+	////////	int prev, dummy1, dummy2;
+	////////};
 	int entrypoint = 0, exitpoint = 1;
 	// init traversal
 	KdTreeNode* farchild, *currnode; // farchild seems to be sibling of current. Current is the currently active node while traversing
