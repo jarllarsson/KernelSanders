@@ -134,11 +134,14 @@ int Engine::FindNearest( Ray& a_Ray, real& a_Dist, Primitive*& a_Prim )
 				currnode = farchild + 1; // GetRight(); // set current to right child of current
 			}
 			//--------------------------------------------------
-			// update distance with 
+			// update distance width 
 			t = (splitpos - O.cell[axis]) / D.cell[axis]; // set t-distance to (splitdist - (active axis of rayorig)) / (active axis of ray dir)
+			// increase exit point, and store it
 			int tmp = exitpoint++;
-			if (exitpoint == entrypoint) exitpoint++;
-			m_Stack[exitpoint].prev = tmp;
+			// if the exitpoint==entrypoint, inrease exitpoint again
+			if (exitpoint == entrypoint) exitpoint++; 
+			// Set values for exitpoint
+			m_Stack[exitpoint].prev = tmp; // previous is same if exitpoint wasnt entry, otherwise it is previous
 			m_Stack[exitpoint].t = t;
 			m_Stack[exitpoint].node = farchild;
 			m_Stack[exitpoint].pb.cell[axis] = splitpos;
