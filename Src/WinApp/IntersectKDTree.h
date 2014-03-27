@@ -12,9 +12,15 @@
 #include "RaytraceLighting.h"
 #include "Primitives.h"
 #include "Ray.h"
+#include "DeviceKDStructures.h"
 
+int getAxisNumber(DKDAxisMark p_axis)
+{
+	return p_axis.b_1+p_axis.b_2*2;
+}
 
-int Engine::FindNearest( Ray& a_Ray, real& a_Dist, Primitive*& a_Prim )
+int Engine::FindNearest( Ray& a_Ray, real& a_Dist, Primitive*& a_Prim, 
+						 DKDNode* p_nodes, DKDLeaf* p_leaflist, unsigned int* p_nodeIndices )
 {
 	float tnear = 0.0f, tfar = a_Dist, t;
 	int retval = 0;
@@ -27,6 +33,8 @@ int Engine::FindNearest( Ray& a_Ray, real& a_Dist, Primitive*& a_Prim )
 	float ap2[3]={p2.x,p2.y,p2.z};
 	float aD[3]  ={D.x, D.y, D.z};
 	float aO[3]  ={O.x, O.y, O.z};
+	int mod_list[5] = {0,1,2,0,1}; // modulo for axes
+	DKDStack kdStack[64]; // modulo for axes
 
 	// Exclude rays which are pointing to the left (for axis) and with an origin (axis) less than box negative extents
 	// or if right to axis and origin more than positive extents
@@ -65,6 +73,8 @@ int Engine::FindNearest( Ray& a_Ray, real& a_Dist, Primitive*& a_Prim )
 		}
 		if (tnear > tfar) return 0;
 	}
+	O.x=aO[0];O.y=aO[0];O.y=aO[0]; // copy back
+	D.x=aD[0];D.y=aD[0];D.y=aD[0]; //
 	///////////////////////////////////////////
 	///////////////////////////////////////////
 	// init stack of traversal
@@ -85,23 +95,24 @@ int Engine::FindNearest( Ray& a_Ray, real& a_Dist, Primitive*& a_Prim )
 	////////};
 	int entrypoint = 0, exitpoint = 1;
 	// init traversal
-	KdTreeNode* farchild, *currnode; // farchild seems to be sibling of current. Current is the currently active node while traversing
-	currnode = m_Scene->GetKdTree()->GetRoot(); // start at root node
-	m_Stack[entrypoint].t = tnear; // add near value to "t"
+	int farchildNodeIdx, currNodeIdx; // farchild seems to be sibling of current. Current is the currently active node while traversing
+	currNodeIdx = 1;//m_Scene->GetKdTree()->GetRoot(); // start at root node
+	kdStack[entrypoint].m_t = tnear; // add near value to "t"
+	DKDNode currNode;
 
 	// if near is more than zero
 	// add start point on hit on box
 	// ray origin + direction, scaled with near distance
 	if (tnear > 0.0f) 
-		m_Stack[entrypoint].pb = O + D * tnear;
+		kdStack[entrypoint].m_pb = O + D * tnear;
 	else 
-		m_Stack[entrypoint].pb = O;
+		kdStack[entrypoint].m_pb = O;
 
 	// Add the furthest point (back of the voxel) to the exit point 
 	// in the stack.
-	m_Stack[exitpoint].t = tfar;
-	m_Stack[exitpoint].pb = O + D * tfar;
-	m_Stack[exitpoint].node = 0;
+	kdStack[exitpoint].m_t = tfar;
+	kdStack[exitpoint].m_pb = O + D * tfar;
+	kdStack[exitpoint].m_nodeIdx = 0;
 
 	// Now we have the entry- and exit points on the box!
 
@@ -110,61 +121,77 @@ int Engine::FindNearest( Ray& a_Ray, real& a_Dist, Primitive*& a_Prim )
 	// traverse kd-tree
 	///////////////////////////////////////////
 	///////////////////////////////////////////
-	while (currnode) // While we have a current node
+	while (currNodeIdx>0) // While we have a current node
 	{
+		currNode=p_nodes[currNodeIdx]; // Copy current node to register
 		///////////////////////////////////////////
 		// While we have a current node that is not a leaf
-		while (!currnode->IsLeaf()) 
+		while (currNode.m_isLeaf<1) 
 		{
 			// get split dist and axis for node
-			real splitpos = currnode->GetSplitPos();
-			int axis = currnode->GetAxis(); // get the current active axis 0=x,1=y,2=z (index used for addressing)
+			float splitpos = currNode.m_position;
+			int axis = getAxisNumber(currNode.m_split); // get the current active axis 0=x,1=y,2=z (index used for addressing)
+			float3 enpb = kdStack[entrypoint].m_pb;
+			float3 expb = kdStack[exitpoint].m_pb;
+			float entry_pb[3]  ={enpb.x,enpb.y,enpb.z};
+			float exit_pb[3]  ={expb.x,expb.y,expb.z};
 			//--------------------------------------------------
 		    // if active axis of ENTRYpoint is less than split value
-			if (m_Stack[entrypoint].pb.cell[axis] <= splitpos) 
+			if (entry_pb[axis] <= splitpos) 
 			{
-				if (m_Stack[exitpoint].pb.cell[axis] <= splitpos) // if active axis of EXITpoint is less than split dist
+				if (exit_pb[axis] <= splitpos) // if active axis of EXITpoint is less than split dist
 				{
-					currnode = currnode->GetLeft(); // iterate to the left child of current
+					currNodeIdx = currNode.m_leftChildIdx; // iterate to the left child of current
 					continue; // NEXT ITERATION!!!
 				}
-				if (m_Stack[exitpoint].pb.cell[axis] == splitpos) // if active axis of EXITpoint is equal to split dist LOL
+				if (exit_pb[axis] == splitpos) // if active axis of EXITpoint is equal to split dist LOL
 				{
-					currnode = currnode->GetRight(); // iterate to the right child of current
+					currNodeIdx = currNode.m_leftChildIdx+1; // iterate to the right child of current
 					continue; // NEXT ITERATION!!!
 				}
 				// Default: iterate to the left child of current
-				currnode = currnode->GetLeft(); 
-				farchild = currnode + 1; // GetRight(); // set farchild to sibling of current
+				currNodeIdx = currNode.m_leftChildIdx; 
+				farchildNodeIdx = currNodeIdx + 1; // GetRight(); // set farchild to sibling of current
 			}
 			// if active axis of ENTRYpoint is more than or equal to split value
 			else
 			{
-				if (m_Stack[exitpoint].pb.cell[axis] > splitpos) // if active axis of EXITpoint is greater than split dist
+				if (exit_pb[axis] > splitpos) // if active axis of EXITpoint is greater than split dist
 				{
-					currnode = currnode->GetRight(); // iterate to the right child of current
+					currNodeIdx = currNode.m_leftChildIdx+1; // iterate to the right child of current
 					continue;  // NEXT ITERATION!!!
 				}
 				// Default: iterate to the right child of current
-				farchild = currnode->GetLeft(); // set sibling to left child of current
-				currnode = farchild + 1; // GetRight(); // set current to right child of current
+				farchildNodeIdx = currNodeIdx; // set sibling to left child of current
+				currNodeIdx = farchildNodeIdx + 1; // GetRight(); // set current to right child of current
 			}
 			//--------------------------------------------------
 			// update distance width 
-			t = (splitpos - O.cell[axis]) / D.cell[axis]; // set t-distance to (splitdist - (active axis of rayorig)) / (active axis of ray dir)
+			t = (splitpos - aO[axis]) / aD[axis]; // set t-distance to (splitdist - (active axis of rayorig)) / (active axis of ray dir)
 			// increase exit point, and store it
 			int tmp = exitpoint++;
 			// if the exitpoint==entrypoint, inrease exitpoint again
 			if (exitpoint == entrypoint) exitpoint++; 
+			// update pb
+			expb = kdStack[exitpoint].m_pb;
+			exit_pb[0] = expb.x; exit_pb[1]=expb.y; exit_pb[2]=expb.z;
 			// Set values for exitpoint
-			m_Stack[exitpoint].prev = tmp; // previous is same if exitpoint wasnt entry, otherwise it is previous
-			m_Stack[exitpoint].t = t;
-			m_Stack[exitpoint].node = farchild;
-			m_Stack[exitpoint].pb.cell[axis] = splitpos;
-			int nextaxis = m_Mod[axis + 1];
-			int prevaxis = m_Mod[axis + 2];
-			m_Stack[exitpoint].pb.cell[nextaxis] = O.cell[nextaxis] + t * D.cell[nextaxis];
-			m_Stack[exitpoint].pb.cell[prevaxis] = O.cell[prevaxis] + t * D.cell[prevaxis];
+			kdStack[exitpoint].m_prev = tmp; // previous is same if exitpoint wasnt entry, otherwise it is previous
+			kdStack[exitpoint].m_t = t;
+			kdStack[exitpoint].m_nodeIdx = farchildNodeIdx;
+
+			exit_pb[axis]=splitpos;
+			kdStack[exitpoint].m_pb.x = exit_pb[0];kdStack[exitpoint].m_pb.y = exit_pb[1];kdStack[exitpoint].m_pb.z = exit_pb[2];
+
+			int nextaxis = mod_list[axis + 1];
+			int prevaxis = mod_list[axis + 2];
+
+			exit_pb[0]=kdStack[exitpoint].m_pb.x; exit_pb[1]=kdStack[exitpoint].m_pb.y; exit_pb[2]=kdStack[exitpoint].m_pb.z;
+			exit_pb[nextaxis] = aO[nextaxis] + t * aD[nextaxis];
+			exit_pb[prevaxis] = aO[prevaxis] + t * aD[prevaxis];
+			kdStack[exitpoint].m_pb.x = exit_pb[0];kdStack[exitpoint].m_pb.y = exit_pb[1];kdStack[exitpoint].m_pb.z = exit_pb[2];
+			// Fetch new node
+			currNode=p_nodes[currNodeIdx];
 		}
 		// End while not leaf
 		///////////////////////////////////////////

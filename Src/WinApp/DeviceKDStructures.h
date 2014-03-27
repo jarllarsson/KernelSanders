@@ -36,8 +36,8 @@ struct DKDStack
 {
 	int m_nodeIdx;				// idx to node in array
 	float m_t;					// distance
-	float pb[3];				// point on box
-	int prev, dummy1, dummy2;
+	float3 m_pb;				// point on box
+	int m_prev, dummy1, dummy2;
 };
 
 #endif
