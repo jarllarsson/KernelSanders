@@ -46,11 +46,12 @@ int ModelImporter::loadFile( const char* p_path )
 			}
 		}
 		// build kd-tree representation of the index list for the mesh
-		glm::vec3 extents(max(abs(model->m_sceneMax.x),abs(model->m_sceneMin.x)),
-			max(abs(model->m_sceneMax.y),abs(model->m_sceneMin.y)),
-			max(abs(model->m_sceneMax.z),abs(model->m_sceneMin.z)));
+// 		glm::vec3 extents(max(abs(model->m_sceneMax.x),abs(model->m_sceneMin.x)),
+// 			max(abs(model->m_sceneMax.y),abs(model->m_sceneMin.y)),
+// 			max(abs(model->m_sceneMax.z),abs(model->m_sceneMin.z)));
+// 		extents -= model->m_sceneCenter;
 		int treeId = m_treeFactory.buildKDTree((void*)mmesh->mVertices,(void*)mmesh->mNormals,mmesh->mNumVertices,
-								  &model->m_trisIndices[0],model->m_trisIndices.size(),extents);
+								  &model->m_trisIndices[0],model->m_trisIndices.size(),model->m_sceneMin,model->m_sceneMax);
 		model->m_treeId=treeId;
 		m_models.push_back(model);
 		result = static_cast<int>(m_models.size()-1);

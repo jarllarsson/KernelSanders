@@ -218,6 +218,7 @@
     <ClInclude Include="IntersectSphere.h" />
     <ClInclude Include="IntersectTriangle.h" />
     <ClInclude Include="KDAxisMark.h" />
+    <ClInclude Include="KDBounds.h" />
     <ClInclude Include="KDTreeFactory.h" />
     <ClInclude Include="KernelMathMatrix.h" />
     <ClInclude Include="KernelMathOperators.h" />

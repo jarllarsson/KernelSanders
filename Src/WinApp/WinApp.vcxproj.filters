@@ -187,6 +187,9 @@
     <ClInclude Include="IntersectKDTree.h">
       <Filter>Source Files\Kernel\Kernels\Raytrace\Intersections</Filter>
     </ClInclude>
+    <ClInclude Include="KDBounds.h">
+      <Filter>ModelImporter\KDTree</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

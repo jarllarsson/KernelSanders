@@ -19,7 +19,7 @@ int getAxisNumber(DKDAxisMark p_axis)
 	return p_axis.b_1+p_axis.b_2*2;
 }
 
-int Engine::FindNearest( Ray& a_Ray, real& a_Dist, Primitive*& a_Prim, 
+int Engine::FindNearest( const Ray* in_ray, 
 						 DKDNode* p_nodes, DKDLeaf* p_leaflist, unsigned int* p_nodeIndices )
 {
 	float tnear = 0.0f, tfar = a_Dist, t;

@@ -6,7 +6,8 @@ public class kdTree : MonoBehaviour
 {
     public List<GameObject> m_objects;
     public Node[] m_tree;
-    public Vector3 m_box;
+    public Vector3 m_boxMax;
+    public Vector3 m_boxMin;
     public float m_firstSplitDist = 0.0f;
     public float m_intersectionCost = 1.0f;
     public float m_traversalCost = 1.0f;
@@ -25,19 +26,27 @@ public class kdTree : MonoBehaviour
         m_tempObjectsStack.Push(rootobjects);
 
         m_objects.AddRange(GameObject.FindGameObjectsWithTag("intree"));
+        m_boxMin = new Vector3(1000000, 1000000, 1000000);
+        m_boxMax = new Vector3(-1, -1, -1);
         foreach (GameObject obj in m_objects)
         {
             for (int i=0;i<3;i++)
             {
-                float absa=2.0f*Mathf.Abs(obj.transform.position[i]-transform.position[i]);
-                //Debug.Log(absa);
-                if (absa>m_box[i])
-                   m_box[i]=absa;
+                //float absa=2.0f*Mathf.Abs(obj.transform.position[i]-transform.position[i]);
+                //if (absa>m_box[i])
+                //   m_box[i]=absa;
+                float axis=obj.transform.position[i]-transform.position[i];
+                if (axis < m_boxMin[i])
+                    m_boxMin[i] = axis;
+                if (axis > m_boxMax[i])
+                    m_boxMax[i] = axis;
             }
             rootobjects.Add(obj as object);
         }
+        Debug.DrawLine(transform.position, transform.position + m_boxMin, Color.yellow,10000.0f);
+        Debug.DrawLine(transform.position, transform.position + m_boxMax, Color.red, 10000.0f);
         m_tree[1] = root;
-        buildTree(root, rootobjects, 0, 0, 1, transform.position, m_box, float.MaxValue); // start at 1
+        buildTree(root, rootobjects, 0, 0, 1, transform.position+(m_boxMin+m_boxMax)*0.5f, (m_boxMax-m_boxMin), float.MaxValue); // start at 1
         m_tempObjectsStack.Pop();
         //Debug.Log("fin stack: " + m_tempObjectsStack.Count);
 	}
@@ -261,13 +270,17 @@ public class kdTree : MonoBehaviour
     {
 
 
-        Vector3 parentOrigo = transform.position;
+        Vector3 parentOrigo = transform.position+(m_boxMin+m_boxMax)*0.5f;
+        Vector3 ext=(m_boxMax-m_boxMin);
+
+        //Gizmos.color = Color.yellow;
+        //Gizmos.DrawWireCube(Vector3.zero, ext);
 
         if (m_tree!=null && m_tree.Length>0)
-            drawNode(parentOrigo, m_box, 1); 
+            drawNode(parentOrigo, ext, 1); 
         
         Gizmos.color = Color.white;
-        Gizmos.DrawWireCube(transform.position, m_box);
+        Gizmos.DrawWireCube(parentOrigo, ext);
     }
 
     void drawNode(Vector3 pos, Vector3 parentSize,int idx)

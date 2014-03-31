@@ -49,6 +49,7 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 						 const int p_width, const int p_height,
 						 float3* p_verts,float3* p_norms,unsigned int p_numVerts,
 						 unsigned int* p_indices,unsigned int p_numIndices,
+						 float3 p_kdExtents, float3 p_kdPos,
 						 TriPart* p_tris, unsigned int p_numTris,
 						 DKDNode* p_nodes, DKDLeaf* p_leaflist, unsigned int* p_nodeIndices,
 						 unsigned int p_numNodes,unsigned int p_numLeaves,unsigned int p_numNodeIndices)

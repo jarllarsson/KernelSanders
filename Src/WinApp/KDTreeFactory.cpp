@@ -121,10 +121,17 @@ KDTreeFactory::~KDTreeFactory()
 	{
 		delete m_leafDataLists[i];
 	}
-	m_leafDataLists.clear();
+	m_leafDataLists.clear();	
+	for (int i=0;i<m_treeBounds.size();i++)
+	{
+		delete m_treeBounds[i];
+	}
+	m_treeBounds.clear();
 }
 
-int KDTreeFactory::buildKDTree( void* p_vec3ArrayXYZ,void* p_normArrayXYZ, int p_vertCount, unsigned int* p_indexArray, int p_iCount, glm::vec3 p_extents )
+int KDTreeFactory::buildKDTree( void* p_vec3ArrayXYZ,void* p_normArrayXYZ, int p_vertCount, 
+							   unsigned int* p_indexArray, int p_iCount, 
+							   glm::vec3 p_boundsMin, glm::vec3 p_boundsMax )
 {
 	m_tempVertexList=(glm::vec3*)p_vec3ArrayXYZ;
 	m_tempNormalsList=(glm::vec3*)p_normArrayXYZ;
@@ -135,8 +142,13 @@ int KDTreeFactory::buildKDTree( void* p_vec3ArrayXYZ,void* p_normArrayXYZ, int p
 	vector<KDNode>* tree=new vector<KDNode>(sc_treeListMaxSize);
 	vector<KDLeaf>*	leafList=new vector<KDLeaf>;
 	vector<int>*	leafDataList=new vector<int>;
-	int treeId=addTree(tree,leafList,leafDataList);
-	glm::vec3 offset(0.0f,0.0f,0.0f);
+	vector<KDBounds>* boundsList=new vector<KDBounds>();
+	int treeId=addTree(tree,leafList,leafDataList,boundsList);
+	//glm::vec3 offset(0.0f,0.0f,0.0f);
+	//offset=p_boundsMin;
+
+	KDBounds boundsData={p_boundsMin,p_boundsMax};
+	boundsList->push_back(boundsData);
 		
 	__int64 countsPerSec = 0;
 	QueryPerformanceFrequency((LARGE_INTEGER*)&countsPerSec);
@@ -148,7 +160,7 @@ int KDTreeFactory::buildKDTree( void* p_vec3ArrayXYZ,void* p_normArrayXYZ, int p
 
 
 
-	subdivide(treeId, root, &triList, 0, 0, 1, offset, p_extents); // start at 1	
+	subdivide(treeId, root, &triList, 0, 0, 1, p_boundsMin, p_boundsMax); // start at 1	
 
 	QueryPerformanceCounter((LARGE_INTEGER*)&currTimeStamp);
 
@@ -436,11 +448,12 @@ glm::vec3 KDTreeFactory::entrywiseMul( const glm::vec3& p_a, const glm::vec3& p_
 	return glm::vec3(p_a.x*p_b.x, p_a.y*p_b.y, p_a.z*p_b.z);
 }
 
-int KDTreeFactory::addTree( vector<KDNode>* p_tree, vector<KDLeaf>* p_leafList, vector<int>* p_leafDataList )
+int KDTreeFactory::addTree( vector<KDNode>* p_tree, vector<KDLeaf>* p_leafList, vector<int>* p_leafDataList,vector<KDBounds>* p_boundsList )
 {
 	m_trees.push_back(p_tree);
 	m_leafLists.push_back(p_leafList);
 	m_leafDataLists.push_back(p_leafDataList);
+	m_treeBounds.push_back(p_boundsList);
 	return m_trees.size()-1;
 }
 

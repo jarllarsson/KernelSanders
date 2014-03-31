@@ -5,11 +5,14 @@
 
 extern "C"
 {
-	void RunRaytraceKernel(void* p_cb,void* colorArray,
+	void RunRaytraceKernel(void* p_cb,void* p_colorArray,
 		int width, int height, int pitch,
-		void* p_verts,void* p_norms,	unsigned int p_numVerts,
-		void* p_indices,				unsigned int p_numIndices,
-		void* p_tris,					unsigned int p_numTris);
+		void* p_verts,void* p_norms,unsigned int p_numVerts,
+		void* p_indices,unsigned int p_numIndices,
+		void* p_kdExtents, void* p_kdPos,
+		void* p_tris, unsigned int p_numTris,
+		void* p_nodes, void* p_leaflist, unsigned int* p_nodeIndices,
+		unsigned int p_numNodes,unsigned int p_numLeaves,unsigned int p_numNodeIndices);
 }
 
 RaytraceKernel::RaytraceKernel() : IKernelHandler()
@@ -124,19 +127,19 @@ void RaytraceKernel::Execute( KernelData* p_data, float p_dt )
 		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
 		//
 		// KD data ---------------------------------------------------------------------------------------------
-		res = cudaMalloc((void**)devKDNodes, sizeof(glm::vec3) * numverts);
+		res = cudaMalloc((void**)devKDNodes, sizeof(glm::vec3) * numKDnodes);
 		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
-		res = cudaMemcpy((void*)*devKDNodes, KDnodes, sizeof(glm::vec3) * numverts, cudaMemcpyHostToDevice);
-		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
-		//
-		res = cudaMalloc((void**)devKDLeaves, sizeof(glm::vec3) * numverts);
-		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
-		res = cudaMemcpy((void*)*devKDLeaves, KDleaves, sizeof(glm::vec3) * numverts, cudaMemcpyHostToDevice);
+		res = cudaMemcpy((void*)*devKDNodes, KDnodes, sizeof(glm::vec3) * numKDnodes, cudaMemcpyHostToDevice);
 		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
 		//
-		res = cudaMalloc((void**)devKDIndices, sizeof(unsigned int) * numindices);
+		res = cudaMalloc((void**)devKDLeaves, sizeof(glm::vec3) * numKDleaves);
 		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
-		res = cudaMemcpy((void*)*devKDIndices, KDindices, sizeof(unsigned int)*numindices, cudaMemcpyHostToDevice);
+		res = cudaMemcpy((void*)*devKDLeaves, KDleaves, sizeof(glm::vec3) * numKDleaves, cudaMemcpyHostToDevice);
+		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
+		//
+		res = cudaMalloc((void**)devKDIndices, sizeof(unsigned int) * numKDindices);
+		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
+		res = cudaMemcpy((void*)*devKDIndices, KDindices, sizeof(unsigned int)*numKDindices, cudaMemcpyHostToDevice);
 		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
 
 		scene->setDirty(HScene::MESH,false);
