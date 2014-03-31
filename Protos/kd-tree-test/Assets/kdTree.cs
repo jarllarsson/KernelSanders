@@ -74,7 +74,7 @@ public class kdTree : MonoBehaviour
         splitPlane.setVec(p_dim);
         float costLeft = p_cost;
         float costRight = p_cost;
-        float splitpos = findOptimalSplitPos(p_node, p_objects, splitPlane, parentSize, pos, out costLeft, out costRight);
+        float splitpos = findOptimalSplitPos(p_node, p_objects, splitPlane, parentSize, pos, ref costLeft, ref costRight);
         // extra break condition if too expensive
         Debug.Log(costRight + costLeft + " " + p_cost);
         if (splitpos!=0.0f && costRight + costLeft > p_cost/* && p_objects.Count < 6 */)
@@ -147,13 +147,13 @@ public class kdTree : MonoBehaviour
     }
 
     float findOptimalSplitPos(Node p_node, List<object> p_objects, AxisMark p_axis, Vector3 p_currentSize, Vector3 p_currentPos,
-                                 out float outLeftCost, out float outRightCost)
+                                 ref float outLeftCost, ref float outRightCost)
     {
         float bestpos = 0.0f;
         float bestcost = 9999999.0f;
-        float leftC = bestcost, rightC = bestcost;
-        outLeftCost = leftC;
-        outRightCost = rightC;
+        float leftC = outLeftCost, rightC = outRightCost;
+        //outLeftCost = leftC;
+        //outRightCost = rightC;
         Vector3 axis = p_axis.getVec();
         foreach (object obj in p_objects)
         {

@@ -256,9 +256,9 @@ void KDTreeFactory::subdivide( unsigned int p_treeId, KDNode& p_node, vector<Tri
 		}
 	}
 	//Debug.Log("stack: "+m_tempTriListStack.Count);
-	subdivide(p_treeId, leftnode, &leftTris, p_dimsz + 1, p_dim + 1, p_node.getLeftChild(), leftBoxPos, leftBox); // power of two structure
+	subdivide(p_treeId, leftnode, &leftTris, p_dimsz + 1, p_dim + 1, p_node.getLeftChild(), leftBoxPos, leftBox,costLeft); // power of two structure
 	//m_tempTriListStack->pop();
-	subdivide(p_treeId, rightnode, &rightTris,p_dimsz + 1, p_dim + 1, p_node.getRightChild(), rightBoxPos, rightBox);
+	subdivide(p_treeId, rightnode, &rightTris,p_dimsz + 1, p_dim + 1, p_node.getRightChild(), rightBoxPos, rightBox,costRight);
 	//m_tempTriListStack->pop();
 }
 
@@ -322,6 +322,7 @@ float KDTreeFactory::findOptimalSplitPos( KDNode& p_node, vector<Tri>* p_tris, c
 {
 	float bestpos = 0.0f;
 	float bestcost = FLT_MAX;
+	float leftC = *p_outCostLeft, rightC = *p_outCostRight;
 	glm::vec3 axis = p_axis.getVec();
 	glm::vec3 aabbMax, aabbMin;
 	unsigned int count=p_tris->size();
@@ -329,18 +330,22 @@ float KDTreeFactory::findOptimalSplitPos( KDNode& p_node, vector<Tri>* p_tris, c
 	{
 		// Get aabb for triangle
 		getTriangleExtents( (*p_tris)[i], aabbMax, aabbMin );
-		float left_extreme = getExtreme(aabbMax, aabbMin, axis, EXTREME::LEFT);
-		float right_extreme = getExtreme(aabbMax, aabbMin, axis, EXTREME::RIGHT);
-		float cost = calculatecost(p_node, p_tris, left_extreme, axis, p_currentSize,p_currentPos);
+		float left_extreme = getExtreme(aabbMax, aabbMin, axis, p_currentPos, EXTREME::LEFT);
+		float right_extreme = getExtreme(aabbMax, aabbMin, axis, p_currentPos, EXTREME::RIGHT);
+		float cost = calculatecost(p_node, p_tris, left_extreme, axis, p_currentSize,p_currentPos,&leftC,&rightC);
 		if (cost < bestcost)
 		{
 			bestcost = cost; bestpos = left_extreme;
+			*p_outCostLeft=leftC;
+			*p_outCostRight=rightC;
 		}
 		//if (cost >= 1000000) Debug.Log("L!!! " + cost);
-		cost = calculatecost(p_node, p_tris, right_extreme, axis, p_currentSize, p_currentPos);
+		cost = calculatecost(p_node, p_tris, right_extreme, axis, p_currentSize, p_currentPos,&leftC,&rightC);
 		if (cost < bestcost)
 		{
 			bestcost = cost; bestpos = right_extreme;
+			*p_outCostLeft=leftC;
+			*p_outCostRight=rightC;
 		}
 		//if (cost >= 1000000) Debug.Log("R!!! " + cost);
 	}
@@ -358,14 +363,16 @@ void KDTreeFactory::getTriangleExtents( const Tri& p_triRef, glm::vec3& p_outTri
 	p_outTriangleExtentsMin=extMin;
 }
 
-float KDTreeFactory::getExtreme( const glm::vec3& p_triangleExtentsMax, const glm::vec3& p_triangleExtentsMin, const glm::vec3& p_axis, EXTREME p_side )
+float KDTreeFactory::getExtreme( const glm::vec3& p_triangleExtentsMax, const glm::vec3& p_triangleExtentsMin, const glm::vec3& p_axis, const glm::vec3& p_parentPos, EXTREME p_side )
 {
 	// find the the point furthest away in one direction (axis*side)
 	// Do this by masking extents values with axes.
 	// Compare abs of masked min and max extents, and return the one of largest absolute.
-	glm::vec3 pos = (float)p_side*entrywiseMul(p_triangleExtentsMax, p_axis); // mask
+	glm::vec3 eMax=p_triangleExtentsMax-p_parentPos;
+	glm::vec3 eMin=p_triangleExtentsMin-p_parentPos;
+	glm::vec3 pos = (float)p_side*entrywiseMul(eMax, p_axis); // mask
 	float val1=pos.x + pos.y + pos.z;
-	pos = (float)p_side*entrywiseMul(p_triangleExtentsMin, p_axis); // mask
+	pos = (float)p_side*entrywiseMul(eMin, p_axis); // mask
 	float val2=pos.x + pos.y + pos.z;
 	float reval=val1;
 	if (abs(val2)>abs(val1)) reval=val2;
@@ -373,24 +380,27 @@ float KDTreeFactory::getExtreme( const glm::vec3& p_triangleExtentsMax, const gl
 }
 
 
-float KDTreeFactory::calculatecost( const KDNode& p_node, vector<Tri>* p_tris, float p_splitpos, const glm::vec3& p_axis, const glm::vec3& p_currentSize, const glm::vec3& p_currentPos )
+float KDTreeFactory::calculatecost( const KDNode& p_node, vector<Tri>* p_tris, float p_splitpos, const glm::vec3& p_axis, const glm::vec3& p_currentSize, const glm::vec3& p_currentPos,float* p_outCostLeft,float* p_outCostRight )
 {
 	glm::vec3 lsize;
 	glm::vec3 rsize;
 	getChildVoxelsMeasurement(p_splitpos, p_axis, p_currentSize,lsize, rsize);
 	float leftarea = calculateArea(lsize);
 	float rightarea = calculateArea(rsize);
-	int leftcount, rightcount;
+	int leftcount=0, rightcount=0;
 	glm::vec3 leftBoxPos = p_currentPos + 0.5f * entrywiseMul(lsize, p_axis);
 	glm::vec3 rightBoxPos = p_currentPos - 0.5f * entrywiseMul(rsize, p_axis);
 	calculatePrimitiveCount(p_node, p_tris, lsize,rsize,
 		leftBoxPos, rightBoxPos,
-		leftcount,rightcount);
+		&leftcount,&rightcount);
 
+	//return m_traversalCost + m_intersectionCost * (leftarea * (float)leftcount + rightarea * (float)rightcount);
+	*p_outCostLeft=m_traversalCost*0.5f + m_intersectionCost * (leftarea * (float)leftcount);
+	*p_outCostRight=m_traversalCost*0.5f + m_intersectionCost * (rightarea * (float)rightcount);
 	return m_traversalCost + m_intersectionCost * (leftarea * (float)leftcount + rightarea * (float)rightcount);
 }
 
-void KDTreeFactory::calculatePrimitiveCount( const KDNode& p_node, vector<Tri>* p_tris,const glm::vec3& p_leftBox,const glm::vec3& p_rightBox, const glm::vec3& p_leftBoxPos, const glm::vec3& p_rightBoxPos, int& p_outLeftCount, int& p_outRightCount )
+void KDTreeFactory::calculatePrimitiveCount( const KDNode& p_node, vector<Tri>* p_tris,const glm::vec3& p_leftBox,const glm::vec3& p_rightBox, const glm::vec3& p_leftBoxPos, const glm::vec3& p_rightBoxPos, int* p_outLeftCount, int* p_outRightCount )
 {
 	p_outLeftCount=0;
 	p_outRightCount=0;
@@ -418,14 +428,18 @@ void KDTreeFactory::getChildVoxelsMeasurement( float p_inSplitpos, const glm::ve
 {
 	glm::vec3 offset = p_axis * p_inSplitpos;
 
-	glm::vec3 splitH = 0.5f * p_axis;
+
+	glm::vec3 splitH = 0.5f * p_axis; // half-divider
+
 // 	glm::vec3 lsize = (p_inParentSize - offset * 2.0f);
 // 	lsize = lsize - entrywiseMul(lsize, splitH);
 // 	glm::vec3 rsize = (p_inParentSize - offset * 2.0f);
 // 	rsize = rsize - entrywiseMul(rsize, splitH);
+
 	// subtract offset from amound of parent-voxel in set direction 
 	glm::vec3 lsize = (p_inParentSize - offset*2.0f);
 	lsize = lsize - entrywiseMul(lsize, splitH);
+
 	// Now we thus have the sizes, but we only want the size for the relevant axis:
 	// lsize = lsize - entrywiseMul(lsize, p_axis); // Masking 
 	// The other is thus the remainder, along active axes
