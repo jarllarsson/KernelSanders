@@ -177,9 +177,9 @@ void GraphicsDevice::executeRenderPass( RenderPass p_pass,
 		drawFullscreen();
 		break;
 	case RenderPass::P_WIREFRAMEPASS:
-		m_deviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		m_deviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINESTRIP);
 		setBlendState(BlendState::NORMAL);
-		setRasterizerStateSettings(RasterizerState::FILLED_NOCULL,false);
+		setRasterizerStateSettings(RasterizerState::WIREFRAME_NOCULL,false);
 		setRenderTarget(RT_BACKBUFFER_NODEPTHSTENCIL);		
 		p_cbuf->apply();
 		setShader(SI_WIREFRAMESHADER);

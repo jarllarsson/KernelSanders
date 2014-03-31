@@ -133,8 +133,8 @@ void TempController::calcViewProjMatrix( float p_fovYAngleDeg, float p_aspectRat
 {
 	glm::mat4 proj = glm::perspective(p_fovYAngleDeg,p_aspectRatio,0.1f,1000.0f);
 	glm::mat4 transMat = glm::translate(glm::mat4(1.0f), glm::vec3(m_position.x,m_position.y,m_position.z));
-	glm::mat4 viewMat = glm::inverse(transMat*m_rotationMat);
-	m_viewProjMat = glm::transpose(m_projMat)*viewMat;
+	glm::mat4 viewMat = m_rotationMat*glm::inverse(transMat);
+	m_viewProjMat = m_projMat*viewMat;
 	m_viewProjMat = glm::transpose(m_viewProjMat);
 }
 

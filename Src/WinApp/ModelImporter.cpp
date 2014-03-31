@@ -132,3 +132,13 @@ vector<int>* ModelImporter::getKDLeafDataList( int p_idx )
 {
 	return m_treeFactory.getLeafDataList(p_idx);
 }
+
+KDBounds ModelImporter::getTreeBounds( int p_idx )
+{
+	return m_treeFactory.getTreeBounds(p_idx);
+}
+
+vector<KDBounds>* ModelImporter::getDebugNodeBounds( int p_idx )
+{
+	return m_treeFactory.getDebugNodeBounds(p_idx);
+}

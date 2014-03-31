@@ -122,16 +122,15 @@ KDTreeFactory::~KDTreeFactory()
 		delete m_leafDataLists[i];
 	}
 	m_leafDataLists.clear();	
-	for (int i=0;i<m_treeBounds.size();i++)
-	{
-		delete m_treeBounds[i];
-	}
 	m_treeBounds.clear();
+	for (int i=0;i<m_debugTreeNodeBounds.size();i++)
+	{
+		delete m_debugTreeNodeBounds[i];
+	}
+	m_debugTreeNodeBounds.clear();
 }
 
-int KDTreeFactory::buildKDTree( void* p_vec3ArrayXYZ,void* p_normArrayXYZ, int p_vertCount, 
-							   unsigned int* p_indexArray, int p_iCount, 
-							   glm::vec3 p_boundsMin, glm::vec3 p_boundsMax )
+int KDTreeFactory::buildKDTree( void* p_vec3ArrayXYZ,void* p_normArrayXYZ, int p_vertCount, unsigned int* p_indexArray, int p_iCount, const glm::vec3& p_boundsMin, const glm::vec3& p_boundsMax )
 {
 	m_tempVertexList=(glm::vec3*)p_vec3ArrayXYZ;
 	m_tempNormalsList=(glm::vec3*)p_normArrayXYZ;
@@ -142,13 +141,15 @@ int KDTreeFactory::buildKDTree( void* p_vec3ArrayXYZ,void* p_normArrayXYZ, int p
 	vector<KDNode>* tree=new vector<KDNode>(sc_treeListMaxSize);
 	vector<KDLeaf>*	leafList=new vector<KDLeaf>;
 	vector<int>*	leafDataList=new vector<int>;
-	vector<KDBounds>* boundsList=new vector<KDBounds>();
-	int treeId=addTree(tree,leafList,leafDataList,boundsList);
+	vector<KDBounds>* debugNodeBoundsList=new vector<KDBounds>; // only for debug draw
+	int treeId=addTree(tree,leafList,leafDataList,debugNodeBoundsList);
 	//glm::vec3 offset(0.0f,0.0f,0.0f);
 	//offset=p_boundsMin;
 
-	KDBounds boundsData={p_boundsMin,p_boundsMax};
-	boundsList->push_back(boundsData);
+	glm::vec3 boxCenter=(p_boundsMin+p_boundsMax)*0.5f;
+	glm::vec3 boxExt=(p_boundsMax-p_boundsMin);
+	KDBounds boundsData={boxCenter,boxExt};
+	m_treeBounds.push_back(boundsData);
 		
 	__int64 countsPerSec = 0;
 	QueryPerformanceFrequency((LARGE_INTEGER*)&countsPerSec);
@@ -160,7 +161,7 @@ int KDTreeFactory::buildKDTree( void* p_vec3ArrayXYZ,void* p_normArrayXYZ, int p
 
 
 
-	subdivide(treeId, root, &triList, 0, 0, 1, p_boundsMin, p_boundsMax,FLT_MAX); // start at 1	
+	subdivide(treeId, root, &triList, 0, 0, 1, boxCenter,boxExt,FLT_MAX); // start at 1	
 
 	QueryPerformanceCounter((LARGE_INTEGER*)&currTimeStamp);
 
@@ -182,8 +183,12 @@ void KDTreeFactory::subdivide( unsigned int p_treeId, KDNode& p_node, vector<Tri
 	vector<KDNode>* tree = m_trees[p_treeId];
 	vector<KDLeaf>* leaflist = m_leafLists[p_treeId];
 	vector<int>* leafdatalist = m_leafDataLists[p_treeId];
+	vector<KDBounds>* debugboundslist = m_debugTreeNodeBounds[p_treeId];
+	// Add debug information (for drawing wireframe boxes of tree)
+	KDBounds nodeBounds={pos,parentSize};
+	debugboundslist->push_back(nodeBounds);
 	// End condition
-	if (p_dimsz > 24 || p_tris->size() < KD_MIN_INDICES_IN_NODE/3 || p_idx<<1>sc_treeListMaxSize-2) 
+	if (p_dimsz > 10 || p_tris->size() < KD_MIN_INDICES_IN_NODE/3 || p_idx<<1>sc_treeListMaxSize-2) 
 	{
 		int rem=(int)p_tris->size();
 		//
@@ -210,7 +215,9 @@ void KDTreeFactory::subdivide( unsigned int p_treeId, KDNode& p_node, vector<Tri
 	// extra break condition to leaf, if too expensive to split
 	if (splitpos!=0.0f && costRight + costLeft > p_cost/* && p_objects.Count < 6 */)
     {
+		p_node.setToLeaf();
 		generateLeaf(p_treeId,p_node,p_tris,leafdatalist,(int)p_tris->size());
+		(*tree)[p_idx]=p_node;
         return;
     }
 
@@ -232,8 +239,10 @@ void KDTreeFactory::subdivide( unsigned int p_treeId, KDNode& p_node, vector<Tri
 	p_node.setLeftChild(p_idx << 1);
 	p_node.setAxis(splitPlane);
 	p_node.setPos(splitpos);
+
 	// all changes made to node, add it to list
 	(*tree)[p_idx]=p_node; 
+
 	//
 	vector<Tri> leftTris;
 	vector<Tri> rightTris;
@@ -455,12 +464,12 @@ glm::vec3 KDTreeFactory::entrywiseMul( const glm::vec3& p_a, const glm::vec3& p_
 	return glm::vec3(p_a.x*p_b.x, p_a.y*p_b.y, p_a.z*p_b.z);
 }
 
-int KDTreeFactory::addTree( vector<KDNode>* p_tree, vector<KDLeaf>* p_leafList, vector<int>* p_leafDataList,vector<KDBounds>* p_boundsList )
+int KDTreeFactory::addTree( vector<KDNode>* p_tree, vector<KDLeaf>* p_leafList, vector<int>* p_leafDataList, vector<KDBounds>* p_debugnodeboundsList )
 {
 	m_trees.push_back(p_tree);
 	m_leafLists.push_back(p_leafList);
 	m_leafDataLists.push_back(p_leafDataList);
-	m_treeBounds.push_back(p_boundsList);
+	m_debugTreeNodeBounds.push_back(p_debugnodeboundsList);
 	return m_trees.size()-1;
 }
 
@@ -495,6 +504,19 @@ void KDTreeFactory::generateLeaf( int p_treeId, KDNode& p_node, vector<Tri>* p_t
 	// append leaf as well to separate list
 	leaflist->push_back(leaf);
 }
+
+KDBounds KDTreeFactory::getTreeBounds( int p_idx )
+{
+	return m_treeBounds[p_idx];
+}
+
+vector<KDBounds>* KDTreeFactory::getDebugNodeBounds( int p_idx )
+{
+	return m_debugTreeNodeBounds[p_idx];
+}
+
+
+
 
 //void KDTreeFactory::clearTempStack()
 //{

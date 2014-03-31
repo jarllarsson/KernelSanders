@@ -40,6 +40,8 @@ public:
 	vector<KDNode>* getKDTree(int p_idx);
 	vector<KDLeaf>* getKDLeafList(int p_idx);
 	vector<int>* getKDLeafDataList(int p_idx);
+	KDBounds getTreeBounds(int p_idx);
+	vector<KDBounds>* getDebugNodeBounds(int p_idx);
 
 protected:
 private:

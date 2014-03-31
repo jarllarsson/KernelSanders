@@ -20,8 +20,8 @@ struct VertexOut
 VertexOut VS(VertexIn p_input)
 {
 	VertexOut vout;
-	float4x4 WVP = mul(gVP,p_input.instanceTransform);
-	vout.position = mul(WVP,float4(p_input.position, 1));
+	float4x4 WVP = mul(p_input.instanceTransform,gVP);
+	vout.position = mul(float4(p_input.position, 1),WVP);
     
 	return vout;
 }

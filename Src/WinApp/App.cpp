@@ -70,8 +70,6 @@ App::App( HINSTANCE p_hInstance )
 	m_sceneMgr = new HostSceneManager();
 	m_kernelDevice->registerSceneMgr(m_sceneMgr);
 
-	
-	m_instances=m_graphicsDevice->getBufferFactoryRef()->createMat4InstanceBuffer((void*)&m_instance,1);
 	m_vp=m_graphicsDevice->getBufferFactoryRef()->createMat4CBuffer();
 }
 
@@ -85,7 +83,7 @@ App::~App()
 	SAFE_DELETE(m_modelImporter);
 	SAFE_DELETE(m_sceneMgr);
 	//
-	delete m_instances;
+	delete m_kdDebugBoxInstances;
 	delete m_vp;
 }
 
@@ -128,9 +126,20 @@ void App::run()
 	vector<KDNode>* KDnodes=m_modelImporter->getKDTree(treeId);
 	vector<KDLeaf>* KDleaves=m_modelImporter->getKDLeafList(treeId);
 	vector<int>* KDindices=m_modelImporter->getKDLeafDataList(treeId);
-	m_sceneMgr->addKDTree(&(*KDnodes)[0]  ,KDnodes->size(),
-						  &(*KDleaves)[0] ,KDleaves->size(),
-						  &(*KDindices)[0],KDindices->size());						
+	//m_sceneMgr->addKDTree(&(*KDnodes)[0]  ,KDnodes->size(),
+	//					  &(*KDleaves)[0] ,KDleaves->size(),
+	//					  &(*KDindices)[0],KDindices->size());						
+
+	// debug stuff for kd tree
+	vector<KDBounds>* kdBounds=m_modelImporter->getDebugNodeBounds(treeId);
+	int numBounds=kdBounds->size();
+	for (int n=0;n<numBounds;n++)
+	{
+		glm::mat4 translation=glm::translate(glm::mat4(1.0f),(*kdBounds)[n].m_pos);
+		glm::mat4 scale=glm::scale(glm::mat4(1.0f),(*kdBounds)[n].m_extents*0.5f);
+		m_kdDebugBoxMats.push_back(glm::transpose(translation*scale));
+	}
+	m_kdDebugBoxInstances=m_graphicsDevice->getBufferFactoryRef()->createMat4InstanceBuffer((void*)&m_kdDebugBoxMats[0],numBounds);
 
 	//
 
@@ -275,7 +284,7 @@ void App::run()
 
 			m_graphicsDevice->executeRenderPass(GraphicsDevice::P_COMPOSEPASS);		// Run passes
 
-			//m_graphicsDevice->executeRenderPass(GraphicsDevice::P_WIREFRAMEPASS,m_vp,m_instances);		// Run passes
+			m_graphicsDevice->executeRenderPass(GraphicsDevice::P_WIREFRAMEPASS,m_vp,m_kdDebugBoxInstances);		// Run passes
 			m_graphicsDevice->flipBackBuffer();										// Flip!
 			// ---------------------------------------------------------------------------------------------
 		}

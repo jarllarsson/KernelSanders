@@ -11,7 +11,7 @@ extern "C"
 		void* p_indices,unsigned int p_numIndices,
 		void* p_kdExtents, void* p_kdPos,
 		void* p_tris, unsigned int p_numTris,
-		void* p_nodes, void* p_leaflist, unsigned int* p_nodeIndices,
+		void* p_nodes, void* p_leaflist, void* p_nodeIndices,
 		unsigned int p_numNodes,unsigned int p_numLeaves,unsigned int p_numNodeIndices);
 }
 
@@ -47,7 +47,8 @@ void RaytraceKernel::Execute( KernelData* p_data, float p_dt )
 	unsigned int numKDnodes  =scene->KDnode.size();
 	unsigned int numKDleaves =scene->KDleaves.size();
 	unsigned int numKDindices=scene->KDindices.size();
-
+	glm::vec3 kdBoundsMin(-100.0f,-100.0f,-100.0f);//=scene->KDboundsMin;
+	glm::vec3 kdBoundsMax(100.0f,100.0f,100.0f);//=scene->KDboundsMax;
 
 	// Map render textures
 	cudaStream_t stream = 0;
@@ -83,9 +84,6 @@ void RaytraceKernel::Execute( KernelData* p_data, float p_dt )
 		norms=reinterpret_cast<void*>(&scene->meshNorms[0]);
 		indices=reinterpret_cast<void*>(&scene->meshIndices[0]);
 		//
-		KDnodes  =reinterpret_cast<void*>(&scene->KDnode[0]);
-		KDleaves =reinterpret_cast<void*>(&scene->KDleaves[0]);
-		KDindices=reinterpret_cast<void*>(&scene->KDindices[0]);
 		if (devVerts!=NULL && *devVerts!=NULL &&
 			devIndices!=NULL && *devIndices!=NULL) 
 		{
@@ -99,6 +97,10 @@ void RaytraceKernel::Execute( KernelData* p_data, float p_dt )
 			res = cudaFree(*devNorms);
 			KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
 		}
+
+		if (scene->KDnode.size()>0) KDnodes  =reinterpret_cast<void*>(&scene->KDnode[0]);
+		if (scene->KDleaves.size()>0) KDleaves =reinterpret_cast<void*>(&scene->KDleaves[0]);
+		if (scene->KDindices.size()>0) KDindices=reinterpret_cast<void*>(&scene->KDindices[0]);
 		if (devKDNodes!=NULL && *devKDNodes!=NULL &&
 			devKDLeaves!=NULL && *devKDLeaves!=NULL &&
 			devKDIndices!=NULL && *devKDIndices!=NULL) 
@@ -167,10 +169,13 @@ void RaytraceKernel::Execute( KernelData* p_data, float p_dt )
 	// Run the kernel
 	RunRaytraceKernel(reinterpret_cast<void*>(constantBuffer),
 					  blob->m_textureLinearMemDevice,
-					  width,height,(int)pitch,
+					  width,height,(int)pitch,					  
 					  *devVerts,*devNorms,numverts,
 					  *devIndices,numindices,
-					  *devTris,numtris); 
+					  (void*)&kdBoundsMin,(void*)&kdBoundsMax,
+					  *devTris,numtris,
+					  *devKDNodes,*devKDLeaves,*devKDIndices,
+					  numKDnodes,numKDleaves,numKDindices); 
 	// ---
 
 	// copy color array to texture (device->device)

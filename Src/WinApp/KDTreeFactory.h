@@ -32,12 +32,13 @@ public:
 	virtual ~KDTreeFactory();
 
 	// Builds a tree, stores it and returns the index to it
-	int buildKDTree(void* p_vec3ArrayXYZ,void* p_normArrayXYZ, int p_vertCount, unsigned int* p_indexArray, int p_iCount, glm::vec3 p_boundsMin, glm::vec3 p_boundsMax);
+	int buildKDTree(void* p_vec3ArrayXYZ,void* p_normArrayXYZ, int p_vertCount, unsigned int* p_indexArray, int p_iCount, const glm::vec3& p_boundsMin, const glm::vec3& p_boundsMax);
 
 	vector<KDNode>* getTree(int p_idx);
 	vector<KDLeaf>* getLeafList(int p_idx);
 	vector<int>* getLeafDataList(int p_idx);
-	vector<KDBounds>* getTreeBounds(int p_idx);
+	KDBounds getTreeBounds(int p_idx);
+	vector<KDBounds>* getDebugNodeBounds(int p_idx);
 	
 protected:
 private:
@@ -79,7 +80,7 @@ private:
 
 	glm::vec3 entrywiseMul(const glm::vec3& p_a, const glm::vec3& p_b);
 
-	int addTree(vector<KDNode>* p_tree, vector<KDLeaf>* p_leafList, vector<int>* p_leafDataList,vector<KDBounds>* p_boundsList);
+	int addTree(vector<KDNode>* p_tree, vector<KDLeaf>* p_leafList, vector<int>* p_leafDataList, vector<KDBounds>* p_debugnodeboundsList);
 	void generateLeaf(int p_treeId, KDNode& p_node, vector<Tri>* p_tris, vector<int>* p_leafDataList, int p_numTris);
 	//void clearTempStack();
 
@@ -92,7 +93,8 @@ private:
 	vector<vector<KDNode>*> m_trees;
 	vector<vector<KDLeaf>*> m_leafLists;
 	vector<vector<int>*> m_leafDataLists;
-	vector<vector<KDBounds>*> m_treeBounds;
+	vector<KDBounds> m_treeBounds;
+	vector<vector<KDBounds>*> m_debugTreeNodeBounds;
 	// Temp
 	//stack<vector<Tri>*>* m_tempTriListStack;
 	glm::vec3* m_tempVertexList;

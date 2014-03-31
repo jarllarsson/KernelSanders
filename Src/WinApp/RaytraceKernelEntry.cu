@@ -68,7 +68,7 @@ extern "C" void RunRaytraceKernel(void* p_cb,void *surface,
 			void* p_indices,unsigned int p_numIndices,
 			void* p_kdExtents, void* p_kdPos,
 			void* p_tris, unsigned int p_numTris,
-			void* p_nodes, void* p_leaflist, unsigned int* p_nodeIndices,
+			void* p_nodes, void* p_leaflist, void* p_nodeIndices,
 			unsigned int p_numNodes,unsigned int p_numLeaves,unsigned int p_numNodeIndices) 
 { 
 	// copy to constant buffer
@@ -84,9 +84,9 @@ extern "C" void RunRaytraceKernel(void* p_cb,void *surface,
     RaytraceKernel<<<Dg,Db>>>((unsigned char *)surface, width, height, pitch, 
 							  (float3*)p_verts, (float3*)p_norms,p_numVerts,
 							  (unsigned int*)p_indices, p_numIndices,
-							  (float3)*p_kdExtents,(float3)*p_kdPos,
+							  *((float3*)p_kdExtents),*((float3*)p_kdPos),
 							  (TriPart*)p_tris,p_numTris,
-							  (DKDNode*)p_nodes, (DKDLeaf*)p_leaflist, p_nodeIndices,
+							  (DKDNode*)p_nodes, (DKDLeaf*)p_leaflist, (unsigned int*)p_nodeIndices,
 							   p_numNodes,p_numLeaves,p_numNodeIndices);
 
 	res = cudaDeviceSynchronize();

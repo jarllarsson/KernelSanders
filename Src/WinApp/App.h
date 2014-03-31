@@ -6,6 +6,7 @@
 #include <InstanceData.h>
 #include <CBuffers.h>
 #include <Buffer.h>
+#include <vector>
 
 class Context;
 class GraphicsDevice;
@@ -14,6 +15,8 @@ class TempController;
 class OISHelper;
 class ModelImporter;
 class HostSceneManager;
+
+using namespace std;
 
 // =======================================================================================
 //                                      App
@@ -47,7 +50,7 @@ private:
 	ModelImporter*  m_modelImporter;
 	OISHelper*		m_input;
 
-	glm::mat4 m_instance;
-	Buffer<InstanceData>* m_instances;
+	vector<glm::mat4> m_kdDebugBoxMats;
+	Buffer<InstanceData>* m_kdDebugBoxInstances;
 	Buffer<Mat4CBuffer>* m_vp;
 };

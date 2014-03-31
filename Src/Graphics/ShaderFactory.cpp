@@ -322,13 +322,28 @@ void ShaderFactory::createVertexInputLayout( VSData* p_vs, ID3D11InputLayout** p
 		D3D11_INPUT_ELEMENT_DESC elementDesc;   
 		elementDesc.SemanticName = paramDesc.SemanticName;      
 		elementDesc.SemanticIndex = paramDesc.SemanticIndex;
-		elementDesc.InputSlot = 0;
 		elementDesc.AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+		int inputslot=0,instancestep=0;
 		if (p_maxPerVertexElements==-1 || i<(unsigned int)p_maxPerVertexElements)
-			elementDesc.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+		{
+			string semname(elementDesc.SemanticName);
+			if (semname.substr(0,8)=="INSTANCE")
+			{
+				elementDesc.InputSlotClass = D3D11_INPUT_PER_INSTANCE_DATA;
+				inputslot=1;
+				instancestep=1;
+			}
+			else
+				elementDesc.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+		}
 		else
+		{
 			elementDesc.InputSlotClass = D3D11_INPUT_PER_INSTANCE_DATA;
-		elementDesc.InstanceDataStepRate = 0;   
+			inputslot=1;
+			instancestep=1;
+		}
+		elementDesc.InputSlot = inputslot;
+		elementDesc.InstanceDataStepRate = instancestep;   
 
 		// determine DXGI format
 		if ( paramDesc.Mask == 1 )
