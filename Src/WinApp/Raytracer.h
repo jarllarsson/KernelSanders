@@ -18,6 +18,7 @@
 #include "Ray.h"
 #include "IntersectionInfo.h"
 #include "DeviceKDStructures.h"
+#include "IntersectKDTree.h"
 
  
 #pragma comment(lib, "cudart") 
@@ -68,15 +69,32 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	float partLit=1.0f/(float)shadowMode;
 	float4  camPos = make_float4(cb[0].m_camPos);
 	float4x4 camRotation = make_float4x4(cb[0].m_cameraRotationMat);
-	unsigned int numVerts=min(p_numVerts,MAXMESHLOCAL_VERTSBIN), 
-				 numIndices=min(p_numIndices,MAXMESHLOCAL_INDICESBIN), 
+	unsigned int numVerts=min(0,MAXMESHLOCAL_VERTSBIN), 
+				 numIndices=min(0,MAXMESHLOCAL_INDICESBIN), 
 				 numTris=min(p_numTris,MAXTRIS);
+	float3 kdExtents=p_kdExtents;
+	float3 kdPos=p_kdPos;
 
 
 	// =======================================================
 	//                   TEST SETUP CODE
 	// =======================================================
-	
+
+	// 1. Create ray
+	// calculate eye ray in world space
+	Ray ray;
+	//ray.origin = make_float4(u,v,10.0f,1.0f);
+	ray.origin = camPos;
+
+	//ray.origin = camPos;   
+
+	float4 viewFrameDir = cu_normalize( make_float4(u*rayDirScaleX, -v*rayDirScaleY, 1.0f,0.0f) );
+	//ray.dir = make_float4(0.0f,0.0f,-1.0f,0.0f);
+	ray.dir = viewFrameDir;
+	mat4mul(&camRotation,&viewFrameDir, &ray.dir); // transform viewFrameDir with the viewMatrix to get the world space ray
+	Ray shadowRay;	
+
+
 	// define a scene
 	Scene scene;
 
@@ -121,14 +139,14 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	scene.numTris=numTris;
 	for (unsigned int i=0;i<numTris;i++)
 	{
-
+	
 		#pragma unroll 3
 		for (int x=0;x<3;x++)
 		{
 			scene.tri[i].vertices[x] = p_tris[i].vertices[x];
 				//make_float3((float)i+x*0.5f, sin(time+(float)i+x*0.01f) + ((i%2)*2-1)*(float)(x%2)*0.5f, sin((float)(x+i)*0.5f)*-3.0f);
 		}
-
+	
 		scene.tri[i].mat.diffuse = make_float4( 1.0f-((float)i/(float)MAXTRIS), (float)i/(float)MAXTRIS, 1.0f-((float)i/(float)(MAXTRIS*0.2f)) ,1.0f);
 		scene.tri[i].mat.specular = make_float4(1.0f, 1.0f, 1.0f,0.5f);
 		scene.tri[i].mat.reflection = 0.0f;
@@ -137,15 +155,18 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	// copy data for mesh
 	scene.numIndices=numIndices;
 	scene.numVerts=numVerts;
-	for (unsigned int i=0;i<numIndices;i++)
-	{
-		scene.meshIndices[i]=p_indices[i];
-	}
-	for (unsigned int i=0;i<numVerts;i++)
-	{
-		scene.meshVerts[i]=p_verts[i];
-		scene.meshNorms[i]=p_norms[i];
-	}
+	float kdCol=KDTraverse( &scene, &ray, kdExtents, kdPos,
+		p_nodes, p_leaflist, p_nodeIndices,
+		p_verts,p_norms);
+	//for (unsigned int i=0;i<numIndices;i++)
+	//{
+	//	scene.meshIndices[i]=p_indices[i];
+	//}
+	//for (unsigned int i=0;i<numVerts;i++)
+	//{
+	//	scene.meshVerts[i]=p_verts[i];
+	//	scene.meshNorms[i]=p_norms[i];
+	//}
 
 	// define some boxes
 	for (int i=0;i<MAXBOXES;i++)
@@ -188,20 +209,7 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
   	scene.light[MAXLIGHTS-1].specularColor = make_float4(1.0f,1.0f,1.0f,0.0f);
 	
 
-	// 1. Create ray
-	// calculate eye ray in world space
-	Ray ray;
-	//ray.origin = make_float4(u,v,10.0f,1.0f);
-	ray.origin = camPos;
 
-	//ray.origin = camPos;   
-
-	float4 viewFrameDir = cu_normalize( make_float4(u*rayDirScaleX, -v*rayDirScaleY, 1.0f,0.0f) );
-	//ray.dir = make_float4(0.0f,0.0f,-1.0f,0.0f);
-	ray.dir = viewFrameDir;
-	mat4mul(&camRotation,&viewFrameDir, &ray.dir); // transform viewFrameDir with the viewMatrix to get the world space ray
-
-	Ray shadowRay;
 
 	// TRANSFORM
 
@@ -303,9 +311,9 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	// Set the color
 	float dbgGridX=(float)drawMode*((float)blockIdx.x/(float)gridDim.x);
 	float dbgGridY=(float)drawMode*((float)blockIdx.y/(float)gridDim.y);
-	p_outPixel[R_CH] = finalColor.x + dbgGridX; // red
-	p_outPixel[G_CH] = finalColor.y + dbgGridY; // green
-	p_outPixel[B_CH] = finalColor.z; // blue
+	p_outPixel[R_CH] = finalColor.x + dbgGridX + kdCol; // red
+	p_outPixel[G_CH] = finalColor.y + dbgGridY + kdCol; // green
+	p_outPixel[B_CH] = finalColor.z + kdCol; // blue
 	p_outPixel[A_CH] = finalColor.w; // alpha
 }
 

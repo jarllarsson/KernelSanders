@@ -11,6 +11,7 @@
 #include "KernelMathHelper.h"
 #include "RaytraceLighting.h"
 #include "Primitives.h"
+#include "Scene.h"
 #include "Ray.h"
 #include "DeviceKDStructures.h"
 
@@ -19,22 +20,24 @@ int getAxisNumber(DKDAxisMark p_axis)
 	return p_axis.b_1+p_axis.b_2*2;
 }
 
-int Engine::FindNearest( const Ray* in_ray, 
-						 DKDNode* p_nodes, DKDLeaf* p_leaflist, unsigned int* p_nodeIndices )
+float KDTraverse( Scene* in_scene, const Ray* in_ray, float3 p_extends, float3 p_pos,
+						 DKDNode* p_nodes, DKDLeaf* p_leaflist, unsigned int* p_nodeIndices,
+						 float3* p_verts,float3* p_norms)
 {
-	float tnear = 0.0f, tfar = a_Dist, t;
+	float hitViz=0.0f;
+	float tnear = 0.0f, tfar = MAX_INTERSECT_DIST, t;
 	int retval = 0;
-	float3 p1 = m_Scene->GetExtends().GetPos();				// Get box center
-	float3 p2 = p1 + m_Scene->GetExtends().GetSize();			// Get box extents (world space)
-	float3 D = a_Ray.GetDirection(), 
-		   O = a_Ray.GetOrigin();	// Get ray
+	float3 p1 = p_pos;				// Get box center
+	float3 p2 = p1 + p_extends;			// Get box extents (world space)
+	float3 D = make_float3(in_ray->dir.x,in_ray->dir.y,in_ray->dir.z), 
+		   O = make_float3(in_ray->origin.x,in_ray->origin.y,in_ray->origin.z);	// Get ray
 	// store in small arrays for axis access
 	float ap1[3]={p1.x,p1.y,p1.z};
 	float ap2[3]={p2.x,p2.y,p2.z};
 	float aD[3]  ={D.x, D.y, D.z};
 	float aO[3]  ={O.x, O.y, O.z};
 	int mod_list[5] = {0,1,2,0,1}; // modulo for axes
-	DKDStack kdStack[64]; // modulo for axes
+	DKDStack kdStack[64]; // traversal stack
 
 	// Exclude rays which are pointing to the left (for axis) and with an origin (axis) less than box negative extents
 	// or if right to axis and origin more than positive extents
@@ -124,6 +127,7 @@ int Engine::FindNearest( const Ray* in_ray,
 	while (currNodeIdx>0) // While we have a current node
 	{
 		currNode=p_nodes[currNodeIdx]; // Copy current node to register
+		hitViz+=0.01f;
 		///////////////////////////////////////////
 		// While we have a current node that is not a leaf
 		while (currNode.m_isLeaf<1) 
@@ -201,37 +205,55 @@ int Engine::FindNearest( const Ray* in_ray,
 
 		///////////////////////////////////////////
 		// Get list of current triangles for leaf
-		ObjectList* list = currnode->GetList();
-		real dist = m_Stack[exitpoint].t; // get the current max distance (voxel back)
+		int leafId=currNode.m_leftChildIdx;
+		DKDLeaf leaf=p_leaflist[leafId];
+		int indexOffset=leaf.m_offset;
+		int indexCount=leaf.m_count;
+		indexCount -= cu_imaxi(0,(indexOffset+indexCount)-MAXMESHLOCAL_INDICESBIN);
+		float dist = kdStack[exitpoint].m_t; // get the current max distance (voxel back)
 		// Check all triangles that's in the node
-		while (list) // can make this forall essentially
+		// Fetch all triangles in path
+		int vertOffset=in_scene->numVerts;
+		in_scene->numIndices+=indexCount;
+		in_scene->numVerts+=indexCount;
+		for (unsigned int i=0;i<indexCount;i++)
 		{
-			Primitive* pr = list->GetPrimitive(); // tri here
-			int result;
-			m_Intersections++; // count intersections
-			// If we hit:
-			if (result = pr->Intersect( a_Ray, dist ))
-			{
-				// register result and distance
-				retval = result;
-				a_Dist = dist;
-				a_Prim = pr;
-			}
-			// fetch next triangle to check
-			list = list->GetNext();
+			int index=p_nodeIndices[indexOffset+i]; // fetch index
+			int newindex=vertOffset+i;
+			in_scene->meshVerts[newindex]=p_verts[index]; // and get corresponding
+			in_scene->meshNorms[newindex]=p_norms[index]; // vertex and normals data
+			in_scene->meshIndices[newindex]=newindex; // store new index (note this method creates vertex copies)
 		}
+
+		//while (list) // can make this forall essentially
+		//{
+		//	Primitive* pr = list->GetPrimitive(); // tri here
+		//	int result;
+		//	m_Intersections++; // count intersections
+		//	// If we hit:
+		//	if (result = pr->Intersect( a_Ray, dist ))
+		//	{
+		//		// register result and distance
+		//		retval = result;
+		//		a_Dist = dist;
+		//		a_Prim = pr;
+		//	}
+		//	// fetch next triangle to check
+		//	list = list->GetNext();
+		//}
 		// If we got a hit, we return the result:
-		if (retval) return retval;
+		// not checking hits here (we're using global memory) if (retval) return retval;
 
 		// Otherwise, start checking the neighbour behind
 		// By setting the new entry point to this voxel's exitpoint
 		entrypoint = exitpoint;
-		currnode = m_Stack[exitpoint].node;
-		exitpoint = m_Stack[entrypoint].prev;
+		currNodeIdx = kdStack[exitpoint].m_nodeIdx;
+		currNode=p_nodes[currNodeIdx];
+		exitpoint = kdStack[entrypoint].m_prev;
 	}
 	///////////////////////////////////////////
 	///////////////////////////////////////////
-	return 0;
+	return hitViz;
 }
 
 #endif

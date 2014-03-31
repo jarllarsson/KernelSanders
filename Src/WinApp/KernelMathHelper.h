@@ -42,6 +42,14 @@ inline __device__ float cu_fmaxf(float a, float b)
 {
 	return a > b ? a : b;
 }
+inline __device__ float cu_imini(int a, int b)
+{
+	return a < b ? a : b;
+}
+inline __device__ float cu_imaxi(int a, int b)
+{
+	return a > b ? a : b;
+}
 inline __device__ float cu_clamp(float val, float minval, float maxval)
 {
 	return cu_fmaxf(cu_fminf(val,maxval),minval);
