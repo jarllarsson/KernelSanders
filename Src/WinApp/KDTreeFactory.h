@@ -24,7 +24,7 @@ using namespace std;
 class KDTreeFactory
 {
 private:
-	static const int sc_treeListMaxSize=16048;
+	static const int sc_treeListMaxSize=8024;
 public:
 
 
@@ -59,19 +59,19 @@ private:
 		Tri m_tri;
 	};
 
-	void subdivide(unsigned int p_treeId, KDNode& p_node, vector<Tri>* p_tris, int p_dimsz, int p_dim, int p_idx, const glm::vec3& pos, const glm::vec3& parentSize, float p_cost);
+	void subdivide(unsigned int p_treeId, vector<Tri>* p_tris, int p_dimsz, int p_dim, int p_idx, const glm::vec3& pos, const glm::vec3& parentSize, float p_cost);
 
 	bool triIntersectNode(const Triparam& p_tri, const glm::vec3& pos, const glm::vec3& parentSize);
 
-	float findOptimalSplitPos(KDNode& p_node, vector<Tri>* p_tris, const KDAxisMark& p_axis, const glm::vec3& p_currentSize, const glm::vec3& p_currentPos,float* p_outCostLeft,float* p_outCostRight);
+	float findOptimalSplitPos(vector<Tri>* p_tris, const KDAxisMark& p_axis, const glm::vec3& p_currentSize, const glm::vec3& p_currentPos,float& p_outCostLeft,float& p_outCostRight);
 
 	void getTriangleExtents(const Tri& p_triRef, glm::vec3& p_outTriangleExtentsMax, glm::vec3& p_outTriangleExtentsMin);
 
 	float getExtreme(const glm::vec3& p_triangleExtentsMax, const glm::vec3& p_triangleExtentsMin, const glm::vec3& p_axis, const glm::vec3& p_parentPos, EXTREME p_side);
 
-	float calculatecost(const KDNode& p_node, vector<Tri>* p_tris, float p_splitpos, const glm::vec3& p_axis, const glm::vec3& p_currentSize, const glm::vec3& p_currentPos,float* p_outCostLeft,float* p_outCostRight);
+	float calculatecost(vector<Tri>* p_tris, float p_splitpos, const glm::vec3& p_axis, const glm::vec3& p_currentSize, const glm::vec3& p_currentPos,float& p_outCostLeft,float& p_outCostRight);
 
-	void calculatePrimitiveCount(const KDNode& p_node, vector<Tri>* p_tris,const glm::vec3& p_leftBox,const glm::vec3& p_rightBox, const glm::vec3& p_leftBoxPos, const glm::vec3& p_rightBoxPos, int* p_outLeftCount, int* p_outRightCount);
+	void calculatePrimitiveCount(vector<Tri>* p_tris,const glm::vec3& p_leftBox,const glm::vec3& p_rightBox, const glm::vec3& p_leftBoxPos, const glm::vec3& p_rightBoxPos, int& p_outLeftCount, int& p_outRightCount);
 
 	float calculateArea( glm::vec3& p_extents);
 
@@ -81,7 +81,7 @@ private:
 	glm::vec3 entrywiseMul(const glm::vec3& p_a, const glm::vec3& p_b);
 
 	int addTree(vector<KDNode>* p_tree, vector<KDLeaf>* p_leafList, vector<int>* p_leafDataList, vector<KDBounds>* p_debugnodeboundsList);
-	void generateLeaf(int p_treeId, KDNode& p_node, vector<Tri>* p_tris, vector<int>* p_leafDataList, int p_numTris);
+	void generateLeaf(int p_treeId, KDNode* p_node, vector<Tri>* p_tris, vector<int>* p_leafDataList, int p_numTris);
 	//void clearTempStack();
 
 	// set traversal/intersection cost vars

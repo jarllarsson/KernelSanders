@@ -5,11 +5,12 @@ using System.Collections.Generic;
 public class kdTree : MonoBehaviour 
 {
     public List<GameObject> m_objects;
-    public Node[] m_tree;
+    //public Node[] m_tree;
+    public List<Node> m_tree;
     public Vector3 m_boxMax;
     public Vector3 m_boxMin;
     public float m_firstSplitDist = 0.0f;
-    public float m_intersectionCost = 1.0f;
+    public float m_intersectionCost = 0.1f;
     public float m_traversalCost = 1.0f;
 
     private Stack<List<object>> m_tempObjectsStack=new Stack<List<object>>();
@@ -18,7 +19,8 @@ public class kdTree : MonoBehaviour
 	void Start () 
     {
         Random.seed=(int)(Time.time*1000.0f);
-        m_tree = new Node[8024]; // pre-allocate
+        m_tree = new List<Node>();
+            //new Node[8024]; // pre-allocate
 
         Node root = new Node();
 
@@ -45,7 +47,9 @@ public class kdTree : MonoBehaviour
         }
         Debug.DrawLine(transform.position, transform.position + m_boxMin, Color.yellow,10000.0f);
         Debug.DrawLine(transform.position, transform.position + m_boxMax, Color.red, 10000.0f);
-        m_tree[1] = root;
+        m_tree.Add(null);
+        m_tree.Add(root);
+        //m_tree[1] = root;
         buildTree(root, rootobjects, 0, 0, 1, transform.position+(m_boxMin+m_boxMax)*0.5f, (m_boxMax-m_boxMin), float.MaxValue); // start at 1
         m_tempObjectsStack.Pop();
         //Debug.Log("fin stack: " + m_tempObjectsStack.Count);
@@ -61,8 +65,11 @@ public class kdTree : MonoBehaviour
     {
         p_node.pos = pos;
         p_node.size = parentSize;
-        if (p_dimsz > 20 || p_objects.Count < 3 || p_idx<<1>m_tree.Length-2) 
+        if (p_dimsz > 30 || p_objects.Count < 3 || p_idx/*<<1*/>8000/*m_tree.Length-2*/) 
         {
+            if (p_dimsz > 30) Debug.DrawLine(pos, pos + Vector3.up * 10.0f, Color.green, 100000.0f);
+            if (p_objects.Count < 3) Debug.DrawLine(pos, pos + Vector3.up * 10.0f, Color.white, 100000.0f);
+            if (p_idx>8000) Debug.DrawLine(pos, pos + Vector3.up * 10.0f, Color.black, 100000.0f);
             p_node.m_objects = p_objects; // in c++ do deep copy here
             p_node.m_isLeaf = true;
             return;
@@ -77,7 +84,7 @@ public class kdTree : MonoBehaviour
         float splitpos = findOptimalSplitPos(p_node, p_objects, splitPlane, parentSize, pos, ref costLeft, ref costRight);
         // extra break condition if too expensive
         Debug.Log(costRight + costLeft + " " + p_cost);
-        if (splitpos!=0.0f && costRight + costLeft > p_cost/* && p_objects.Count < 6 */)
+        if (splitpos!=0.0f && costRight+costLeft > p_cost  && p_objects.Count < 5)
         {
             p_node.m_objects = p_objects; // in c++ do deep copy here
             p_node.m_isLeaf = true;
@@ -101,18 +108,22 @@ public class kdTree : MonoBehaviour
         Vector3 rightBox = rsize;
 
 	    Node leftnode = new Node();
-        Node rightnode = new Node(); 
-        p_node.m_leftChildIdx = p_idx << 1;
+        Node rightnode = new Node();
+        m_tree.Add(leftnode);
+        int leftChildId = m_tree.Count - 1;
+        m_tree.Add(rightnode);
+        p_node.m_leftChildIdx = leftChildId;
+            //p_idx << 1;
         p_node.m_split = splitPlane;
         p_node.m_position = splitpos;
         //
-        m_tree[p_node.m_leftChildIdx] = leftnode;
-        m_tree[p_node.m_leftChildIdx+1] = rightnode;        
+        // m_tree[p_node.m_leftChildIdx] = leftnode;
+        // m_tree[p_node.m_leftChildIdx+1] = rightnode;        
         //
         List<object> leftObjects = new List<object>();
         List<object> rightObjects = new List<object>();
-        m_tempObjectsStack.Push(rightObjects);
-        m_tempObjectsStack.Push(leftObjects);
+        //m_tempObjectsStack.Push(rightObjects);
+        //m_tempObjectsStack.Push(leftObjects);
         //
 	    foreach (object obj in p_objects)
 	    {
@@ -129,9 +140,9 @@ public class kdTree : MonoBehaviour
 	    }
         //Debug.Log("stack: "+m_tempObjectsStack.Count);
         buildTree(leftnode, leftObjects, p_dimsz + 1, p_dim + 1, p_node.m_leftChildIdx, leftBoxPos, leftBox, costLeft); // power of two structure
-        m_tempObjectsStack.Pop();
+        //m_tempObjectsStack.Pop();
         buildTree(rightnode, rightObjects, p_dimsz + 1, p_dim + 1, p_node.m_leftChildIdx + 1, rightBoxPos, rightBox, costRight);
-        m_tempObjectsStack.Pop();
+        //m_tempObjectsStack.Pop();
     }
 
     bool objIntersectNode(/*bool p_isLeft, float p_splitpos, AxisMark p_axis, */object p_obj, Vector3 pos, Vector3 parentSize)
@@ -190,7 +201,7 @@ public class kdTree : MonoBehaviour
 
     float getRightExtreme(GameObject p_obj, Vector3 p_axis, Vector3 p_parentPos)
     {
-        Vector3 pos = -entrywiseMul(p_obj.transform.position + p_obj.collider.bounds.extents - p_parentPos, p_axis);
+        Vector3 pos = entrywiseMul(p_obj.transform.position - p_obj.collider.bounds.extents - p_parentPos, p_axis);
         return pos.x + pos.y + pos.z;
     }
 
@@ -276,7 +287,7 @@ public class kdTree : MonoBehaviour
         //Gizmos.color = Color.yellow;
         //Gizmos.DrawWireCube(Vector3.zero, ext);
 
-        if (m_tree!=null && m_tree.Length>0)
+        if (m_tree!=null && m_tree.Count>0)
             drawNode(parentOrigo, ext, 1); 
         
         Gizmos.color = Color.white;
@@ -286,7 +297,7 @@ public class kdTree : MonoBehaviour
     void drawNode(Vector3 pos, Vector3 parentSize,int idx)
     {
         // offset to get split plane
-        if (idx < m_tree.Length && m_tree[idx]!=null)
+        if (idx < m_tree.Count && m_tree[idx]!=null)
         {
             Vector3 split=m_tree[idx].m_split.getVec();
             Vector3 offset=split * m_tree[idx].m_position;
@@ -303,7 +314,8 @@ public class kdTree : MonoBehaviour
 
             foreach (object obj in m_tree[idx].m_objects)
             {
-                Gizmos.DrawWireSphere(((GameObject)obj).transform.position, 2.0f);
+                //Gizmos.DrawWireSphere(((GameObject)obj).transform.position, 2.0f);
+                Gizmos.DrawLine(((GameObject)obj).transform.position, m_tree[idx].pos);
             }
 
             if (!m_tree[idx].m_isLeaf)
