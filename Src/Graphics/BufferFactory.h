@@ -27,6 +27,7 @@ public:
 	virtual ~BufferFactory();
 
 	Buffer<PVertex>* createFullScreenQuadBuffer();
+	Buffer<PVertex>* createLineBox();
 	Mesh* createBoxMesh();
 
 	///-----------------------------------------------------------------------------------

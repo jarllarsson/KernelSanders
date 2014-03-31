@@ -24,7 +24,7 @@ using namespace std;
 class KDTreeFactory
 {
 private:
-	static const int sc_treeListMaxSize=8024;
+	static const int sc_treeListMaxSize=16048;
 public:
 
 
@@ -99,4 +99,5 @@ private:
 	//stack<vector<Tri>*>* m_tempTriListStack;
 	glm::vec3* m_tempVertexList;
 	glm::vec3* m_tempNormalsList;
+	glm::vec3 m_tempRootPos;
 };

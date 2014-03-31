@@ -50,7 +50,7 @@ GraphicsDevice::GraphicsDevice( HWND p_hWnd, int p_width, int p_height, bool p_w
 
 	// 6. Create draw-quad
 	m_fullscreenQuad = m_bufferFactory->createFullScreenQuadBuffer();
-	m_aabbMesh = m_bufferFactory->createBoxMesh();
+	m_aabbLineMesh = m_bufferFactory->createLineBox();
 
 	fitViewport();
 }
@@ -72,7 +72,7 @@ GraphicsDevice::~GraphicsDevice()
 	delete m_wireframeShader;
 	//
 	delete m_fullscreenQuad;
-	delete m_aabbMesh;
+	delete m_aabbLineMesh;
 	//
 	for (unsigned int i = 0; i < m_blendStates.size(); i++){
 		SAFE_RELEASE(m_blendStates[i]);
@@ -177,9 +177,9 @@ void GraphicsDevice::executeRenderPass( RenderPass p_pass,
 		drawFullscreen();
 		break;
 	case RenderPass::P_WIREFRAMEPASS:
-		m_deviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINESTRIP);
+		m_deviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 		setBlendState(BlendState::NORMAL);
-		setRasterizerStateSettings(RasterizerState::WIREFRAME_NOCULL,false);
+		setRasterizerStateSettings(RasterizerState::WIREFRAME,false);
 		setRenderTarget(RT_BACKBUFFER_NODEPTHSTENCIL);		
 		p_cbuf->apply();
 		setShader(SI_WIREFRAMESHADER);
@@ -376,20 +376,21 @@ void GraphicsDevice::drawInstancedAABB( UINT32 p_instanceElementCount, int p_ins
 	UINT offsets[2] = { 0, 0 };
 	// Set up an array of the buffers for the vertices
 	ID3D11Buffer* buffers[2] = { 
-		m_aabbMesh->getVertexBuffer()->getBufferPointer(), 
+		m_aabbLineMesh->getBufferPointer()/*m_aabbLineMesh->getVertexBuffer()->getBufferPointer()*/, 
 		static_cast<ID3D11Buffer*>(p_instanceRef) 
 	};
 	// Set array of buffers to context 
 	m_deviceContext->IASetVertexBuffers(0, 2, buffers, strides, offsets);
 
 	// And the index buffer
-	m_deviceContext->IASetIndexBuffer(m_aabbMesh->getIndexBuffer()->getBufferPointer(), 
-		DXGI_FORMAT_R32_UINT, 0);
+	//m_deviceContext->IASetIndexBuffer(m_aabbLineMesh->getIndexBuffer()->getBufferPointer(), 
+	//	DXGI_FORMAT_R32_UINT, 0);
 
 
 	// Draw instanced data
-	UINT32 indexCount=m_aabbMesh->getIndexBuffer()->getElementCount();
-	m_deviceContext->DrawIndexedInstanced( indexCount, p_instanceElementCount, 0,0,0);
+	//UINT32 indexCount=m_aabbLineMesh->getIndexBuffer()->getElementCount();
+	//m_deviceContext->DrawIndexedInstanced( indexCount, p_instanceElementCount, 0,0,0);
+	m_deviceContext->DrawInstanced(m_aabbLineMesh->getElementCount(),p_instanceElementCount,0,0);
 }
 
 

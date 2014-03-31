@@ -76,7 +76,7 @@ void ModelImporter::getBoundingBoxForNode( const aiScene* p_scene,
 		nd=p_nd;
 
 	prev = *p_trafo;
-	aiMultiplyMatrix4(p_trafo,&nd->mTransformation);
+	//aiMultiplyMatrix4(p_trafo,&nd->mTransformation);
 
 	for (; n < nd->mNumMeshes; ++n) {
 		const aiMesh* mesh = p_scene->mMeshes[nd->mMeshes[n]];

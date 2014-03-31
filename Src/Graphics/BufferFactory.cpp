@@ -177,3 +177,47 @@ Buffer<unsigned int>* BufferFactory::createIndexBuffer( unsigned int* p_indices,
 
 	return indexBuffer;
 }
+
+Buffer<PVertex>* BufferFactory::createLineBox()
+{
+	PVertex mesh[]= {{-1.0f, -1.0f, -1.0f},
+					 {1.0f, -1.0f, -1.0f},
+					 {-1.0f, -1.0f, -1.0f},
+					 {-1.0f, 1.0f, -1.0f},
+					 {-1.0f, 1.0f, -1.0f},
+					 {1.0f, 1.0f, -1.0f},
+					 {1.0f, -1.0f, -1.0f},
+					 {1.0f, 1.0f, -1.0f},
+					 {-1.0f, -1.0f, 1.0f},
+					 {1.0f, -1.0f, 1.0f},
+					 {-1.0f, -1.0f, 1.0f},
+					 {-1.0f, 1.0f, 1.0f},
+					 {-1.0f, 1.0f, 1.0f},
+					 {1.0f, 1.0f, 1.0f},
+					 {1.0f, -1.0f, 1.0f},
+					 {1.0f, 1.0f, 1.0f},
+					 {-1.0f, -1.0f, -1.0f},
+					 {-1.0f, -1.0f, 1.0f},
+					 {1.0f, -1.0f, -1.0f},
+					 {1.0f, -1.0f, 1.0f},
+					 {-1.0f, 1.0f, -1.0f},
+					 {-1.0f, 1.0f, 1.0f},
+					 {1.0f, 1.0f, -1.0f},
+					 {1.0f, 1.0f, 1.0f}};
+
+	Buffer<PVertex>* lineboxBuffer;
+
+	// Create description for buffer
+	BufferConfig::BUFFER_INIT_DESC bufferDesc;
+	bufferDesc.ElementSize = sizeof(PVertex);
+	bufferDesc.Usage = BufferConfig::BUFFER_DEFAULT;
+	bufferDesc.NumElements = sizeof(mesh)/sizeof(PVertex);
+	bufferDesc.Type = BufferConfig::VERTEX_BUFFER;
+	bufferDesc.Slot = BufferConfig::SLOT0;
+
+	// Create buffer from config and data
+	lineboxBuffer = new Buffer<PVertex>(m_device,m_deviceContext,&mesh[0],bufferDesc);
+	SETDEBUGNAME((lineboxBuffer->getBufferPointer()),("linebox_buffer"));
+
+	return lineboxBuffer;
+}

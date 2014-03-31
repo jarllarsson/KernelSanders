@@ -19,12 +19,12 @@
 
 #define DOT(v1,v2) (v1[0]*v2[0]+v1[1]*v2[1]+v1[2]*v2[2])
 
-#define FINDMINMAX(x0,x1,x2,min,max) \
-	min = max = x0;   \
-	if(x1<min) min=x1;\
-	if(x1>max) max=x1;\
-	if(x2<min) min=x2;\
-	if(x2>max) max=x2;
+#define FINDMINMAX(x0,x1,x2,trimin,trimax) \
+	trimin = trimax = x0;   \
+	if(x1<trimin) trimin=x1;\
+	if(x1>trimax) trimax=x1;\
+	if(x2<trimin) trimin=x2;\
+	if(x2>trimax) trimax=x2;
 
 int planeBoxOverlap(glm::vec3& normal,float d, float maxbox[3])
 {
@@ -53,53 +53,54 @@ int planeBoxOverlap(glm::vec3& normal,float d, float maxbox[3])
 #define AXISTEST_X01(a, b, fa, fb)             \
 	p0 = a*v0[Y] - b*v0[Z];                    \
 	p2 = a*v2[Y] - b*v2[Z];                    \
-	if(p0<p2) {min=p0; max=p2;} else {min=p2; max=p0;} \
+	if(p0<p2) {trimin=p0; trimax=p2;} else {trimin=p2; trimax=p0;} \
 	rad = fa * boxhalfsize[Y] + fb * boxhalfsize[Z];   \
-	if(min>rad || max<-rad) return 0;
+	if(trimin>rad || trimax<-rad) return 0;
 
 #define AXISTEST_X2(a, b, fa, fb)              \
 	p0 = a*v0[Y] - b*v0[Z];                    \
 	p1 = a*v1[Y] - b*v1[Z];                    \
-	if(p0<p1) {min=p0; max=p1;} else {min=p1; max=p0;} \
+	if(p0<p1) {trimin=p0; trimax=p1;} else {trimin=p1; trimax=p0;} \
 	rad = fa * boxhalfsize[Y] + fb * boxhalfsize[Z];   \
-	if(min>rad || max<-rad) return 0;
+	if(trimin>rad || trimax<-rad) return 0;
 
 /*======================== Y-tests ========================*/
 #define AXISTEST_Y02(a, b, fa, fb)             \
 	p0 = -a*v0[X] + b*v0[Z];                   \
 	p2 = -a*v2[X] + b*v2[Z];                       \
-	if(p0<p2) {min=p0; max=p2;} else {min=p2; max=p0;} \
+	if(p0<p2) {trimin=p0; trimax=p2;} else {trimin=p2; trimax=p0;} \
 	rad = fa * boxhalfsize[X] + fb * boxhalfsize[Z];   \
-	if(min>rad || max<-rad) return 0;
+	if(trimin>rad || trimax<-rad) return 0;
 
 #define AXISTEST_Y1(a, b, fa, fb)              \
 	p0 = -a*v0[X] + b*v0[Z];                   \
 	p1 = -a*v1[X] + b*v1[Z];                       \
-	if(p0<p1) {min=p0; max=p1;} else {min=p1; max=p0;} \
+	if(p0<p1) {trimin=p0; trimax=p1;} else {trimin=p1; trimax=p0;} \
 	rad = fa * boxhalfsize[X] + fb * boxhalfsize[Z];   \
-	if(min>rad || max<-rad) return 0;
+	if(trimin>rad || trimax<-rad) return 0;
 
 /*======================== Z-tests ========================*/
 
 #define AXISTEST_Z12(a, b, fa, fb)             \
 	p1 = a*v1[X] - b*v1[Y];                    \
 	p2 = a*v2[X] - b*v2[Y];                    \
-	if(p2<p1) {min=p2; max=p1;} else {min=p1; max=p2;} \
+	if(p2<p1) {trimin=p2; trimax=p1;} else {trimin=p1; trimax=p2;} \
 	rad = fa * boxhalfsize[X] + fb * boxhalfsize[Y];   \
-	if(min>rad || max<-rad) return 0;
+	if(trimin>rad || trimax<-rad) return 0;
 
 #define AXISTEST_Z0(a, b, fa, fb)              \
 	p0 = a*v0[X] - b*v0[Y];                \
 	p1 = a*v1[X] - b*v1[Y];                    \
-	if(p0<p1) {min=p0; max=p1;} else {min=p1; max=p0;} \
+	if(p0<p1) {trimin=p0; trimax=p1;} else {trimin=p1; trimax=p0;} \
 	rad = fa * boxhalfsize[X] + fb * boxhalfsize[Y];   \
-	if(min>rad || max<-rad) return 0;
+	if(trimin>rad || trimax<-rad) return 0;
 
 
 KDTreeFactory::KDTreeFactory()
 {
 	//m_tempTriListStack=new stack<vector<Tri>*>;
-	m_traversalCost=0.3f;
+	m_traversalCost=1.0f;
+		//0.3f;
 	m_intersectionCost=1.0f;
 }
 
@@ -149,6 +150,7 @@ int KDTreeFactory::buildKDTree( void* p_vec3ArrayXYZ,void* p_normArrayXYZ, int p
 	glm::vec3 boxCenter=(p_boundsMin+p_boundsMax)*0.5f;
 	glm::vec3 boxExt=(p_boundsMax-p_boundsMin);
 	KDBounds boundsData={boxCenter,boxExt};
+	m_tempRootPos=boxCenter;
 	m_treeBounds.push_back(boundsData);
 		
 	__int64 countsPerSec = 0;
@@ -188,7 +190,7 @@ void KDTreeFactory::subdivide( unsigned int p_treeId, KDNode& p_node, vector<Tri
 	KDBounds nodeBounds={pos,parentSize};
 	debugboundslist->push_back(nodeBounds);
 	// End condition
-	if (p_dimsz > 10 || p_tris->size() < KD_MIN_INDICES_IN_NODE/3 || p_idx<<1>sc_treeListMaxSize-2) 
+	if (p_dimsz > 20 || p_tris->size() < KD_MIN_INDICES_IN_NODE/3 || p_idx<<1>sc_treeListMaxSize-2) 
 	{
 		int rem=(int)p_tris->size();
 		//
@@ -213,7 +215,7 @@ void KDTreeFactory::subdivide( unsigned int p_treeId, KDNode& p_node, vector<Tri
 	float costLeft = p_cost, costRight = p_cost;
 	float splitpos = findOptimalSplitPos(p_node, p_tris, splitPlane,parentSize,pos,&costLeft,&costRight);
 	// extra break condition to leaf, if too expensive to split
-	if (splitpos!=0.0f && costRight + costLeft > p_cost/* && p_objects.Count < 6 */)
+	if (splitpos!=0.0f && costRight + costLeft > p_cost &&p_tris->size() < 2.0f*(KD_MIN_INDICES_IN_NODE/3))
     {
 		p_node.setToLeaf();
 		generateLeaf(p_treeId,p_node,p_tris,leafdatalist,(int)p_tris->size());
@@ -283,7 +285,7 @@ bool KDTreeFactory::triIntersectNode( const Triparam& p_tri, const glm::vec3& po
 	// Also based on 
 	// http://www.flipcode.com/archives/Raytracing_Topics_Techniques-Part_7_Kd-Trees_and_More_Speed.shtml
 	glm::vec3 v0, v1, v2, e0, e1, e2;
-	float min, max, p0, p1, p2, d, rad, fex, fey, fez;
+	float trimin, trimax, p0, p1, p2, d, rad, fex, fey, fez;
 	// Subtract box center from vertex position
 	// to get triangle in aabb space
 	v0 = *pv0 - pos;
@@ -315,12 +317,12 @@ bool KDTreeFactory::triIntersectNode( const Triparam& p_tri, const glm::vec3& po
 	/*  find min, max of the triangle each direction, and test for overlap in */
 	/*  that direction -- this is equivalent to testing a minimal AABB around */
 	/*  the triangle against the AABB */
-	FINDMINMAX( v0.x, v1.x, v2.x, min, max );
-	if (min > boxhalfsize[0] || max < -boxhalfsize[0]) return false;
-	FINDMINMAX( v0.x, v1.y, v2.y, min, max );
-	if (min > boxhalfsize[1] || max < -boxhalfsize[1]) return false;
-	FINDMINMAX( v0.z, v1.z, v2.z, min, max );
-	if (min > boxhalfsize[2] || max < -boxhalfsize[2]) return false;
+	FINDMINMAX( v0.x, v1.x, v2.x, trimin, trimax );
+	if (trimin > boxhalfsize[0] || trimax < -boxhalfsize[0]) return false;
+	FINDMINMAX( v0.x, v1.y, v2.y, trimin, trimax );
+	if (trimin > boxhalfsize[1] || trimax < -boxhalfsize[1]) return false;
+	FINDMINMAX( v0.z, v1.z, v2.z, trimin, trimax );
+	if (trimin > boxhalfsize[2] || trimax < -boxhalfsize[2]) return false;
 	// We already have all the normals
 	d=glm::dot(*normal,v0);/* plane eq: normal.x+d=0 */
 	if(!planeBoxOverlap(*normal,d,boxhalfsize)) return false;
@@ -331,7 +333,7 @@ float KDTreeFactory::findOptimalSplitPos( KDNode& p_node, vector<Tri>* p_tris, c
 {
 	float bestpos = 0.0f;
 	float bestcost = FLT_MAX;
-	float leftC = *p_outCostLeft, rightC = *p_outCostRight;
+	float leftC = 0.0f, rightC = 0.0f;
 	glm::vec3 axis = p_axis.getVec();
 	glm::vec3 aabbMax, aabbMin;
 	unsigned int count=p_tris->size();
@@ -372,19 +374,29 @@ void KDTreeFactory::getTriangleExtents( const Tri& p_triRef, glm::vec3& p_outTri
 	p_outTriangleExtentsMin=extMin;
 }
 
+// NOT WORKING!!!!
 float KDTreeFactory::getExtreme( const glm::vec3& p_triangleExtentsMax, const glm::vec3& p_triangleExtentsMin, const glm::vec3& p_axis, const glm::vec3& p_parentPos, EXTREME p_side )
 {
 	// find the the point furthest away in one direction (axis*side)
 	// Do this by masking extents values with axes.
 	// Compare abs of masked min and max extents, and return the one of largest absolute.
-	glm::vec3 eMax=p_triangleExtentsMax-p_parentPos;
-	glm::vec3 eMin=p_triangleExtentsMin-p_parentPos;
-	glm::vec3 pos = (float)p_side*entrywiseMul(eMax, p_axis); // mask
+	
+	//glm::vec3 ePos=/*p_parentPos+*/(p_triangleExtentsMin+p_triangleExtentsMax)*0.5f;
+	//glm::vec3 eExt=p_triangleExtentsMax-p_triangleExtentsMin/*-p_parentPos*/;
+	
+	
+	glm::vec3 pos = (float)p_side*entrywiseMul(p_triangleExtentsMax, p_axis); // mask
 	float val1=pos.x + pos.y + pos.z;
-	pos = (float)p_side*entrywiseMul(eMin, p_axis); // mask
+	pos = (float)p_side*entrywiseMul(p_triangleExtentsMin, p_axis); // mask
 	float val2=pos.x + pos.y + pos.z;
 	float reval=val1;
-	if (abs(val2)>abs(val1)) reval=val2;
+	if (val2>val1) reval=val2;
+	
+	//glm::vec3 pos = (float)p_side*entrywiseMul(eExt+ePos, p_axis); // mask
+	//float reval=pos.x + pos.y + pos.z;
+
+
+
 	return reval;
 }
 

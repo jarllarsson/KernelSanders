@@ -160,7 +160,7 @@ private:
 
 	// Fullscreen quad for drawing
 	Buffer<PVertex>* m_fullscreenQuad;
-	Mesh* m_aabbMesh;
+	Buffer<PVertex>* m_aabbLineMesh;
 
 	// Blend states
 	vector<ID3D11BlendState*> m_blendStates;
