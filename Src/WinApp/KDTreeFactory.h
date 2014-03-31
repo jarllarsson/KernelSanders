@@ -58,11 +58,11 @@ private:
 		Tri m_tri;
 	};
 
-	void subdivide(unsigned int p_treeId, KDNode& p_node, vector<Tri>* p_tris, int p_dimsz, int p_dim, int p_idx, const glm::vec3& pos, const glm::vec3& parentSize);
+	void subdivide(unsigned int p_treeId, KDNode& p_node, vector<Tri>* p_tris, int p_dimsz, int p_dim, int p_idx, const glm::vec3& pos, const glm::vec3& parentSize, float p_cost);
 
 	bool triIntersectNode(const Triparam& p_tri, const glm::vec3& pos, const glm::vec3& parentSize);
 
-	float findOptimalSplitPos(KDNode& p_node, vector<Tri>* p_tris, const KDAxisMark& p_axis, const glm::vec3& p_currentSize, const glm::vec3& p_currentPos);
+	float findOptimalSplitPos(KDNode& p_node, vector<Tri>* p_tris, const KDAxisMark& p_axis, const glm::vec3& p_currentSize, const glm::vec3& p_currentPos,float* p_outCostLeft,float* p_outCostRight);
 
 	void getTriangleExtents(const Tri& p_triRef, glm::vec3& p_outTriangleExtentsMax, glm::vec3& p_outTriangleExtentsMin);
 

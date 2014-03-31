@@ -160,7 +160,7 @@ int KDTreeFactory::buildKDTree( void* p_vec3ArrayXYZ,void* p_normArrayXYZ, int p
 
 
 
-	subdivide(treeId, root, &triList, 0, 0, 1, p_boundsMin, p_boundsMax); // start at 1	
+	subdivide(treeId, root, &triList, 0, 0, 1, p_boundsMin, p_boundsMax,FLT_MAX); // start at 1	
 
 	QueryPerformanceCounter((LARGE_INTEGER*)&currTimeStamp);
 
@@ -175,9 +175,7 @@ int KDTreeFactory::buildKDTree( void* p_vec3ArrayXYZ,void* p_normArrayXYZ, int p
 
 
 
-void KDTreeFactory::subdivide( unsigned int p_treeId, KDNode& p_node, vector<Tri>* p_tris, 
-							   int p_dimsz, int p_dim, int p_idx, 
-							   const glm::vec3& pos, const glm::vec3& parentSize )
+void KDTreeFactory::subdivide( unsigned int p_treeId, KDNode& p_node, vector<Tri>* p_tris, int p_dimsz, int p_dim, int p_idx, const glm::vec3& pos, const glm::vec3& parentSize, float p_cost )
 {
 	//p_node.pos = pos;
 	//p_node.size = parentSize;
@@ -192,19 +190,7 @@ void KDTreeFactory::subdivide( unsigned int p_treeId, KDNode& p_node, vector<Tri
 		p_node.setToLeaf();
 		if (rem>0)
 		{// Generate leaf
-			vector<KDLeaf>* leaflist = m_leafLists[p_treeId];
-			KDLeaf leaf={0,0};
-			int offset=leafdatalist->size();
-			for (int i=0;i<rem;i++)
-			for (int j=0;j<3;j++)
-			{
-				leafdatalist->push_back((*p_tris)[i].m_ids[j]);
-				leaf.m_count++;
-			}		
-			leaf.m_offset=offset;
-			p_node.setLeafData((int)leaflist->size());
-			// append leaf as well to separate list
-			leaflist->push_back(leaf);
+			generateLeaf(p_treeId,p_node,p_tris,leafdatalist,rem);
 		}
 		else
 		{
@@ -219,7 +205,14 @@ void KDTreeFactory::subdivide( unsigned int p_treeId, KDNode& p_node, vector<Tri
 
 	KDAxisMark splitPlane;
 	splitPlane.setVec(p_dim);
-	float splitpos = findOptimalSplitPos(p_node, p_tris, splitPlane,parentSize,pos);
+	float costLeft = p_cost, costRight = p_cost;
+	float splitpos = findOptimalSplitPos(p_node, p_tris, splitPlane,parentSize,pos,&costLeft,&costRight);
+	// extra break condition to leaf, if too expensive to split
+	if (splitpos!=0.0f && costRight + costLeft > p_cost/* && p_objects.Count < 6 */)
+    {
+		generateLeaf(p_treeId,p_node,p_tris,leafdatalist,(int)p_tris->size());
+        return;
+    }
 
 	glm::vec3 split = splitPlane.getVec();
 	glm::vec3 offset = split * splitpos;
@@ -325,7 +318,7 @@ bool KDTreeFactory::triIntersectNode( const Triparam& p_tri, const glm::vec3& po
 	return true;
 }
 
-float KDTreeFactory::findOptimalSplitPos( KDNode& p_node, vector<Tri>* p_tris, const KDAxisMark& p_axis, const glm::vec3& p_currentSize, const glm::vec3& p_currentPos )
+float KDTreeFactory::findOptimalSplitPos( KDNode& p_node, vector<Tri>* p_tris, const KDAxisMark& p_axis, const glm::vec3& p_currentSize, const glm::vec3& p_currentPos,float* p_outCostLeft,float* p_outCostRight )
 {
 	float bestpos = 0.0f;
 	float bestcost = FLT_MAX;
@@ -470,6 +463,23 @@ vector<KDLeaf>* KDTreeFactory::getLeafList( int p_idx )
 vector<int>* KDTreeFactory::getLeafDataList( int p_idx )
 {
 	return m_leafDataLists[p_idx];
+}
+
+void KDTreeFactory::generateLeaf( int p_treeId, KDNode& p_node, vector<Tri>* p_tris, vector<int>* p_leafDataList, int p_numTris )
+{
+	vector<KDLeaf>* leaflist = m_leafLists[p_treeId];
+	KDLeaf leaf={0,0};
+	int offset=p_leafDataList->size();
+	for (int i=0;i<p_numTris;i++)
+	for (int j=0;j<3;j++)
+	{
+		p_leafDataList->push_back((*p_tris)[i].m_ids[j]);
+		leaf.m_count++;
+	}		
+	leaf.m_offset=offset;
+	p_node.setLeafData((int)leaflist->size());
+	// append leaf as well to separate list
+	leaflist->push_back(leaf);
 }
 
 //void KDTreeFactory::clearTempStack()
