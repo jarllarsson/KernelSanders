@@ -126,9 +126,11 @@ void App::run()
 	vector<KDNode>* KDnodes=m_modelImporter->getKDTree(treeId);
 	vector<KDLeaf>* KDleaves=m_modelImporter->getKDLeafList(treeId);
 	vector<int>* KDindices=m_modelImporter->getKDLeafDataList(treeId);
-	//m_sceneMgr->addKDTree(&(*KDnodes)[0]  ,KDnodes->size(),
-	//					  &(*KDleaves)[0] ,KDleaves->size(),
-	//					  &(*KDindices)[0],KDindices->size());						
+	KDBounds KDRootBounds=m_modelImporter->getTreeBounds(treeId);
+	m_sceneMgr->addKDTree(KDRootBounds,
+						  &(*KDnodes)[0]  ,KDnodes->size(),
+						  &(*KDleaves)[0] ,KDleaves->size(),
+						  &(*KDindices)[0],KDindices->size());						
 
 	// debug stuff for kd tree
 	vector<KDBounds>* kdBounds=m_modelImporter->getDebugNodeBounds(treeId);

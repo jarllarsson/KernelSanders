@@ -15,20 +15,20 @@
 #include "Ray.h"
 #include "DeviceKDStructures.h"
 
-int getAxisNumber(DKDAxisMark p_axis)
+__device__ int getAxisNumber(DKDAxisMark p_axis)
 {
 	return p_axis.b_1+p_axis.b_2*2;
 }
 
-float KDTraverse( Scene* in_scene, const Ray* in_ray, float3 p_extends, float3 p_pos,
+__device__ float KDTraverse( Scene* in_scene, const Ray* in_ray, float3 p_extends, float3 p_pos,
 						 DKDNode* p_nodes, DKDLeaf* p_leaflist, unsigned int* p_nodeIndices,
 						 float3* p_verts,float3* p_norms)
 {
 	float hitViz=0.0f;
 	float tnear = 0.0f, tfar = MAX_INTERSECT_DIST, t;
 	int retval = 0;
-	float3 p1 = p_pos;				// Get box center
-	float3 p2 = p1 + p_extends;			// Get box extents (world space)
+	float3 p1 = p_pos - p_extends*0.5f;				// Get box center
+	float3 p2 = p_pos + p_extends*0.5f;			// Get box extents (world space)
 	float3 D = make_float3(in_ray->dir.x,in_ray->dir.y,in_ray->dir.z), 
 		   O = make_float3(in_ray->origin.x,in_ray->origin.y,in_ray->origin.z);	// Get ray
 	// store in small arrays for axis access
@@ -37,7 +37,7 @@ float KDTraverse( Scene* in_scene, const Ray* in_ray, float3 p_extends, float3 p
 	float aD[3]  ={D.x, D.y, D.z};
 	float aO[3]  ={O.x, O.y, O.z};
 	int mod_list[5] = {0,1,2,0,1}; // modulo for axes
-	DKDStack kdStack[64]; // traversal stack
+	DKDStack kdStack[10]; // traversal stack
 
 	// Exclude rays which are pointing to the left (for axis) and with an origin (axis) less than box negative extents
 	// or if right to axis and origin more than positive extents
@@ -48,9 +48,9 @@ float KDTraverse( Scene* in_scene, const Ray* in_ray, float3 p_extends, float3 p
 	{
 		if (aD[i] < 0) 
 		{
-			if (aO[i] < ap1[i]) return 0; // Negative extents(note that author has anchor in corner here)
+			if (aO[i] < ap1[i]) return 0.0f; // Negative extents(note that author has anchor in corner here)
 		}
-		else if (aO[i] > ap2[i]) return 0;// positive extents
+		else if (aO[i] > ap2[i]) return 0.0f;// positive extents
 	}
 	///////////////////////////////////////////
 	///////////////////////////////////////////
@@ -74,7 +74,7 @@ float KDTraverse( Scene* in_scene, const Ray* in_ray, float3 p_extends, float3 p
 			// clip start point
 			if (aO[i] < ap1[i]) tnear += (tfar - tnear) * ((ap1[i] - aO[i]) / (tfar * aD[i]));
 		}
-		if (tnear > tfar) return 0;
+		if (tnear > tfar) return 0.0f;
 	}
 	O.x=aO[0];O.y=aO[0];O.y=aO[0]; // copy back
 	D.x=aD[0];D.y=aD[0];D.y=aD[0]; //
@@ -124,8 +124,12 @@ float KDTraverse( Scene* in_scene, const Ray* in_ray, float3 p_extends, float3 p
 	// traverse kd-tree
 	///////////////////////////////////////////
 	///////////////////////////////////////////
-	while (currNodeIdx>0) // While we have a current node
+	int breaker=4;
+	return cu_clamp(abs(tnear),0.0f,1.0f);
+#ifdef AROOGA
+	while (currNodeIdx>0 && breaker>0) // While we have a current node
 	{
+		breaker--;
 		currNode=p_nodes[currNodeIdx]; // Copy current node to register
 		hitViz+=0.01f;
 		///////////////////////////////////////////
@@ -224,6 +228,8 @@ float KDTraverse( Scene* in_scene, const Ray* in_ray, float3 p_extends, float3 p
 			in_scene->meshNorms[newindex]=p_norms[index]; // vertex and normals data
 			in_scene->meshIndices[newindex]=newindex; // store new index (note this method creates vertex copies)
 		}
+		if (indexCount>=MAXMESHLOCAL_INDICESBIN)
+			break;
 
 		//while (list) // can make this forall essentially
 		//{
@@ -251,6 +257,7 @@ float KDTraverse( Scene* in_scene, const Ray* in_ray, float3 p_extends, float3 p
 		currNode=p_nodes[currNodeIdx];
 		exitpoint = kdStack[entrypoint].m_prev;
 	}
+#endif
 	///////////////////////////////////////////
 	///////////////////////////////////////////
 	return hitViz;

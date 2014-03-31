@@ -5,6 +5,7 @@
 #include "HostPrimitives.h"
 #include <vector>
 #include "KDNode.h"
+#include "KDBounds.h"
 
 using namespace std;
 // =======================================================================================
@@ -43,6 +44,7 @@ struct HScene
 	vector<KDNode> KDnode;	
 	vector<KDLeaf> KDleaves;
 	vector<unsigned int> KDindices;
+	KDBounds KDRootBounds;
 
 	// flags
 	void setDirty(OBJTYPE p_objType, bool p_status=true);

@@ -47,8 +47,8 @@ void RaytraceKernel::Execute( KernelData* p_data, float p_dt )
 	unsigned int numKDnodes  =scene->KDnode.size();
 	unsigned int numKDleaves =scene->KDleaves.size();
 	unsigned int numKDindices=scene->KDindices.size();
-	glm::vec3 kdBoundsMin(-100.0f,-100.0f,-100.0f);//=scene->KDboundsMin;
-	glm::vec3 kdBoundsMax(100.0f,100.0f,100.0f);//=scene->KDboundsMax;
+	glm::vec3 kdBoundsPos=scene->KDRootBounds.m_pos;
+	glm::vec3 kdBoundsExt=scene->KDRootBounds.m_extents;
 
 	// Map render textures
 	cudaStream_t stream = 0;
@@ -129,14 +129,14 @@ void RaytraceKernel::Execute( KernelData* p_data, float p_dt )
 		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
 		//
 		// KD data ---------------------------------------------------------------------------------------------
-		res = cudaMalloc((void**)devKDNodes, sizeof(glm::vec3) * numKDnodes);
+		res = cudaMalloc((void**)devKDNodes, sizeof(KDNode) * numKDnodes);
 		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
-		res = cudaMemcpy((void*)*devKDNodes, KDnodes, sizeof(glm::vec3) * numKDnodes, cudaMemcpyHostToDevice);
+		res = cudaMemcpy((void*)*devKDNodes, KDnodes, sizeof(KDNode) * numKDnodes, cudaMemcpyHostToDevice);
 		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
 		//
-		res = cudaMalloc((void**)devKDLeaves, sizeof(glm::vec3) * numKDleaves);
+		res = cudaMalloc((void**)devKDLeaves, sizeof(KDLeaf) * numKDleaves);
 		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
-		res = cudaMemcpy((void*)*devKDLeaves, KDleaves, sizeof(glm::vec3) * numKDleaves, cudaMemcpyHostToDevice);
+		res = cudaMemcpy((void*)*devKDLeaves, KDleaves, sizeof(KDLeaf) * numKDleaves, cudaMemcpyHostToDevice);
 		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
 		//
 		res = cudaMalloc((void**)devKDIndices, sizeof(unsigned int) * numKDindices);
@@ -172,7 +172,7 @@ void RaytraceKernel::Execute( KernelData* p_data, float p_dt )
 					  width,height,(int)pitch,					  
 					  *devVerts,*devNorms,numverts,
 					  *devIndices,numindices,
-					  (void*)&kdBoundsMin,(void*)&kdBoundsMax,
+					  (void*)&kdBoundsExt,(void*)&kdBoundsPos,
 					  *devTris,numtris,
 					  *devKDNodes,*devKDLeaves,*devKDIndices,
 					  numKDnodes,numKDleaves,numKDindices); 

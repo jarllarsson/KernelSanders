@@ -20,7 +20,7 @@ public:
 	HScene* getScenePtr();
 
 	void addMeshTris(void* p_vec3ArrayXYZ, int p_vertCount,unsigned int* p_indexArray, int p_iCount, void* p_vec3normalArrayXYZ);
-	void addKDTree(KDNode* p_nodeArray, int p_nodeCount, KDLeaf* p_leafArray, int p_leafCount, int* p_nodeIndices, int p_iCount);
+	void addKDTree(KDBounds p_bounds, KDNode* p_nodeArray, int p_nodeCount, KDLeaf* p_leafArray, int p_leafCount, int* p_nodeIndices, int p_iCount);
 protected:
 private:
 	HScene m_scene;
