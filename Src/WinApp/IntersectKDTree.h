@@ -44,7 +44,7 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 	float3 p2 = treePos + treeExt*0.5f;			// Get box max (world space)
 	//mat4mul(&p_view,&p1, &p1);
 	float3 D = make_float3(in_ray->dir.x,in_ray->dir.y,in_ray->dir.z), 
-		   O = make_float3(in_ray->origin.x,in_ray->origin.y,in_ray->origin.z)-treePos;	// Get ray
+		   O = make_float3(in_ray->origin.x,in_ray->origin.y,in_ray->origin.z);	// Get ray
 	// store in small arrays for axis access
 	float ap1[3]={p1.x,p1.y,p1.z};
 	float ap2[3]={p2.x,p2.y,p2.z};
@@ -74,6 +74,7 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 	if (!isInside) 
 		return make_float3(0.0f,0.0f,0.0f);
 
+
 	///////////////////////////////////////////
 	///////////////////////////////////////////
 	// init stack of traversal
@@ -102,9 +103,9 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 	// if near is more than zero
 	// add start point on hit on box
 	// ray origin + direction, scaled with near distance
-	//if (tnear > 0.0f) 
-	//	kdStack[entrypoint].m_pb = O + D * tnear;
-	//else 
+	if (tnear > 0.0f) 
+		kdStack[entrypoint].m_pb = O + D * tnear;
+	else 
 		kdStack[entrypoint].m_pb = O;
 
 	// Add the furthest point (back of the voxel) to the exit point 
