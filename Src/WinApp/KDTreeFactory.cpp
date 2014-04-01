@@ -193,7 +193,7 @@ void KDTreeFactory::subdivide( unsigned int p_treeId, vector<Tri>* p_tris, int p
 	KDBounds nodeBounds={pos,parentSize};
 	debugboundslist->push_back(nodeBounds);
 	// End condition
-	if (p_dimsz > 3 || p_tris->size() < KD_MIN_INDICES_IN_NODE/3/* || p_idx/ *<<1* />sc_treeListMaxSize/ *-2* /*/) 
+	if (p_dimsz > 5 || p_tris->size() < KD_MIN_INDICES_IN_NODE/3/* || p_idx/ *<<1* />sc_treeListMaxSize/ *-2* /*/) 
 	{
 		int rem=(int)p_tris->size();
 		//
@@ -250,7 +250,9 @@ void KDTreeFactory::subdivide( unsigned int p_treeId, vector<Tri>* p_tris, int p
 
 	p_node.setLeftChild(lnode/*p_idx << 1*/);
 	p_node.setAxis(splitPlane);
-	p_node.setPos(splitpos);
+	glm::vec3 splitoffset=entrywiseMul(pos ,split);
+	float splitposoffset=splitoffset.x+splitoffset.y+splitoffset.z;
+	p_node.setPos(splitpos-splitposoffset);
 
 	// all changes made to node, add it to list
 	(*tree)[p_idx]=p_node; 

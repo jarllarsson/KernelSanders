@@ -20,15 +20,16 @@ __device__ int getAxisNumber(DKDAxisMark p_axis)
 	return p_axis.b_1+p_axis.b_2*2;
 }
 
-__device__ float KDTraverse( Scene* in_scene, const Ray* in_ray, float3 p_extends, float3 p_pos,
+__device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_view,*/float3 p_extends, float3 p_pos,
 						 DKDNode* p_nodes, DKDLeaf* p_leaflist, unsigned int* p_nodeIndices,
 						 float3* p_verts,float3* p_norms)
 {
-	float hitViz=0.0f;
+	float3 hitViz;
 	float tnear = 0.0f, tfar = MAX_INTERSECT_DIST, t;
 	int retval = 0;
 	float3 p1 = p_pos - p_extends*0.5f;				// Get box center
 	float3 p2 = p_pos + p_extends*0.5f;			// Get box extents (world space)
+	//mat4mul(&p_view,&p1, &p1);
 	float3 D = make_float3(in_ray->dir.x,in_ray->dir.y,in_ray->dir.z), 
 		   O = make_float3(in_ray->origin.x,in_ray->origin.y,in_ray->origin.z);	// Get ray
 	// store in small arrays for axis access
@@ -46,11 +47,11 @@ __device__ float KDTraverse( Scene* in_scene, const Ray* in_ray, float3 p_extend
 	#pragma unroll 3
 	for ( int i = 0; i < 3; i++ ) 
 	{
-		if (aD[i] < 0) 
+		if (aD[i] < 0.0f) 
 		{
-			if (aO[i] < ap1[i]) return 0.0f; // Negative extents(note that author has anchor in corner here)
+			if (aO[i] < ap1[i]) return hitViz; // Negative extents(note that author has anchor in corner here)
 		}
-		else if (aO[i] > ap2[i]) return 0.0f;// positive extents
+		else if (aO[i] > ap2[i]) return hitViz;// positive extents
 	}
 	///////////////////////////////////////////
 	///////////////////////////////////////////
@@ -74,7 +75,7 @@ __device__ float KDTraverse( Scene* in_scene, const Ray* in_ray, float3 p_extend
 			// clip start point
 			if (aO[i] < ap1[i]) tnear += (tfar - tnear) * ((ap1[i] - aO[i]) / (tfar * aD[i]));
 		}
-		if (tnear > tfar) return 0.0f;
+		if (tnear > tfar) return hitViz;
 	}
 	O.x=aO[0];O.y=aO[0];O.y=aO[0]; // copy back
 	D.x=aD[0];D.y=aD[0];D.y=aD[0]; //
@@ -125,17 +126,18 @@ __device__ float KDTraverse( Scene* in_scene, const Ray* in_ray, float3 p_extend
 	///////////////////////////////////////////
 	///////////////////////////////////////////
 	int breaker=4;
-	return cu_clamp(abs(tnear),0.0f,1.0f);
-#ifdef AROOGA
-	while (currNodeIdx>0 && breaker>0) // While we have a current node
+
+	while (currNodeIdx>0/* && breaker>0*/) // While we have a current node
 	{
 		breaker--;
 		currNode=p_nodes[currNodeIdx]; // Copy current node to register
-		hitViz+=0.01f;
+
 		///////////////////////////////////////////
 		// While we have a current node that is not a leaf
-		while (currNode.m_isLeaf<1) 
+		float bbr=1.0f;
+		while (currNode.m_isLeaf<1/* && bbr>0.0f*/)
 		{
+			bbr-=0.01f;
 			// get split dist and axis for node
 			float splitpos = currNode.m_position;
 			int axis = getAxisNumber(currNode.m_split); // get the current active axis 0=x,1=y,2=z (index used for addressing)
@@ -147,31 +149,38 @@ __device__ float KDTraverse( Scene* in_scene, const Ray* in_ray, float3 p_extend
 		    // if active axis of ENTRYpoint is less than split value
 			if (entry_pb[axis] <= splitpos) 
 			{
+				hitViz+=make_float3(0.1f,0.0f,0.0f);
 				if (exit_pb[axis] <= splitpos) // if active axis of EXITpoint is less than split dist
 				{
 					currNodeIdx = currNode.m_leftChildIdx; // iterate to the left child of current
+					currNode=p_nodes[currNodeIdx];
 					continue; // NEXT ITERATION!!!
 				}
 				if (exit_pb[axis] == splitpos) // if active axis of EXITpoint is equal to split dist LOL
 				{
 					currNodeIdx = currNode.m_leftChildIdx+1; // iterate to the right child of current
+					currNode=p_nodes[currNodeIdx];
 					continue; // NEXT ITERATION!!!
 				}
 				// Default: iterate to the left child of current
 				currNodeIdx = currNode.m_leftChildIdx; 
 				farchildNodeIdx = currNodeIdx + 1; // GetRight(); // set farchild to sibling of current
+				currNode=p_nodes[currNodeIdx];
 			}
 			// if active axis of ENTRYpoint is more than or equal to split value
 			else
 			{
+				hitViz+=make_float3(0.0f,0.1f,0.0f);
 				if (exit_pb[axis] > splitpos) // if active axis of EXITpoint is greater than split dist
 				{
 					currNodeIdx = currNode.m_leftChildIdx+1; // iterate to the right child of current
+					currNode=p_nodes[currNodeIdx];
 					continue;  // NEXT ITERATION!!!
 				}
 				// Default: iterate to the right child of current
 				farchildNodeIdx = currNodeIdx; // set sibling to left child of current
 				currNodeIdx = farchildNodeIdx + 1; // GetRight(); // set current to right child of current
+				currNode=p_nodes[currNodeIdx];
 			}
 			//--------------------------------------------------
 			// update distance width 
@@ -201,6 +210,8 @@ __device__ float KDTraverse( Scene* in_scene, const Ray* in_ray, float3 p_extend
 			// Fetch new node
 			currNode=p_nodes[currNodeIdx];
 		}
+		//if (hitViz<0.47f) hitViz=1.0f;
+		hitViz+=make_float3(0.0f,0.0f,0.01f);
 		// End while not leaf
 		///////////////////////////////////////////
 		///////////////////////////////////////////
@@ -209,44 +220,30 @@ __device__ float KDTraverse( Scene* in_scene, const Ray* in_ray, float3 p_extend
 
 		///////////////////////////////////////////
 		// Get list of current triangles for leaf
-		int leafId=currNode.m_leftChildIdx;
-		DKDLeaf leaf=p_leaflist[leafId];
-		int indexOffset=leaf.m_offset;
-		int indexCount=leaf.m_count;
-		indexCount -= cu_imaxi(0,(indexOffset+indexCount)-MAXMESHLOCAL_INDICESBIN);
-		float dist = kdStack[exitpoint].m_t; // get the current max distance (voxel back)
-		// Check all triangles that's in the node
-		// Fetch all triangles in path
-		int vertOffset=in_scene->numVerts;
-		in_scene->numIndices+=indexCount;
-		in_scene->numVerts+=indexCount;
-		for (unsigned int i=0;i<indexCount;i++)
-		{
-			int index=p_nodeIndices[indexOffset+i]; // fetch index
-			int newindex=vertOffset+i;
-			in_scene->meshVerts[newindex]=p_verts[index]; // and get corresponding
-			in_scene->meshNorms[newindex]=p_norms[index]; // vertex and normals data
-			in_scene->meshIndices[newindex]=newindex; // store new index (note this method creates vertex copies)
-		}
-		if (indexCount>=MAXMESHLOCAL_INDICESBIN)
-			break;
-
-		//while (list) // can make this forall essentially
+		
+		//int leafId=currNode.m_leftChildIdx;
+		//DKDLeaf leaf=p_leaflist[leafId];
+		//int indexOffset=leaf.m_offset;
+		//int indexCount=leaf.m_count;
+		//indexCount -= cu_imaxi(0,(indexOffset+indexCount)-MAXMESHLOCAL_INDICESBIN);
+		//float dist = kdStack[exitpoint].m_t; // get the current max distance (voxel back)
+		//// Check all triangles that's in the node
+		//// Fetch all triangles in path
+		//int vertOffset=in_scene->numVerts;
+		//in_scene->numIndices+=indexCount;
+		//in_scene->numVerts+=indexCount;
+		//for (unsigned int i=0;i<indexCount;i++)
 		//{
-		//	Primitive* pr = list->GetPrimitive(); // tri here
-		//	int result;
-		//	m_Intersections++; // count intersections
-		//	// If we hit:
-		//	if (result = pr->Intersect( a_Ray, dist ))
-		//	{
-		//		// register result and distance
-		//		retval = result;
-		//		a_Dist = dist;
-		//		a_Prim = pr;
-		//	}
-		//	// fetch next triangle to check
-		//	list = list->GetNext();
+		//	int index=p_nodeIndices[indexOffset+i]; // fetch index
+		//	int newindex=vertOffset+i;
+		//	in_scene->meshVerts[newindex]=p_verts[index]; // and get corresponding
+		//	in_scene->meshNorms[newindex]=p_norms[index]; // vertex and normals data
+		//	in_scene->meshIndices[newindex]=newindex; // store new index (note this method creates vertex copies)
 		//}
+		//if (indexCount>=MAXMESHLOCAL_INDICESBIN)
+		//	break;
+			
+		//return hitViz;
 		// If we got a hit, we return the result:
 		// not checking hits here (we're using global memory) if (retval) return retval;
 
@@ -257,7 +254,7 @@ __device__ float KDTraverse( Scene* in_scene, const Ray* in_ray, float3 p_extend
 		currNode=p_nodes[currNodeIdx];
 		exitpoint = kdStack[entrypoint].m_prev;
 	}
-#endif
+
 	///////////////////////////////////////////
 	///////////////////////////////////////////
 	return hitViz;

@@ -99,6 +99,7 @@ inline __device__ float4* mat4mul(float4x4* mat4,const float4* in_vec, float4* o
 	return mat4mul(mat4->m,in_vec, out_res);
 }
 
+
 // optimization for when w is not needed
 inline __device__ float4* mat4mul_ignoreW(float* mat4,const float4* in_vec, float4* out_res)
 {

@@ -155,7 +155,7 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	// copy data for mesh
 	scene.numIndices=numIndices;
 	scene.numVerts=numVerts;
-	float kdCol=KDTraverse( &scene, &ray, kdExtents, kdPos,
+	float3 kdCol=KDTraverse( &scene, &ray, kdExtents, kdPos,
 		p_nodes, p_leaflist, p_nodeIndices,
 		p_verts,p_norms);
 	//for (unsigned int i=0;i<numIndices;i++)
@@ -311,9 +311,9 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	// Set the color
 	float dbgGridX=(float)drawMode*((float)blockIdx.x/(float)gridDim.x);
 	float dbgGridY=(float)drawMode*((float)blockIdx.y/(float)gridDim.y);
-	p_outPixel[R_CH] = finalColor.x + dbgGridX + kdCol; // red
-	p_outPixel[G_CH] = finalColor.y + dbgGridY + kdCol; // green
-	p_outPixel[B_CH] = finalColor.z + kdCol; // blue
+	p_outPixel[R_CH] = finalColor.x + dbgGridX + kdCol.x; // red
+	p_outPixel[G_CH] = finalColor.y + dbgGridY + kdCol.y; // green
+	p_outPixel[B_CH] = finalColor.z + kdCol.z; // blue
 	p_outPixel[A_CH] = finalColor.w; // alpha
 }
 
