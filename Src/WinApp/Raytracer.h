@@ -154,8 +154,8 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	}
 
 	// copy data for mesh
-	scene.numIndices=numIndices;
-	scene.numVerts=numVerts;
+	scene.numIndices=0;
+	scene.numVerts=0;
 	float3 kdCol=KDTraverse( &scene, &ray, kdExtents, kdPos,
 		p_nodes, p_leaflist, p_nodeIndices,
 		numNodeIndices,

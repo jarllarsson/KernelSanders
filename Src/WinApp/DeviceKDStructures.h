@@ -24,6 +24,7 @@ struct DKDNode
 	int m_isLeaf;
 	float m_position;
 	int m_leftChildIdx;
+
 };
 
 struct DKDLeaf
@@ -37,7 +38,7 @@ struct DKDStack
 	int m_nodeIdx;				// idx to node in array
 	float m_t;					// distance
 	float3 m_pb;				// point on box
-	int m_prev, dummy1, dummy2;
+	int m_prev;// dummy1,dummy2
 };
 
 #endif
