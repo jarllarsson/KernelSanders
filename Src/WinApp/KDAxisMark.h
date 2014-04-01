@@ -32,6 +32,14 @@ public:
 		b_1=p_copy.b_1;
 		b_2=p_copy.b_2;
 	}
+	KDAxisMark(int p_x, int p_y, int p_z)
+	{
+		setVec(p_x,p_y,p_z);
+	}
+	KDAxisMark(float p_x, float p_y, float p_z)
+	{
+		setVec((int)(p_x+0.5f),(int)(p_y+0.5f),(int)(p_z+0.5f));
+	}
 
 	~KDAxisMark() {}
 	
@@ -52,12 +60,12 @@ public:
 
 	void setVec(int p_x, int p_y, int p_z)
 	{
-		if (p_x)
+		if (p_x>0)
 		{
 			b_1 = 0;
 			b_2 = 0;
 		}
-		else if (p_y)
+		else if (p_y>0)
 		{
 			b_1 = 1;
 			b_2 = 0;

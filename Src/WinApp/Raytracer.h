@@ -101,13 +101,13 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 
 	// define some spheres
 
-	scene.sphere[0].pos = make_float4(0.0f,0.0f,0.0f,1.0f);
+	scene.sphere[0].pos = make_float4(7.0f,5.0f,0.0f,1.0f);
 	scene.sphere[0].rad = 0.5f;
 	scene.sphere[0].mat.diffuse = make_float4(0.5f, 0.79f, 0.22f,1.0f);
 	scene.sphere[0].mat.specular = make_float4(1.0f, 1.0f, 1.0f,500.0f);
 	scene.sphere[0].mat.reflection = 0.5f;
 
-	scene.sphere[1].pos = make_float4(1.0f,0.0f,0.0f,1.0f);
+	scene.sphere[1].pos = make_float4(5.0f,5.0f,0.0f,1.0f);
 	scene.sphere[1].rad = 0.6f;
 	scene.sphere[1].mat.diffuse = make_float4(0.0f, 1.0f, 0.0f,1.0f);
 	scene.sphere[1].mat.specular = make_float4(0.0f, 0.0f, 0.0f,0.0f);
@@ -115,7 +115,7 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 
 	for (int i=2;i<MAXSPHERES;i++)
 	{
-		scene.sphere[i].pos = make_float4((float)(i%3),(float)i,(float)i,1.0f);
+		scene.sphere[i].pos = make_float4((float)(i%3),(float)i+4.0f,(float)i,1.0f);
 		scene.sphere[i].rad = i*0.1f;
 		scene.sphere[i].mat.diffuse = make_float4((float)i/(float)MAXSPHERES, 1.0f-((float)i/(float)MAXSPHERES), ((float)i/(float)(MAXSPHERES*0.2f)) ,1.0f);
 		scene.sphere[i].mat.specular = make_float4(1.0f, 1.0f, 1.0f,0.8f);
@@ -313,9 +313,9 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	// Set the color
 	float dbgGridX=(float)drawMode*((float)blockIdx.x/(float)gridDim.x);
 	float dbgGridY=(float)drawMode*((float)blockIdx.y/(float)gridDim.y);
-	p_outPixel[R_CH] = finalColor.x * (1.0f+kdCol.x) + dbgGridX; // red
-	p_outPixel[G_CH] = finalColor.y * (1.0f+kdCol.y) + dbgGridY; // green
-	p_outPixel[B_CH] = finalColor.z * (1.0f+kdCol.z); // blue
+	p_outPixel[R_CH] = /* finalColor.x * (1.0f+*/kdCol.x/*)*/ + dbgGridX; // red
+	p_outPixel[G_CH] = /* finalColor.y* (1.0f+*/kdCol.y/*)*/ + dbgGridY; // green
+	p_outPixel[B_CH] = /* finalColor.z * (1.0f+*/kdCol.z/*)*/; // blue
 	p_outPixel[A_CH] = finalColor.w; // alpha
 }
 

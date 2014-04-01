@@ -18,7 +18,7 @@
 
 __device__ int getAxisNumber(DKDAxisMark p_axis)
 {
-	return p_axis.b_1*2+p_axis.b_2;
+	return p_axis.b_1+p_axis.b_2*2;
 }
 
 __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_view,*/float3& p_extends, float3& p_pos,
@@ -26,17 +26,25 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 						 unsigned int p_numNodeIndices,
 						 float3* p_verts,float3* p_norms)
 {
+	float3 colarr[6]={make_float3(1.0f,0.0f,0.0f),
+					  make_float3(0.0f,1.0f,0.0f),
+					  make_float3(0.0f,0.0f,1.0f),
+					  make_float3(1.0f,0.0f,1.0f),
+					  make_float3(0.0f,1.0f,1.0f),
+					  make_float3(1.0f,1.0f,0.0f)};
+
+
 	float3 result=make_float3(0.0f,0.0f,0.0f);
 	float3 hitViz=make_float3(0.0f,0.0f,0.0f);
 	float tnear = 0.0f, tfar = MAX_INTERSECT_DIST, t;
 	int retval = 0;
 	float3 treePos=p_pos;
 	float3 treeExt=p_extends;
-	float3 p1 = p_pos - treeExt*0.5f;				// Get box min
-	float3 p2 = p_pos + treeExt*0.5f;			// Get box max (world space)
+	float3 p1 = treePos - treeExt*0.5f;				// Get box min
+	float3 p2 = treePos + treeExt*0.5f;			// Get box max (world space)
 	//mat4mul(&p_view,&p1, &p1);
 	float3 D = make_float3(in_ray->dir.x,in_ray->dir.y,in_ray->dir.z), 
-		   O = make_float3(in_ray->origin.x,in_ray->origin.y,in_ray->origin.z);	// Get ray
+		   O = make_float3(in_ray->origin.x,in_ray->origin.y,in_ray->origin.z)-treePos;	// Get ray
 	// store in small arrays for axis access
 	float ap1[3]={p1.x,p1.y,p1.z};
 	float ap2[3]={p2.x,p2.y,p2.z};
@@ -137,9 +145,10 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 		    // if active axis of ENTRYpoint is less than split value
 			if (entry_pb[axis] <= splitpos) 
 			{
-				hitViz+=make_float3(0.0f,0.01f,0.0f);
+				
 				if (exit_pb[axis] <= splitpos) // if active axis of EXITpoint is less than split dist
 				{
+					//hitViz=make_float3(0.0f,0.5f,0.0f);
 					currNodeIdx = currNode.m_leftChildIdx; // iterate to the left child of current
 					//if (currNodeIdx<=0) return hitViz;
 					//currNode=p_nodes[currNodeIdx];
@@ -164,9 +173,10 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 			// if active axis of ENTRYpoint is more than or equal to split value
 			else
 			{
-				hitViz+=make_float3(0.01f,0.0f,0.0f);
+				
 				if (exit_pb[axis] > splitpos) // if active axis of EXITpoint is greater than split dist
 				{
+					//hitViz=make_float3(0.5f,0.0f,0.0f);
 					currNodeIdx = currNode.m_leftChildIdx+1; // iterate to the right child of current
 					//if (currNodeIdx<=0) return hitViz;
 					//currNode=p_nodes[currNodeIdx];
@@ -202,9 +212,6 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 				exit_pb[axis]=splitpos;
 				kdStack[exitpoint].m_pb.x = exit_pb[0];kdStack[exitpoint].m_pb.y = exit_pb[1];kdStack[exitpoint].m_pb.z = exit_pb[2];
 
-				if (axis + 2>4)
-					return make_float3(-1.0f,-1.0f,1.0f);
-
 				int nextaxis = mod_list[axis + 1];
 				int prevaxis = mod_list[axis + 2];
 
@@ -218,7 +225,7 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 			currNode=p_nodes[currNodeIdx];
 		}
 		//if (hitViz<0.47f) hitViz=1.0f;
-		hitViz+=make_float3(0.0f,0.0f,0.01f);
+		//hitViz+=make_float3(0.0f,0.0f,0.01f);
 		// End while not leaf
 		///////////////////////////////////////////
 		///////////////////////////////////////////
@@ -229,7 +236,8 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 		// Get list of current triangles for leaf
 		
 		int leafId=currNode.m_leftChildIdx;
-
+		if (leafId>-1) hitViz+=colarr[leafId%5]*0.5f;
+#ifdef YEAH
 		if (leafId>-1)
 		{
 			
@@ -253,7 +261,7 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 
 			}	// for each face (three indices)
 
-#ifdef YEAH
+
 			indexCount = cu_imini(indexCount,(int)p_numNodeIndices-indexOffset);			
 			totalIndices+=indexCount;
 
@@ -277,9 +285,9 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 			//hitViz=make_float3(1.2f*(float)in_scene->numIndices/(float)MAXMESHLOCAL_INDICESBIN,0.0f,0.0f);
 			if (in_scene->numIndices>=MAXMESHLOCAL_INDICESBIN-1)
 				return make_float3(0.0f,0.0f,0.0f);
-#endif
-		}
 
+		}
+#endif
 			
 		//return hitViz;
 		// If we got a hit, we return the result:

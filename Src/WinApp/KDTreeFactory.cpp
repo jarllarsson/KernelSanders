@@ -251,10 +251,12 @@ void KDTreeFactory::subdivide( unsigned int p_treeId, vector<Tri>* p_tris, int p
 	tree->push_back(rightnode);
 
 	p_node.setLeftChild(lnode/*p_idx << 1*/);
-	p_node.setAxis(splitPlane);
-	glm::vec3 splitoffset=entrywiseMul(parentSize*0.5f ,split);
-	float splitposoffset=splitoffset.x+splitoffset.y+splitoffset.z;
-	p_node.setPos(splitpos+splitposoffset);
+	glm::vec3 tsplit(split.x,split.y,split.z);
+	KDAxisMark transposedsplit=KDAxisMark(tsplit.x,tsplit.y,tsplit.z);
+	p_node.setAxis(transposedsplit);
+	/* glm::vec3 splitoffset=entrywiseMul(parentSize*0.0f ,split);
+	float splitposoffset=splitoffset.x+splitoffset.y+splitoffset.z;*/
+	p_node.setPos(splitpos/*+splitposoffset*/);
 
 	// all changes made to node, add it to list
 	(*tree)[p_idx]=p_node; 
