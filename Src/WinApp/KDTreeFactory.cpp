@@ -101,7 +101,7 @@ KDTreeFactory::KDTreeFactory()
 	//m_tempTriListStack=new stack<vector<Tri>*>;
 	m_traversalCost=10.0f;
 		//0.3f;
-	m_intersectionCost=200.0f;
+	m_intersectionCost=1000.0f;
 }
 
 KDTreeFactory::~KDTreeFactory()
@@ -193,7 +193,7 @@ void KDTreeFactory::subdivide( unsigned int p_treeId, vector<Tri>* p_tris, int p
 	KDBounds nodeBounds={pos,parentSize};
 	debugboundslist->push_back(nodeBounds);
 	// End condition
-	if (p_dimsz > 20 || p_tris->size() < KD_MIN_INDICES_IN_NODE/3/* || p_idx/ *<<1* />sc_treeListMaxSize/ *-2* /*/) 
+	if (p_dimsz > 1 || p_tris->size() < KD_MIN_INDICES_IN_NODE/3/* || p_idx/ *<<1* />sc_treeListMaxSize/ *-2* /*/) 
 	{
 		int rem=(int)p_tris->size();
 		//
@@ -252,9 +252,9 @@ void KDTreeFactory::subdivide( unsigned int p_treeId, vector<Tri>* p_tris, int p
 
 	p_node.setLeftChild(lnode/*p_idx << 1*/);
 	p_node.setAxis(splitPlane);
-	glm::vec3 splitoffset=entrywiseMul(pos ,split);
+	glm::vec3 splitoffset=entrywiseMul(parentSize*0.5f ,split);
 	float splitposoffset=splitoffset.x+splitoffset.y+splitoffset.z;
-	p_node.setPos(splitpos-splitposoffset);
+	p_node.setPos(splitpos+splitposoffset);
 
 	// all changes made to node, add it to list
 	(*tree)[p_idx]=p_node; 

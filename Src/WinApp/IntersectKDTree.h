@@ -14,10 +14,11 @@
 #include "Scene.h"
 #include "Ray.h"
 #include "DeviceKDStructures.h"
+#include "IntersectTriangle.h"
 
 __device__ int getAxisNumber(DKDAxisMark p_axis)
 {
-	return p_axis.b_1+p_axis.b_2*2;
+	return p_axis.b_1*2+p_axis.b_2;
 }
 
 __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_view,*/float3& p_extends, float3& p_pos,
@@ -25,13 +26,14 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 						 unsigned int p_numNodeIndices,
 						 float3* p_verts,float3* p_norms)
 {
+	float3 result=make_float3(0.0f,0.0f,0.0f);
 	float3 hitViz=make_float3(0.0f,0.0f,0.0f);
 	float tnear = 0.0f, tfar = MAX_INTERSECT_DIST, t;
 	int retval = 0;
 	float3 treePos=p_pos;
 	float3 treeExt=p_extends;
-	float3 p1 = p_pos - treeExt*0.5f;				// Get box center
-	float3 p2 = p_pos + treeExt*0.5f;			// Get box extents (world space)
+	float3 p1 = p_pos - treeExt*0.5f;				// Get box min
+	float3 p2 = p_pos + treeExt*0.5f;			// Get box max (world space)
 	//mat4mul(&p_view,&p1, &p1);
 	float3 D = make_float3(in_ray->dir.x,in_ray->dir.y,in_ray->dir.z), 
 		   O = make_float3(in_ray->origin.x,in_ray->origin.y,in_ray->origin.z);	// Get ray
@@ -52,39 +54,18 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 	{
 		if (aD[i] < 0.0f) 
 		{
-			if (aO[i] < ap1[i]) return make_float3(-1.0f,-1.0f,-1.0f); // Negative extents(note that author has anchor in corner here)
+			if (aO[i] < ap1[i]) return make_float3(0.0f,0.0f,0.0f); // Negative extents(note that author has anchor in corner here)
 		}
-		else if (aO[i] > ap2[i]) return make_float3(-1.0f,-1.0f,-1.0f);// positive extents
+		else if (aO[i] > ap2[i]) return make_float3(0.0f,0.0f,0.0f);// positive extents
 	}
 	///////////////////////////////////////////
 	///////////////////////////////////////////
 	// clip ray segment to box
 	///////////////////////////////////////////
-	//#pragma unroll 3
-	//for (int i = 0; i < 3; i++ )
-	//{
-	//	float pos = aO[i] + tfar * aD[i];
-	//	if (aD[i] < 0.0f)
-	//	{
-	//		// clip end point
-	//		if (pos < ap1[i]) tfar = tnear + (tfar - tnear) * ((aO[i] - ap1[i]) / (aO[i] - pos));
-	//		// clip start point
-	//		if (aO[i] > ap2[i]) tnear += (tfar - tnear) * ((aO[i] - ap2[i]) / (tfar * aD[i]));
-	//	}
-	//	else
-	//	{
-	//		// clip end point
-	//		if (pos > ap2[i]) tfar = tnear + (tfar - tnear) * ((ap2[i] - aO[i]) / (pos - aO[i]));
-	//		// clip start point
-	//		if (aO[i] < ap1[i]) tnear += (tfar - tnear) * ((ap1[i] - aO[i]) / (tfar * aD[i]));
-	//	}
-	//	if (tnear > tfar) return make_float3(-1.0f,1.0f,-1.0f);
-	//}
 	bool isInside=IntersectAABBCage(treePos, treeExt, in_ray, tfar, tnear, tfar);
 	if (!isInside) 
-		return make_float3(-1.0f,-0.5f,-1.0f);
-	O.x=aO[0];O.y=aO[1];O.y=aO[2]; // copy back
-	D.x=aD[0];D.y=aD[1];D.y=aD[2]; //
+		return make_float3(0.0f,0.0f,0.0f);
+
 	///////////////////////////////////////////
 	///////////////////////////////////////////
 	// init stack of traversal
@@ -113,9 +94,9 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 	// if near is more than zero
 	// add start point on hit on box
 	// ray origin + direction, scaled with near distance
-	if (tnear > 0.0f) 
-		kdStack[entrypoint].m_pb = O + D * tnear;
-	else 
+	//if (tnear > 0.0f) 
+	//	kdStack[entrypoint].m_pb = O + D * tnear;
+	//else 
 		kdStack[entrypoint].m_pb = O;
 
 	// Add the furthest point (back of the voxel) to the exit point 
@@ -156,7 +137,7 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 		    // if active axis of ENTRYpoint is less than split value
 			if (entry_pb[axis] <= splitpos) 
 			{
-				hitViz+=make_float3(0.001f,0.0f,0.0f);
+				hitViz+=make_float3(0.0f,0.01f,0.0f);
 				if (exit_pb[axis] <= splitpos) // if active axis of EXITpoint is less than split dist
 				{
 					currNodeIdx = currNode.m_leftChildIdx; // iterate to the left child of current
@@ -183,7 +164,7 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 			// if active axis of ENTRYpoint is more than or equal to split value
 			else
 			{
-				hitViz+=make_float3(0.0f,0.001f,0.0f);
+				hitViz+=make_float3(0.01f,0.0f,0.0f);
 				if (exit_pb[axis] > splitpos) // if active axis of EXITpoint is greater than split dist
 				{
 					currNodeIdx = currNode.m_leftChildIdx+1; // iterate to the right child of current
@@ -237,7 +218,7 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 			currNode=p_nodes[currNodeIdx];
 		}
 		//if (hitViz<0.47f) hitViz=1.0f;
-		hitViz+=make_float3(0.0f,0.0f,0.001f);
+		hitViz+=make_float3(0.0f,0.0f,0.01f);
 		// End while not leaf
 		///////////////////////////////////////////
 		///////////////////////////////////////////
@@ -255,6 +236,24 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 			DKDLeaf leaf=p_leaflist[leafId];
 			int indexOffset=leaf.m_offset;
 			int indexCount=leaf.m_count;
+
+			Material test;
+			test.diffuse = hitViz;
+			test.specular = make_float4(0.0f, 0.0f, 0.0f,0.0f);
+			test.reflection = 0.0f;
+			for (unsigned int i=0;i<indexCount;i++)
+			{
+				const unsigned int* ind = in_scene->meshIndices;
+				result=IntersectTriangle(in_scene->meshVerts, in_scene->meshNorms, 
+					min(ind[i],MAXMESHLOCAL_VERTSBIN-1), min(ind[i+1],MAXMESHLOCAL_VERTSBIN-1), min(ind[i+2],MAXMESHLOCAL_VERTSBIN-1), 
+					&test, 
+					in_ray, inout_intersection,storeResults);
+				if (result && breakOnFirst) 
+					return true;
+
+			}	// for each face (three indices)
+
+#ifdef YEAH
 			indexCount = cu_imini(indexCount,(int)p_numNodeIndices-indexOffset);			
 			totalIndices+=indexCount;
 
@@ -275,9 +274,10 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 				in_scene->meshNorms[newindex]=p_norms[index]; // vertex and normals data
 				in_scene->meshIndices[newindex]=newindex; // store new index (note this method creates vertex copies)
 			}
-			hitViz=make_float3(1.2f*(float)in_scene->numIndices/(float)MAXMESHLOCAL_INDICESBIN,0.0f,0.0f);
+			//hitViz=make_float3(1.2f*(float)in_scene->numIndices/(float)MAXMESHLOCAL_INDICESBIN,0.0f,0.0f);
 			if (in_scene->numIndices>=MAXMESHLOCAL_INDICESBIN-1)
-				return make_float3(-0.5f,0.0f,0.0f);
+				return make_float3(0.0f,0.0f,0.0f);
+#endif
 		}
 
 			

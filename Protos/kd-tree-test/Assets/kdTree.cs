@@ -65,7 +65,7 @@ public class kdTree : MonoBehaviour
     {
         p_node.pos = pos;
         p_node.size = parentSize;
-        if (p_dimsz > 10 || p_objects.Count < 3 || p_idx/*<<1*/>16000/*m_tree.Length-2*/) 
+        if (p_dimsz > 1 || p_objects.Count < 3 || p_idx/*<<1*/>16000/*m_tree.Length-2*/) 
         {
             if (p_dimsz > 30) Debug.DrawLine(pos, pos + Vector3.up * 10.0f, Color.green, 100000.0f);
             if (p_objects.Count < 3) Debug.DrawLine(pos, pos + Vector3.up * 10.0f, Color.white, 100000.0f);
@@ -118,6 +118,9 @@ public class kdTree : MonoBehaviour
             //p_idx << 1;
         p_node.m_split = splitPlane;
         p_node.m_position = splitpos;
+        Vector3 splitoffset = entrywiseMul(parentSize*0.5f, split);
+        float splitposoffset = splitoffset.x + splitoffset.y + splitoffset.z;
+        p_node.m_fposition = splitpos + splitposoffset;
         //
         // m_tree[p_node.m_leftChildIdx] = leftnode;
         // m_tree[p_node.m_leftChildIdx+1] = rightnode;        
@@ -309,14 +312,31 @@ public class kdTree : MonoBehaviour
             Vector3 drawSize=parentSize-entrywiseMul(parentSize, split);
             //Gizmos.DrawWireCube(m_tree[idx].pos, m_tree[idx].size*0.99f);
             //Gizmos.DrawWireCube(m_tree[idx].pos, m_tree[idx].size*0.999f);
-            Gizmos.DrawWireCube(m_tree[idx].pos, m_tree[idx].size);
+            //Gizmos.DrawWireCube(m_tree[idx].pos, m_tree[idx].size);
+
+            if (!m_tree[idx].m_isLeaf)
+            {
+                Gizmos.color = Color.black;
+                Vector3 oc=m_tree[idx].pos + m_tree[idx].m_split.getVec() * m_tree[idx].m_position;
+                Gizmos.DrawWireCube(oc,
+                    entrywiseMul(m_tree[idx].size, new Vector3(1.0f, 1.0f, 1.0f) - m_tree[idx].m_split.getVec())
+                    );
+                Gizmos.color = new Color(1.0f,1.0f,1.0f,0.4f);
+                Vector3 neworig = m_tree[idx].pos - entrywiseMul(parentSize * 0.5f, m_tree[idx].m_split.getVec());
+                Vector3 c = neworig + m_tree[idx].m_split.getVec() * m_tree[idx].m_fposition;
+                Gizmos.DrawWireCube(c,
+                    entrywiseMul(m_tree[idx].size, new Vector3(1.0f, 1.0f, 1.0f) - m_tree[idx].m_split.getVec())
+                    );
+                Debug.DrawLine(neworig, c);
+            }
+
             //if (!m_tree[idx].m_isLeaf) 
             //Gizmos.DrawWireCube(currentOrigo, drawSize);
 
             foreach (object obj in m_tree[idx].m_objects)
             {
-                //Gizmos.DrawWireSphere(((GameObject)obj).transform.position, 2.0f);
-                Gizmos.DrawLine(((GameObject)obj).transform.position, m_tree[idx].pos);
+
+               // Gizmos.DrawLine(((GameObject)obj).transform.position, m_tree[idx].pos);
             }
 
             if (!m_tree[idx].m_isLeaf)
