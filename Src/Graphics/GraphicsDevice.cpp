@@ -178,7 +178,7 @@ void GraphicsDevice::executeRenderPass( RenderPass p_pass,
 		break;
 	case RenderPass::P_WIREFRAMEPASS:
 		m_deviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
-		setBlendState(BlendState::NORMAL);
+		setBlendState(BlendState::ADDITIVE);
 		setRasterizerStateSettings(RasterizerState::WIREFRAME,false);
 		setRenderTarget(RT_BACKBUFFER_NODEPTHSTENCIL);		
 		p_cbuf->apply();

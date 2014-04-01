@@ -10,8 +10,8 @@ public class kdTree : MonoBehaviour
     public Vector3 m_boxMax;
     public Vector3 m_boxMin;
     public float m_firstSplitDist = 0.0f;
-    public float m_intersectionCost = 0.1f;
-    public float m_traversalCost = 1.0f;
+    public float m_intersectionCost = 10.0f;
+    public float m_traversalCost = 2.0f;
 
     private Stack<List<object>> m_tempObjectsStack=new Stack<List<object>>();
 
@@ -65,7 +65,7 @@ public class kdTree : MonoBehaviour
     {
         p_node.pos = pos;
         p_node.size = parentSize;
-        if (p_dimsz > 30 || p_objects.Count < 3 || p_idx/*<<1*/>8000/*m_tree.Length-2*/) 
+        if (p_dimsz > 10 || p_objects.Count < 3 || p_idx/*<<1*/>16000/*m_tree.Length-2*/) 
         {
             if (p_dimsz > 30) Debug.DrawLine(pos, pos + Vector3.up * 10.0f, Color.green, 100000.0f);
             if (p_objects.Count < 3) Debug.DrawLine(pos, pos + Vector3.up * 10.0f, Color.white, 100000.0f);
@@ -81,10 +81,12 @@ public class kdTree : MonoBehaviour
         splitPlane.setVec(p_dim);
         float costLeft = p_cost;
         float costRight = p_cost;
-        float splitpos = findOptimalSplitPos(p_node, p_objects, splitPlane, parentSize, pos, ref costLeft, ref costRight);
+        float cost = float.MaxValue;
+        float currentArea = calculateArea(parentSize);
+        float splitpos = findOptimalSplitPos(p_node, p_objects, splitPlane, parentSize, currentArea, pos, ref costLeft, ref costRight, ref cost);
         // extra break condition if too expensive
         Debug.Log(costRight + costLeft + " " + p_cost);
-        if (splitpos!=0.0f && costRight+costLeft > p_cost  && p_objects.Count < 5)
+        if (splitpos != 0.0f && cost > m_intersectionCost*p_objects.Count)
         {
             p_node.m_objects = p_objects; // in c++ do deep copy here
             p_node.m_isLeaf = true;
@@ -157,8 +159,7 @@ public class kdTree : MonoBehaviour
         return true;
     }
 
-    float findOptimalSplitPos(Node p_node, List<object> p_objects, AxisMark p_axis, Vector3 p_currentSize, Vector3 p_currentPos,
-                                 ref float outLeftCost, ref float outRightCost)
+    float findOptimalSplitPos(Node p_node, List<object> p_objects, AxisMark p_axis, Vector3 p_currentSize, float p_currentArea, Vector3 p_currentPos, ref float outLeftCost, ref float outRightCost, ref float outCost)
     {
         float bestpos = 0.0f;
         float bestcost = 9999999.0f;
@@ -171,7 +172,7 @@ public class kdTree : MonoBehaviour
             GameObject gobj = obj as GameObject;
             float left_extreme = getLeftExtreme(gobj, axis, p_currentPos);
             float right_extreme = getRightExtreme(gobj, axis, p_currentPos);           
-            float cost = calculatecost(p_node, p_objects, left_extreme, axis, p_currentSize,p_currentPos,
+            float cost = calculatecost(p_node, p_objects, left_extreme, axis, p_currentSize, p_currentArea, p_currentPos,
                 out leftC, out rightC);
 	        if (cost < bestcost)
             {
@@ -180,7 +181,7 @@ public class kdTree : MonoBehaviour
                 outRightCost = rightC;
             }
             //if (cost >= 1000000) Debug.Log("L!!! " + cost);
-            cost = calculatecost(p_node, p_objects, right_extreme, axis, p_currentSize, p_currentPos,
+            cost = calculatecost(p_node, p_objects, right_extreme, axis, p_currentSize, p_currentArea, p_currentPos,
                 out leftC, out rightC);
             if (cost < bestcost)
             {
@@ -190,6 +191,7 @@ public class kdTree : MonoBehaviour
             }
             //if (cost >= 1000000) Debug.Log("R!!! " + cost);
         }
+        outCost = bestcost;
         return bestpos;
     }
 
@@ -205,8 +207,7 @@ public class kdTree : MonoBehaviour
         return pos.x + pos.y + pos.z;
     }
 
-    float calculatecost(Node p_node, List<object> p_objects,float p_splitpos, Vector3 p_axis, Vector3 p_currentSize, Vector3 p_currentPos, 
-        out float leftCost, out float rightCost)
+    float calculatecost(Node p_node, List<object> p_objects, float p_splitpos, Vector3 p_axis, Vector3 p_currentSize, float p_currentArea, Vector3 p_currentPos, out float leftCost, out float rightCost)
     {
         Vector3 lsize;
         Vector3 rsize;
@@ -220,9 +221,9 @@ public class kdTree : MonoBehaviour
         calculatePrimitiveCount(p_node, p_objects, lsize,rsize,
                                 leftBoxPos, rightBoxPos,
                                 out leftcount,out rightcount);
-        leftCost=m_traversalCost*0.5f + m_intersectionCost * (leftarea * (float)leftcount);
-        rightCost=m_traversalCost*0.5f + m_intersectionCost * (rightarea * (float)rightcount);
-        return m_traversalCost + m_intersectionCost * (leftarea * (float)leftcount + rightarea * (float)rightcount);
+        leftCost=m_traversalCost*0.5f + m_intersectionCost * (leftarea/p_currentArea * (float)leftcount);
+        rightCost=m_traversalCost*0.5f + m_intersectionCost * (rightarea/p_currentArea * (float)rightcount);
+        return m_traversalCost + m_intersectionCost * (leftarea/p_currentArea * (float)leftcount + rightarea/p_currentArea * (float)rightcount);
     }
 
     void calculatePrimitiveCount(Node p_node, List<object> p_objects, Vector3 p_leftBox,Vector3 p_rightBox,

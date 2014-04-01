@@ -150,49 +150,50 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 		    // if active axis of ENTRYpoint is less than split value
 			if (entry_pb[axis] <= splitpos) 
 			{
-				hitViz+=make_float3(0.1f,0.0f,0.0f);
+				hitViz+=make_float3(0.001f,0.0f,0.0f);
 				if (exit_pb[axis] <= splitpos) // if active axis of EXITpoint is less than split dist
 				{
 					currNodeIdx = currNode.m_leftChildIdx; // iterate to the left child of current
-					if (currNodeIdx<=0) return hitViz;
-					currNode=p_nodes[currNodeIdx];
+					//if (currNodeIdx<=0) return hitViz;
+					//currNode=p_nodes[currNodeIdx];
 					continue; // NEXT ITERATION!!!
 				}
 				if (exit_pb[axis] == splitpos) // if active axis of EXITpoint is equal to split dist LOL
 				{
 					currNodeIdx = currNode.m_leftChildIdx+1; // iterate to the right child of current
-					if (currNodeIdx<=0) return hitViz;
-					currNode=p_nodes[currNodeIdx];
+					//if (currNodeIdx<=0) return hitViz;
+					//currNode=p_nodes[currNodeIdx];
 					continue; // NEXT ITERATION!!!
 				}
 				// Default: iterate to the left child of current
 				currNodeIdx = currNode.m_leftChildIdx; 
 				farchildNodeIdx = currNodeIdx + 1; // GetRight(); // set farchild to sibling of current
-				if (currNodeIdx<=0) return hitViz;
-				currNode=p_nodes[currNodeIdx];
+				//if (currNodeIdx<=0) return hitViz;
+				//currNode=p_nodes[currNodeIdx];
 			}
 			// if active axis of ENTRYpoint is more than or equal to split value
 			else
 			{
-				hitViz+=make_float3(0.0f,0.1f,0.0f);
+				hitViz+=make_float3(0.0f,0.001f,0.0f);
 				if (exit_pb[axis] > splitpos) // if active axis of EXITpoint is greater than split dist
 				{
 					currNodeIdx = currNode.m_leftChildIdx+1; // iterate to the right child of current
-					if (currNodeIdx<=0) return hitViz;
-					currNode=p_nodes[currNodeIdx];
+					//if (currNodeIdx<=0) return hitViz;
+					//currNode=p_nodes[currNodeIdx];
 					continue;  // NEXT ITERATION!!!
 				}
 				// Default: iterate to the right child of current
 				farchildNodeIdx = currNodeIdx; // set sibling to left child of current
 				currNodeIdx = farchildNodeIdx + 1; // GetRight(); // set current to right child of current
-				if (currNodeIdx<=0) return hitViz;
-				currNode=p_nodes[currNodeIdx];
+				//if (currNodeIdx<=0) return hitViz;
+				//currNode=p_nodes[currNodeIdx];
 			}
 			//--------------------------------------------------
 			// update distance width 
 			t = (splitpos - aO[axis]) / aD[axis]; // set t-distance to (splitdist - (active axis of rayorig)) / (active axis of ray dir)
 			// increase exit point, and store it
-			int tmp = exitpoint++;
+			int tmp = exitpoint;
+			exitpoint++;
 			// if the exitpoint==entrypoint, inrease exitpoint again
 			if (exitpoint == entrypoint) exitpoint++; 
 			// update pb
@@ -214,11 +215,11 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 			exit_pb[prevaxis] = aO[prevaxis] + t * aD[prevaxis];
 			kdStack[exitpoint].m_pb.x = exit_pb[0];kdStack[exitpoint].m_pb.y = exit_pb[1];kdStack[exitpoint].m_pb.z = exit_pb[2];
 			// Fetch new node
-			if (currNodeIdx<=0) return hitViz;
-			currNode=p_nodes[currNodeIdx];
+			//if (currNodeIdx<=0) return hitViz;
+			//currNode=p_nodes[currNodeIdx];
 		}
 		//if (hitViz<0.47f) hitViz=1.0f;
-		hitViz+=make_float3(0.0f,0.0f,0.01f);
+		hitViz+=make_float3(0.0f,0.0f,0.001f);
 		// End while not leaf
 		///////////////////////////////////////////
 		///////////////////////////////////////////
@@ -266,10 +267,10 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 		// By setting the new entry point to this voxel's exitpoint
 		entrypoint = exitpoint;
 		currNodeIdx = kdStack[exitpoint].m_nodeIdx;
-		if (currNodeIdx<=0) return hitViz;
-		currNode=p_nodes[currNodeIdx];
+		//if (currNodeIdx<=0) return hitViz;
+		//currNode=p_nodes[currNodeIdx];
 		exitpoint = kdStack[entrypoint].m_prev;
-	}
+	} // endwhile we have node
 
 	///////////////////////////////////////////
 	///////////////////////////////////////////

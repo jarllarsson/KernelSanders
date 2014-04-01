@@ -63,17 +63,17 @@ private:
 
 	bool triIntersectNode(const Triparam& p_tri, const glm::vec3& pos, const glm::vec3& parentSize);
 
-	float findOptimalSplitPos(vector<Tri>* p_tris, const KDAxisMark& p_axis, const glm::vec3& p_currentSize, const glm::vec3& p_currentPos,float& p_outCostLeft,float& p_outCostRight);
+	float findOptimalSplitPos(vector<Tri>* p_tris, const KDAxisMark& p_axis, const glm::vec3& p_currentSize, float p_currentArea, const glm::vec3& p_currentPos,float& p_outCostLeft,float& p_outCostRight, float& p_outCost);
 
 	void getTriangleExtents(const Tri& p_triRef, glm::vec3& p_outTriangleExtentsMax, glm::vec3& p_outTriangleExtentsMin);
 
 	float getExtreme(const glm::vec3& p_triangleExtentsMax, const glm::vec3& p_triangleExtentsMin, const glm::vec3& p_axis, const glm::vec3& p_parentPos, EXTREME p_side);
 
-	float calculatecost(vector<Tri>* p_tris, float p_splitpos, const glm::vec3& p_axis, const glm::vec3& p_currentSize, const glm::vec3& p_currentPos,float& p_outCostLeft,float& p_outCostRight);
+	float calculatecost(vector<Tri>* p_tris, float p_splitpos, const glm::vec3& p_axis, const glm::vec3& p_currentSize, float p_currentArea, const glm::vec3& p_currentPos,float& p_outCostLeft,float& p_outCostRight);
 
 	void calculatePrimitiveCount(vector<Tri>* p_tris,const glm::vec3& p_leftBox,const glm::vec3& p_rightBox, const glm::vec3& p_leftBoxPos, const glm::vec3& p_rightBoxPos, int& p_outLeftCount, int& p_outRightCount);
 
-	float calculateArea( glm::vec3& p_extents);
+	float calculateArea( const glm::vec3& p_extents);
 
 	void getChildVoxelsMeasurement(float p_inSplitpos, const glm::vec3& p_axis, const glm::vec3& p_inParentSize, 
 								   glm::vec3& p_outLeftSz, glm::vec3& p_outRightSz);

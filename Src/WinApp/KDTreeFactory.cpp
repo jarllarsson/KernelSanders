@@ -99,9 +99,9 @@ int planeBoxOverlap(glm::vec3& normal,float d, float maxbox[3])
 KDTreeFactory::KDTreeFactory()
 {
 	//m_tempTriListStack=new stack<vector<Tri>*>;
-	m_traversalCost=1.0f;
+	m_traversalCost=10.0f;
 		//0.3f;
-	m_intersectionCost=0.1f;
+	m_intersectionCost=200.0f;
 }
 
 KDTreeFactory::~KDTreeFactory()
@@ -193,7 +193,7 @@ void KDTreeFactory::subdivide( unsigned int p_treeId, vector<Tri>* p_tris, int p
 	KDBounds nodeBounds={pos,parentSize};
 	debugboundslist->push_back(nodeBounds);
 	// End condition
-	if (p_dimsz > 5 || p_tris->size() < KD_MIN_INDICES_IN_NODE/3/* || p_idx/ *<<1* />sc_treeListMaxSize/ *-2* /*/) 
+	if (p_dimsz > 30 || p_tris->size() < KD_MIN_INDICES_IN_NODE/3/* || p_idx/ *<<1* />sc_treeListMaxSize/ *-2* /*/) 
 	{
 		int rem=(int)p_tris->size();
 		//
@@ -215,10 +215,12 @@ void KDTreeFactory::subdivide( unsigned int p_treeId, vector<Tri>* p_tris, int p
 
 	KDAxisMark splitPlane;
 	splitPlane.setVec(p_dim);
-	float costLeft = p_cost, costRight = p_cost;
-	float splitpos = findOptimalSplitPos(p_tris, splitPlane,parentSize,pos,costLeft,costRight);
+	float costLeft = p_cost, costRight = p_cost, cost=FLT_MAX;
+	float currentArea=calculateArea(parentSize);
+	float splitpos = findOptimalSplitPos(p_tris, splitPlane,parentSize,currentArea,pos,costLeft,costRight,cost);
+	float nosplitcost=m_intersectionCost*p_tris->size();
 	// extra break condition to leaf, if too expensive to split
-	if (splitpos!=0.0f && costRight + costLeft-p_cost > p_cost && p_tris->size() < 2*(KD_MIN_INDICES_IN_NODE/3))
+	if (/*splitpos!=0.0f && */cost>nosplitcost)
     {
 		p_node.setToLeaf();
 		generateLeaf(p_treeId,&p_node,p_tris,leafdatalist,(int)p_tris->size());
@@ -341,7 +343,7 @@ bool KDTreeFactory::triIntersectNode( const Triparam& p_tri, const glm::vec3& po
 	return true;
 }
 
-float KDTreeFactory::findOptimalSplitPos( vector<Tri>* p_tris, const KDAxisMark& p_axis, const glm::vec3& p_currentSize, const glm::vec3& p_currentPos,float& p_outCostLeft,float& p_outCostRight )
+float KDTreeFactory::findOptimalSplitPos( vector<Tri>* p_tris, const KDAxisMark& p_axis, const glm::vec3& p_currentSize, float p_currentArea, const glm::vec3& p_currentPos,float& p_outCostLeft,float& p_outCostRight, float& p_outCost )
 {
 	float bestpos = 0.0f;
 	float bestcost = FLT_MAX;
@@ -359,7 +361,7 @@ float KDTreeFactory::findOptimalSplitPos( vector<Tri>* p_tris, const KDAxisMark&
 		right_extreme = getExtreme(aabbMax, aabbMin, axis, p_currentPos, EXTREME::RIGHT);
 		//if (left_extreme<entrywiseMul(p_currentSize*0.5f,axis) )
 
-		float cost = calculatecost( p_tris, left_extreme, axis, p_currentSize,p_currentPos,leftC,rightC);
+		float cost = calculatecost( p_tris, left_extreme, axis, p_currentSize,p_currentArea, p_currentPos,leftC,rightC);
 		if (cost < bestcost)
 		{
 			bestcost = cost; bestpos = left_extreme;
@@ -368,7 +370,7 @@ float KDTreeFactory::findOptimalSplitPos( vector<Tri>* p_tris, const KDAxisMark&
 		}
 
 		//if (cost >= 1000000) Debug.Log("L!!! " + cost);
-		cost = calculatecost(p_tris, right_extreme, axis, p_currentSize, p_currentPos,leftC,rightC);
+		cost = calculatecost(p_tris, right_extreme, axis, p_currentSize, p_currentArea, p_currentPos,leftC,rightC);
 		if (cost < bestcost)
 		{
 			bestcost = cost; bestpos = right_extreme;
@@ -377,6 +379,7 @@ float KDTreeFactory::findOptimalSplitPos( vector<Tri>* p_tris, const KDAxisMark&
 		}
 		//if (cost >= 1000000) Debug.Log("R!!! " + cost);
 	}
+	p_outCost=bestcost;
 	return bestpos;
 }
 
@@ -418,7 +421,7 @@ float KDTreeFactory::getExtreme( const glm::vec3& p_triangleExtentsMax, const gl
 }
 
 
-float KDTreeFactory::calculatecost( vector<Tri>* p_tris, float p_splitpos, const glm::vec3& p_axis, const glm::vec3& p_currentSize, const glm::vec3& p_currentPos,float& p_outCostLeft,float& p_outCostRight )
+float KDTreeFactory::calculatecost( vector<Tri>* p_tris, float p_splitpos, const glm::vec3& p_axis, const glm::vec3& p_currentSize, float p_currentArea, const glm::vec3& p_currentPos,float& p_outCostLeft,float& p_outCostRight )
 {
 	glm::vec3 lsize;
 	glm::vec3 rsize;
@@ -433,15 +436,15 @@ float KDTreeFactory::calculatecost( vector<Tri>* p_tris, float p_splitpos, const
 		leftcount,rightcount);
 
 	//return m_traversalCost + m_intersectionCost * (leftarea * (float)leftcount + rightarea * (float)rightcount);
-	p_outCostLeft=m_traversalCost*0.5f + m_intersectionCost * (leftarea * (float)leftcount);
-	p_outCostRight=m_traversalCost*0.5f + m_intersectionCost * (rightarea * (float)rightcount);
-	return m_traversalCost + m_intersectionCost * (leftarea * (float)leftcount + rightarea * (float)rightcount);
+	p_outCostLeft=m_traversalCost*0.5f + m_intersectionCost * (leftarea/p_currentArea * (float)leftcount);
+	p_outCostRight=m_traversalCost*0.5f + m_intersectionCost * (rightarea/p_currentArea * (float)rightcount);
+	return m_traversalCost + m_intersectionCost * (leftarea/p_currentArea * (float)leftcount + rightarea/p_currentArea * (float)rightcount);
 }
 
 void KDTreeFactory::calculatePrimitiveCount( vector<Tri>* p_tris,const glm::vec3& p_leftBox,const glm::vec3& p_rightBox, const glm::vec3& p_leftBoxPos, const glm::vec3& p_rightBoxPos, int& p_outLeftCount, int& p_outRightCount )
 {
-	p_outLeftCount=0;
-	p_outRightCount=0;
+	//p_outLeftCount=0;
+	//p_outRightCount=0;
 	for (int i=0;i<p_tris->size();i++)
 	{
 		Triparam param = {i,(*p_tris)[i]};
@@ -456,7 +459,7 @@ void KDTreeFactory::calculatePrimitiveCount( vector<Tri>* p_tris,const glm::vec3
 	}
 }
 
-float KDTreeFactory::calculateArea( glm::vec3& p_extents )
+float KDTreeFactory::calculateArea( const glm::vec3& p_extents )
 {
 	return 2.0f * p_extents.x * p_extents.y * p_extents.z;
 }
