@@ -146,6 +146,7 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 			float3 expb = kdStack[exitpoint].m_pb;
 			float entry_pb[3]  ={enpb.x,enpb.y,enpb.z};
 			float exit_pb[3]  ={expb.x,expb.y,expb.z};
+			bool nodeSet=false;
 			//--------------------------------------------------
 		    // if active axis of ENTRYpoint is less than split value
 			if (entry_pb[axis] <= splitpos) 
@@ -156,20 +157,23 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 					currNodeIdx = currNode.m_leftChildIdx; // iterate to the left child of current
 					//if (currNodeIdx<=0) return hitViz;
 					//currNode=p_nodes[currNodeIdx];
-					continue; // NEXT ITERATION!!!
+					nodeSet=true; // NEXT ITERATION!!!
 				}
 				if (exit_pb[axis] == splitpos) // if active axis of EXITpoint is equal to split dist LOL
 				{
 					currNodeIdx = currNode.m_leftChildIdx+1; // iterate to the right child of current
 					//if (currNodeIdx<=0) return hitViz;
 					//currNode=p_nodes[currNodeIdx];
-					continue; // NEXT ITERATION!!!
+					nodeSet=true; // NEXT ITERATION!!!
 				}
 				// Default: iterate to the left child of current
-				currNodeIdx = currNode.m_leftChildIdx; 
-				farchildNodeIdx = currNodeIdx + 1; // GetRight(); // set farchild to sibling of current
-				//if (currNodeIdx<=0) return hitViz;
-				//currNode=p_nodes[currNodeIdx];
+				if (!nodeSet)
+				{
+					currNodeIdx = currNode.m_leftChildIdx; 
+					farchildNodeIdx = currNodeIdx + 1; // GetRight(); // set farchild to sibling of current
+					//if (currNodeIdx<=0) return hitViz;
+					//currNode=p_nodes[currNodeIdx];
+				}
 			}
 			// if active axis of ENTRYpoint is more than or equal to split value
 			else
@@ -180,43 +184,49 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 					currNodeIdx = currNode.m_leftChildIdx+1; // iterate to the right child of current
 					//if (currNodeIdx<=0) return hitViz;
 					//currNode=p_nodes[currNodeIdx];
-					continue;  // NEXT ITERATION!!!
+					nodeSet=true;  // NEXT ITERATION!!!
 				}
 				// Default: iterate to the right child of current
-				farchildNodeIdx = currNodeIdx; // set sibling to left child of current
-				currNodeIdx = farchildNodeIdx + 1; // GetRight(); // set current to right child of current
-				//if (currNodeIdx<=0) return hitViz;
-				//currNode=p_nodes[currNodeIdx];
+				if (!nodeSet)
+				{
+					farchildNodeIdx = currNodeIdx; // set sibling to left child of current
+					currNodeIdx = farchildNodeIdx + 1; // GetRight(); // set current to right child of current
+					//if (currNodeIdx<=0) return hitViz;
+					//currNode=p_nodes[currNodeIdx];
+				}
 			}
-			//--------------------------------------------------
-			// update distance width 
-			t = (splitpos - aO[axis]) / aD[axis]; // set t-distance to (splitdist - (active axis of rayorig)) / (active axis of ray dir)
-			// increase exit point, and store it
-			int tmp = exitpoint;
-			exitpoint++;
-			// if the exitpoint==entrypoint, inrease exitpoint again
-			if (exitpoint == entrypoint) exitpoint++; 
-			// update pb
-			expb = kdStack[exitpoint].m_pb;
-			exit_pb[0] = expb.x; exit_pb[1]=expb.y; exit_pb[2]=expb.z;
-			// Set values for exitpoint
-			kdStack[exitpoint].m_prev = tmp; // previous is same if exitpoint wasnt entry, otherwise it is previous
-			kdStack[exitpoint].m_t = t;
-			kdStack[exitpoint].m_nodeIdx = farchildNodeIdx;
+			if (!nodeSet)
+			{
+				//--------------------------------------------------
+				// update distance width 
+				t = (splitpos - aO[axis]) / aD[axis]; // set t-distance to (splitdist - (active axis of rayorig)) / (active axis of ray dir)
+				// increase exit point, and store it
+				int tmp = exitpoint;
+				exitpoint++;
+				// if the exitpoint==entrypoint, inrease exitpoint again
+				if (exitpoint == entrypoint) exitpoint++; 
+				// update pb
+				expb = kdStack[exitpoint].m_pb;
+				exit_pb[0] = expb.x; exit_pb[1]=expb.y; exit_pb[2]=expb.z;
+				// Set values for exitpoint
+				kdStack[exitpoint].m_prev = tmp; // previous is same if exitpoint wasnt entry, otherwise it is previous
+				kdStack[exitpoint].m_t = t;
+				kdStack[exitpoint].m_nodeIdx = farchildNodeIdx;
 
-			exit_pb[axis]=splitpos;
-			kdStack[exitpoint].m_pb.x = exit_pb[0];kdStack[exitpoint].m_pb.y = exit_pb[1];kdStack[exitpoint].m_pb.z = exit_pb[2];
+				exit_pb[axis]=splitpos;
+				kdStack[exitpoint].m_pb.x = exit_pb[0];kdStack[exitpoint].m_pb.y = exit_pb[1];kdStack[exitpoint].m_pb.z = exit_pb[2];
 
-			int nextaxis = mod_list[axis + 1];
-			int prevaxis = mod_list[axis + 2];
+				int nextaxis = mod_list[axis + 1];
+				int prevaxis = mod_list[axis + 2];
 
-			exit_pb[0]=kdStack[exitpoint].m_pb.x; exit_pb[1]=kdStack[exitpoint].m_pb.y; exit_pb[2]=kdStack[exitpoint].m_pb.z;
-			exit_pb[nextaxis] = aO[nextaxis] + t * aD[nextaxis];
-			exit_pb[prevaxis] = aO[prevaxis] + t * aD[prevaxis];
-			kdStack[exitpoint].m_pb.x = exit_pb[0];kdStack[exitpoint].m_pb.y = exit_pb[1];kdStack[exitpoint].m_pb.z = exit_pb[2];
+				exit_pb[0]=kdStack[exitpoint].m_pb.x; exit_pb[1]=kdStack[exitpoint].m_pb.y; exit_pb[2]=kdStack[exitpoint].m_pb.z;
+				exit_pb[nextaxis] = aO[nextaxis] + t * aD[nextaxis];
+				exit_pb[prevaxis] = aO[prevaxis] + t * aD[prevaxis];
+				kdStack[exitpoint].m_pb.x = exit_pb[0];kdStack[exitpoint].m_pb.y = exit_pb[1];kdStack[exitpoint].m_pb.z = exit_pb[2];
+			}
 			// Fetch new node
-			//if (currNodeIdx<=0) return hitViz;
-			//currNode=p_nodes[currNodeIdx];
+			if (currNodeIdx<=0) return hitViz;
+			currNode=p_nodes[currNodeIdx];
 		}
 		//if (hitViz<0.47f) hitViz=1.0f;
 		hitViz+=make_float3(0.0f,0.0f,0.001f);
