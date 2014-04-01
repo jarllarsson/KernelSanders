@@ -74,6 +74,7 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 				 numTris=min(p_numTris,MAXTRIS);
 	float3 kdExtents=p_kdExtents;
 	float3 kdPos=p_kdPos;
+	unsigned int numNodeIndices=p_numNodeIndices;
 
 
 	// =======================================================
@@ -157,6 +158,7 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	scene.numVerts=numVerts;
 	float3 kdCol=KDTraverse( &scene, &ray, kdExtents, kdPos,
 		p_nodes, p_leaflist, p_nodeIndices,
+		numNodeIndices,
 		p_verts,p_norms);
 	//for (unsigned int i=0;i<numIndices;i++)
 	//{

@@ -21,7 +21,8 @@ __device__ int getAxisNumber(DKDAxisMark p_axis)
 }
 
 __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_view,*/float3 p_extends, float3 p_pos,
-						 DKDNode* p_nodes, DKDLeaf* p_leaflist, unsigned int* p_nodeIndices,
+						 DKDNode* p_nodes, DKDLeaf* p_leaflist, unsigned int* p_nodeIndices, 
+						 unsigned int p_numNodeIndices,
 						 float3* p_verts,float3* p_norms)
 {
 	float3 hitViz;
@@ -38,7 +39,7 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 	float aD[3]  ={D.x, D.y, D.z};
 	float aO[3]  ={O.x, O.y, O.z};
 	int mod_list[5] = {0,1,2,0,1}; // modulo for axes
-	DKDStack kdStack[10]; // traversal stack
+	DKDStack kdStack[64]; // traversal stack
 
 	// Exclude rays which are pointing to the left (for axis) and with an origin (axis) less than box negative extents
 	// or if right to axis and origin more than positive extents
@@ -49,9 +50,9 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 	{
 		if (aD[i] < 0.0f) 
 		{
-			if (aO[i] < ap1[i]) return hitViz; // Negative extents(note that author has anchor in corner here)
+			if (aO[i] < ap1[i]) return make_float3(-1.0f,-1.0f,-1.0f); // Negative extents(note that author has anchor in corner here)
 		}
-		else if (aO[i] > ap2[i]) return hitViz;// positive extents
+		else if (aO[i] > ap2[i]) return make_float3(-1.0f,-1.0f,-1.0f);// positive extents
 	}
 	///////////////////////////////////////////
 	///////////////////////////////////////////
@@ -75,7 +76,7 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 			// clip start point
 			if (aO[i] < ap1[i]) tnear += (tfar - tnear) * ((ap1[i] - aO[i]) / (tfar * aD[i]));
 		}
-		if (tnear > tfar) return hitViz;
+		if (tnear > tfar) return make_float3(-1.0f,-1.0f,-1.0f);
 	}
 	O.x=aO[0];O.y=aO[0];O.y=aO[0]; // copy back
 	D.x=aD[0];D.y=aD[0];D.y=aD[0]; //
@@ -126,7 +127,7 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 	///////////////////////////////////////////
 	///////////////////////////////////////////
 	int breaker=4;
-
+	int totalIndices=0;
 	while (currNodeIdx>0/* && breaker>0*/) // While we have a current node
 	{
 		breaker--;
@@ -153,18 +154,21 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 				if (exit_pb[axis] <= splitpos) // if active axis of EXITpoint is less than split dist
 				{
 					currNodeIdx = currNode.m_leftChildIdx; // iterate to the left child of current
+					if (currNodeIdx<=0) return hitViz;
 					currNode=p_nodes[currNodeIdx];
 					continue; // NEXT ITERATION!!!
 				}
 				if (exit_pb[axis] == splitpos) // if active axis of EXITpoint is equal to split dist LOL
 				{
 					currNodeIdx = currNode.m_leftChildIdx+1; // iterate to the right child of current
+					if (currNodeIdx<=0) return hitViz;
 					currNode=p_nodes[currNodeIdx];
 					continue; // NEXT ITERATION!!!
 				}
 				// Default: iterate to the left child of current
 				currNodeIdx = currNode.m_leftChildIdx; 
 				farchildNodeIdx = currNodeIdx + 1; // GetRight(); // set farchild to sibling of current
+				if (currNodeIdx<=0) return hitViz;
 				currNode=p_nodes[currNodeIdx];
 			}
 			// if active axis of ENTRYpoint is more than or equal to split value
@@ -174,12 +178,14 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 				if (exit_pb[axis] > splitpos) // if active axis of EXITpoint is greater than split dist
 				{
 					currNodeIdx = currNode.m_leftChildIdx+1; // iterate to the right child of current
+					if (currNodeIdx<=0) return hitViz;
 					currNode=p_nodes[currNodeIdx];
 					continue;  // NEXT ITERATION!!!
 				}
 				// Default: iterate to the right child of current
 				farchildNodeIdx = currNodeIdx; // set sibling to left child of current
 				currNodeIdx = farchildNodeIdx + 1; // GetRight(); // set current to right child of current
+				if (currNodeIdx<=0) return hitViz;
 				currNode=p_nodes[currNodeIdx];
 			}
 			//--------------------------------------------------
@@ -208,6 +214,7 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 			exit_pb[prevaxis] = aO[prevaxis] + t * aD[prevaxis];
 			kdStack[exitpoint].m_pb.x = exit_pb[0];kdStack[exitpoint].m_pb.y = exit_pb[1];kdStack[exitpoint].m_pb.z = exit_pb[2];
 			// Fetch new node
+			if (currNodeIdx<=0) return hitViz;
 			currNode=p_nodes[currNodeIdx];
 		}
 		//if (hitViz<0.47f) hitViz=1.0f;
@@ -221,27 +228,35 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 		///////////////////////////////////////////
 		// Get list of current triangles for leaf
 		
-		//int leafId=currNode.m_leftChildIdx;
-		//DKDLeaf leaf=p_leaflist[leafId];
-		//int indexOffset=leaf.m_offset;
-		//int indexCount=leaf.m_count;
-		//indexCount -= cu_imaxi(0,(indexOffset+indexCount)-MAXMESHLOCAL_INDICESBIN);
-		//float dist = kdStack[exitpoint].m_t; // get the current max distance (voxel back)
-		//// Check all triangles that's in the node
-		//// Fetch all triangles in path
-		//int vertOffset=in_scene->numVerts;
-		//in_scene->numIndices+=indexCount;
-		//in_scene->numVerts+=indexCount;
-		//for (unsigned int i=0;i<indexCount;i++)
-		//{
-		//	int index=p_nodeIndices[indexOffset+i]; // fetch index
-		//	int newindex=vertOffset+i;
-		//	in_scene->meshVerts[newindex]=p_verts[index]; // and get corresponding
-		//	in_scene->meshNorms[newindex]=p_norms[index]; // vertex and normals data
-		//	in_scene->meshIndices[newindex]=newindex; // store new index (note this method creates vertex copies)
-		//}
-		//if (indexCount>=MAXMESHLOCAL_INDICESBIN)
-		//	break;
+		int leafId=currNode.m_leftChildIdx;
+
+		if (leafId>-1)
+		{
+			DKDLeaf leaf=p_leaflist[leafId];
+			int indexOffset=leaf.m_offset;
+			int indexCount=leaf.m_count;
+			indexCount = cu_imini(indexCount,(int)p_numNodeIndices-indexOffset);			
+			totalIndices+=indexCount;
+			if (totalIndices>=MAXMESHLOCAL_INDICESBIN)
+				indexCount-=totalIndices-MAXMESHLOCAL_INDICESBIN;
+			//float dist = kdStack[exitpoint].m_t; // get the current max distance (voxel back)
+			// Check all triangles that's in the node
+			// Fetch all triangles in path
+			int vertOffset=in_scene->numVerts;
+			in_scene->numIndices+=indexCount;
+			in_scene->numVerts+=indexCount;
+			for (unsigned int i=0;i<indexCount;i++)
+			{
+				unsigned int index=p_nodeIndices[indexOffset+i]; // fetch index
+				int newindex=vertOffset+i;
+				in_scene->meshVerts[newindex]=p_verts[index]; // and get corresponding
+				in_scene->meshNorms[newindex]=p_norms[index]; // vertex and normals data
+				in_scene->meshIndices[newindex]=newindex; // store new index (note this method creates vertex copies)
+			}
+			if (totalIndices>=MAXMESHLOCAL_INDICESBIN)
+				return hitViz;
+		}
+
 			
 		//return hitViz;
 		// If we got a hit, we return the result:
@@ -251,6 +266,7 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 		// By setting the new entry point to this voxel's exitpoint
 		entrypoint = exitpoint;
 		currNodeIdx = kdStack[exitpoint].m_nodeIdx;
+		if (currNodeIdx<=0) return hitViz;
 		currNode=p_nodes[currNodeIdx];
 		exitpoint = kdStack[entrypoint].m_prev;
 	}

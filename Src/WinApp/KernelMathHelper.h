@@ -54,6 +54,10 @@ inline __device__ float cu_clamp(float val, float minval, float maxval)
 {
 	return cu_fmaxf(cu_fminf(val,maxval),minval);
 }
+inline __device__ float cu_clampi(int val, int minval, int maxval)
+{
+	return cu_imaxi(cu_imini(val,maxval),minval);
+}
 inline __device__ float cu_saturate(float val)
 {
 	return cu_clamp(val,0.0f,1.0f);
