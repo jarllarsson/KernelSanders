@@ -114,7 +114,7 @@ void App::run()
 
 	// load assets
 	
-	int duck = m_modelImporter->loadFile("../Assets/teapots.DAE");
+	int duck = m_modelImporter->loadFile("../Assets/sphere_triangulate.dae");
 	ModelImporter::ModelData* duckMdl=m_modelImporter->getStoredModel(duck);
 
 	aiMesh* mmesh=duckMdl->m_model->mMeshes[0];

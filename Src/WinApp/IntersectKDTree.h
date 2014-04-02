@@ -168,20 +168,20 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 			bool nodeSet=false;
 			//--------------------------------------------------
 		    // if active axis of ENTRYpoint is less than split value
-			if (entry_pb[axis] >= splitpos) 
+			if (entry_pb[axis] <= splitpos) 
 			{
 				
-				if (exit_pb[axis] >= splitpos) // if active axis of EXITpoint is less than split dist
+				if (exit_pb[axis] <= splitpos) // if active axis of EXITpoint is less than split dist
 				{
 					//hitViz=make_float3(0.0f,0.5f,0.0f);
-					currNodeIdx = currNode.m_leftChildIdx; // iterate to the left child of current
+					currNodeIdx = currNode.m_leftChildIdx+1; // iterate to the left child of current
 					//if (currNodeIdx<=0) return hitViz;
 					//currNode=p_nodes[currNodeIdx];
 					nodeSet=true; // NEXT ITERATION!!!
 				}
-				if (exit_pb[axis] == splitpos) // if active axis of EXITpoint is equal to split dist LOL
+				if (!nodeSet && exit_pb[axis] == splitpos) // if active axis of EXITpoint is equal to split dist LOL
 				{
-					currNodeIdx = currNode.m_leftChildIdx+1; // iterate to the right child of current
+					currNodeIdx = currNode.m_leftChildIdx; // iterate to the right child of current
 					//if (currNodeIdx<=0) return hitViz;
 					//currNode=p_nodes[currNodeIdx];
 					nodeSet=true; // NEXT ITERATION!!!
@@ -189,8 +189,10 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 				// Default: iterate to the left child of current
 				if (!nodeSet)
 				{
-					currNodeIdx = currNode.m_leftChildIdx; 
-					farchildNodeIdx = currNodeIdx + 1; // GetRight(); // set farchild to sibling of current
+					 //currNodeIdx = currNode.m_leftChildIdx; 
+					 //farchildNodeIdx = currNodeIdx + 1; // GetRight(); // set farchild to sibling of current
+					currNodeIdx = currNode.m_leftChildIdx+1;
+					farchildNodeIdx = currNode.m_leftChildIdx;
 					//if (currNodeIdx<=0) return hitViz;
 					//currNode=p_nodes[currNodeIdx];
 				}
@@ -199,22 +201,24 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 			else
 			{
 				
-				if (exit_pb[axis] < splitpos) // if active axis of EXITpoint is greater than split dist
+				if (exit_pb[axis] > splitpos) // if active axis of EXITpoint is greater than split dist
 				{
 					//hitViz=make_float3(0.5f,0.0f,0.0f);
-					currNodeIdx = currNode.m_leftChildIdx+1; // iterate to the right child of current
+					currNodeIdx = currNode.m_leftChildIdx; // iterate to the right child of current
 					//if (currNodeIdx<=0) return hitViz;
 					//currNode=p_nodes[currNodeIdx];
 					nodeSet=true;  // NEXT ITERATION!!!
-				}
+				}					
 				// Default: iterate to the right child of current
 				if (!nodeSet)
 				{
-					farchildNodeIdx = currNodeIdx; // set sibling to left child of current
-					currNodeIdx = farchildNodeIdx + 1; // GetRight(); // set current to right child of current
+					 //farchildNodeIdx = currNodeIdx; // set sibling to left child of current
+					 //currNodeIdx = farchildNodeIdx + 1; // GetRight(); // set current to right child of current
+					currNodeIdx = currNode.m_leftChildIdx;
+					farchildNodeIdx = currNode.m_leftChildIdx+1;
 					//if (currNodeIdx<=0) return hitViz;
 					//currNode=p_nodes[currNodeIdx];
-				}
+				}			
 			}
 			if (!nodeSet)
 			{
@@ -277,9 +281,8 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 			test.reflection = 0.0f;
 
 			bool hit=false;
-			float dist=kdStack[exitpoint].m_t;
-			float od=intersection.dist;
-			if (dist<intersection.dist) intersection.dist=dist;
+			float maxdist=kdStack[exitpoint].m_t;
+			intersection.dist=maxdist;
 			unsigned int* ind = p_nodeIndices;
 			for (unsigned int i=0;i<indexCount;i+=3)
 			{			
@@ -291,12 +294,9 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 			}	// for each face (three indices)
 			if (hit)
 			{
-				return make_float3(intersection.normal.x,intersection.normal.y,intersection.normal.z);
+				return hitViz*(0.6f+(intersection.normal.x+intersection.normal.y+intersection.normal.z)/3.0f);
 			}
-			else
-			{
-				intersection.dist=od;
-			}
+
 /*
 			indexCount = cu_imini(indexCount,cu_imini(30,(int)p_numNodeIndices-indexOffset));			
 			totalIndices+=indexCount;
@@ -341,7 +341,7 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 	///////////////////////////////////////////
 	///////////////////////////////////////////
 
-	return hitViz+overlayViz;
+	return hitViz*0.6f+overlayViz;
 }
 
 #endif
