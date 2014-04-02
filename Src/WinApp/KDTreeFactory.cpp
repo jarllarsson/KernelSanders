@@ -164,7 +164,7 @@ int KDTreeFactory::buildKDTree( void* p_vec3ArrayXYZ,void* p_normArrayXYZ, int p
 	/////////////////////////////////////////////////////////////////////////////////
 	tree->push_back(KDNode());
 	tree->push_back(root);
-	subdivide(treeId, &triList, 0, 0, 1, boxCenter,boxExt,FLT_MAX); // start at 1	
+	subdivide(treeId, &triList, 0, 0, 1, boxCenter,boxExt,boxCenter,FLT_MAX); // start at 1	
 	/////////////////////////////////////////////////////////////////////////////////
 
 	QueryPerformanceCounter((LARGE_INTEGER*)&currTimeStamp);
@@ -180,7 +180,7 @@ int KDTreeFactory::buildKDTree( void* p_vec3ArrayXYZ,void* p_normArrayXYZ, int p
 
 
 
-void KDTreeFactory::subdivide( unsigned int p_treeId, vector<Tri>* p_tris, int p_dimsz, int p_dim, int p_idx, const glm::vec3& pos, const glm::vec3& parentSize, float p_cost )
+void KDTreeFactory::subdivide( unsigned int p_treeId, vector<Tri>* p_tris, int p_dimsz, int p_dim, int p_idx, const glm::vec3& pos, const glm::vec3& parentSize,const glm::vec3& splitOffset, float p_cost )
 {
 	//p_node.pos = pos;
 	//p_node.size = parentSize;
@@ -254,9 +254,9 @@ void KDTreeFactory::subdivide( unsigned int p_treeId, vector<Tri>* p_tris, int p
 	glm::vec3 tsplit(split.x,split.y,split.z);
 	KDAxisMark transposedsplit=KDAxisMark(tsplit.x,tsplit.y,tsplit.z);
 	p_node.setAxis(transposedsplit);
-	/* glm::vec3 splitoffset=entrywiseMul(parentSize*0.0f ,split);
-	float splitposoffset=splitoffset.x+splitoffset.y+splitoffset.z;*/
-	p_node.setPos(splitpos/*+splitposoffset*/);
+	glm::vec3 splitoffset=entrywiseMul(parentSize*0.0f ,split);
+	float splitposoffset=splitoffset.x+splitoffset.y+splitoffset.z;
+	p_node.setPos(splitpos+splitposoffset);
 
 	// all changes made to node, add it to list
 	(*tree)[p_idx]=p_node; 
@@ -283,9 +283,9 @@ void KDTreeFactory::subdivide( unsigned int p_treeId, vector<Tri>* p_tris, int p
 		}
 	}
 	//Debug.Log("stack: "+m_tempTriListStack.Count);
-	subdivide(p_treeId, &leftTris, p_dimsz + 1, p_dim + 1, p_node.getLeftChild(), leftBoxPos, leftBox,costLeft); // power of two structure
+	subdivide(p_treeId, &leftTris, p_dimsz + 1, p_dim + 1, p_node.getLeftChild(), leftBoxPos, leftBox, pos, costLeft); // power of two structure
 	//m_tempTriListStack->pop();
-	subdivide(p_treeId, &rightTris,p_dimsz + 1, p_dim + 1, p_node.getRightChild(), rightBoxPos, rightBox,costRight);
+	subdivide(p_treeId, &rightTris,p_dimsz + 1, p_dim + 1, p_node.getRightChild(), rightBoxPos, rightBox, pos, costRight);
 	//m_tempTriListStack->pop();
 }
 

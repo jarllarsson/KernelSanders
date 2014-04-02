@@ -43,7 +43,7 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 	float3 p1 = treePos - treeExt*0.5f;				// Get box min
 	float3 p2 = treePos + treeExt*0.5f;			// Get box max (world space)
 	//mat4mul(&p_view,&p1, &p1);
-	float3 D = make_float3(in_ray->dir.x,in_ray->dir.y,in_ray->dir.z), 
+	float3 D = make_float3(in_ray->dir.x,in_ray->dir.y,in_ray->dir.z)-treePos, 
 		   O = make_float3(in_ray->origin.x,in_ray->origin.y,in_ray->origin.z);	// Get ray
 	// store in small arrays for axis access
 	float ap1[3]={p1.x,p1.y,p1.z};
@@ -144,10 +144,10 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 			bool nodeSet=false;
 			//--------------------------------------------------
 		    // if active axis of ENTRYpoint is less than split value
-			if (entry_pb[axis] <= splitpos) 
+			if (entry_pb[axis] >= splitpos) 
 			{
 				
-				if (exit_pb[axis] <= splitpos) // if active axis of EXITpoint is less than split dist
+				if (exit_pb[axis] >= splitpos) // if active axis of EXITpoint is less than split dist
 				{
 					//hitViz=make_float3(0.0f,0.5f,0.0f);
 					currNodeIdx = currNode.m_leftChildIdx; // iterate to the left child of current
@@ -175,7 +175,7 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 			else
 			{
 				
-				if (exit_pb[axis] > splitpos) // if active axis of EXITpoint is greater than split dist
+				if (exit_pb[axis] < splitpos) // if active axis of EXITpoint is greater than split dist
 				{
 					//hitViz=make_float3(0.5f,0.0f,0.0f);
 					currNodeIdx = currNode.m_leftChildIdx+1; // iterate to the right child of current

@@ -59,7 +59,7 @@ private:
 		Tri m_tri;
 	};
 
-	void subdivide(unsigned int p_treeId, vector<Tri>* p_tris, int p_dimsz, int p_dim, int p_idx, const glm::vec3& pos, const glm::vec3& parentSize, float p_cost);
+	void subdivide(unsigned int p_treeId, vector<Tri>* p_tris, int p_dimsz, int p_dim, int p_idx, const glm::vec3& pos, const glm::vec3& parentSize,const glm::vec3& splitOffset, float p_cost);
 
 	bool triIntersectNode(const Triparam& p_tri, const glm::vec3& pos, const glm::vec3& parentSize);
 
