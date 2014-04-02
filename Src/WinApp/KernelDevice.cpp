@@ -27,6 +27,11 @@ KernelDevice::KernelDevice( void* p_device )
 	m_normsArray=NULL;
 	m_indicesArray=NULL;
 	m_trisArray=NULL;
+	m_nodesArray=NULL;
+	m_leafArray=NULL;
+	m_nodeIndicesArray=NULL;
+
+
 
 	m_raytracer = new RaytraceKernel();
 }
@@ -124,10 +129,10 @@ void KernelDevice::executeKernelJob( float p_dt, KernelJob p_jobId )
 
 			// Cuda memory
 			blob.m_cb=&m_cb;
-			blob.m_vertsLinearMemDeviceRef = &m_vertArray;
-			blob.m_normsLinearMemDeviceRef = &m_normsArray;
-			blob.m_indicesLinearMemDeviceRef = &m_indicesArray;
-			blob.m_trisLinearMemDeviceRef = &m_trisArray;
+			blob.m_vertsLinearMemDeviceRef			= &m_vertArray;
+			blob.m_normsLinearMemDeviceRef			= &m_normsArray;
+			blob.m_indicesLinearMemDeviceRef		= &m_indicesArray;
+			blob.m_trisLinearMemDeviceRef			= &m_trisArray;
 			blob.m_nodesLinearMemDeviceRef			= &m_nodesArray;
 			blob.m_nodeLeavesLinearMemDeviceRef		= &m_leafArray;
 			blob.m_nodeIndicesLinearMemDeviceRef	= &m_nodeIndicesArray;

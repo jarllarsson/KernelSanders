@@ -149,20 +149,15 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 	// traverse kd-tree
 	///////////////////////////////////////////
 	///////////////////////////////////////////
-	int breaker=4;
 	int totalIndices=0;
-	bool hitTri=false;
 	while (currNodeIdx>0/* && breaker>0*/) // While we have a current node
 	{
-		breaker--;
 		currNode=p_nodes[currNodeIdx]; // Copy current node to register
 
 		///////////////////////////////////////////
 		// While we have a current node that is not a leaf
-		float bbr=1.0f;
 		while (currNode.m_isLeaf<1/* && bbr>0.0f*/)
 		{
-			bbr-=0.01f;
 			// get split dist and axis for node
 			float splitpos = currNode.m_position;
 			int axis = getAxisNumber(currNode.m_split); // get the current active axis 0=x,1=y,2=z (index used for addressing)
@@ -300,7 +295,7 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 			}
 			else
 			{
-				//intersection.dist=od;
+				intersection.dist=od;
 			}
 /*
 			indexCount = cu_imini(indexCount,cu_imini(30,(int)p_numNodeIndices-indexOffset));			

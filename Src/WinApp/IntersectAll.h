@@ -65,21 +65,21 @@ __device__ bool IntersectAll(const Scene* in_scene, const Ray* in_ray, Intersect
 	}	// for each tri
 
 	//#pragma unroll MAXTRIS
-	Material test;
-	test.diffuse = make_float4(1.0f, 0.0f, 0.0f,1.0f);
-	test.specular = make_float4(0.0f, 0.0f, 0.0f,0.0f);
-	test.reflection = 0.0f;
-	for (int i=0;i<in_scene->numIndices;i+=3)
-	{
-		const unsigned int* ind = in_scene->meshIndices;
-		result|=IntersectTriangle(in_scene->meshVerts, in_scene->meshNorms, 
-								  min(ind[i],MAXMESHLOCAL_VERTSBIN-1), min(ind[i+1],MAXMESHLOCAL_VERTSBIN-1), min(ind[i+2],MAXMESHLOCAL_VERTSBIN-1), 
-								  &test, 
-								  in_ray, inout_intersection,storeResults);
-		if (result && breakOnFirst) 
-			return true;
-
-	}	// for each face (three indices)
+	//Material test;
+	//test.diffuse = make_float4(1.0f, 0.0f, 0.0f,1.0f);
+	//test.specular = make_float4(0.0f, 0.0f, 0.0f,0.0f);
+	//test.reflection = 0.0f;
+	//for (int i=0;i<in_scene->numIndices;i+=3)
+	//{
+	//	const unsigned int* ind = in_scene->meshIndices;
+	//	result|=IntersectTriangle(in_scene->meshVerts, in_scene->meshNorms, 
+	//							  min(ind[i],MAXMESHLOCAL_VERTSBIN-1), min(ind[i+1],MAXMESHLOCAL_VERTSBIN-1), min(ind[i+2],MAXMESHLOCAL_VERTSBIN-1), 
+	//							  &test, 
+	//							  in_ray, inout_intersection,storeResults);
+	//	if (result && breakOnFirst) 
+	//		return true;
+	//
+	//}	// for each face (three indices)
 
 
 	#pragma unroll MAXBOXES

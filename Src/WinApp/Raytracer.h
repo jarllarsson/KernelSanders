@@ -156,19 +156,20 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	// copy data for mesh
 	scene.numIndices=0;
 	scene.numVerts=0;
-	float3 kdCol=KDTraverse( &scene, &ray, kdExtents, kdPos,
+	float3 kdCol=make_float3(0.0f,0.0f,0.0f);
+	kdCol=KDTraverse( &scene, &ray, kdExtents, kdPos,
 		p_nodes, p_leaflist, p_nodeIndices,
 		numNodeIndices,
 		p_verts,p_norms);
-	//for (unsigned int i=0;i<numIndices;i++)
-	//{
-	//	scene.meshIndices[i]=p_indices[i];
-	//}
-	//for (unsigned int i=0;i<numVerts;i++)
-	//{
-	//	scene.meshVerts[i]=p_verts[i];
-	//	scene.meshNorms[i]=p_norms[i];
-	//}
+	for (unsigned int i=0;i<numIndices;i++)
+	{
+		scene.meshIndices[i]=p_indices[i];
+	}
+	for (unsigned int i=0;i<numVerts;i++)
+	{
+		scene.meshVerts[i]=p_verts[i];
+		scene.meshNorms[i]=p_norms[i];
+	}
 
 	// define some boxes
 	for (int i=0;i<MAXBOXES;i++)
