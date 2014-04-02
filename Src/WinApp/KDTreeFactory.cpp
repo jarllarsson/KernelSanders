@@ -180,7 +180,7 @@ int KDTreeFactory::buildKDTree( void* p_vec3ArrayXYZ,void* p_normArrayXYZ, int p
 
 
 
-void KDTreeFactory::subdivide( unsigned int p_treeId, vector<Tri>* p_tris, int p_dimsz, int p_dim, int p_idx, const glm::vec3& pos, const glm::vec3& parentSize,const glm::vec3& splitOffset, float p_cost )
+void KDTreeFactory::subdivide( unsigned int p_treeId, vector<Tri>* p_tris, int p_dimsz, int p_dim, int p_idx, const glm::vec3& pos, const glm::vec3& parentSize,const glm::vec3& p_splitOffset, float p_cost )
 {
 	//p_node.pos = pos;
 	//p_node.size = parentSize;
@@ -193,7 +193,7 @@ void KDTreeFactory::subdivide( unsigned int p_treeId, vector<Tri>* p_tris, int p
 	KDBounds nodeBounds={pos,parentSize};
 	debugboundslist->push_back(nodeBounds);
 	// End condition
-	if (p_dimsz > 1 || p_tris->size() < KD_MIN_INDICES_IN_NODE/3/* || p_idx/ *<<1* />sc_treeListMaxSize/ *-2* /*/) 
+	if (p_dimsz > 20 || p_tris->size() < KD_MIN_INDICES_IN_NODE/3/* || p_idx/ *<<1* />sc_treeListMaxSize/ *-2* /*/) 
 	{
 		int rem=(int)p_tris->size();
 		//
@@ -254,9 +254,14 @@ void KDTreeFactory::subdivide( unsigned int p_treeId, vector<Tri>* p_tris, int p
 	glm::vec3 tsplit(split.x,split.y,split.z);
 	KDAxisMark transposedsplit=KDAxisMark(tsplit.x,tsplit.y,tsplit.z);
 	p_node.setAxis(transposedsplit);
-	glm::vec3 splitoffset=entrywiseMul(parentSize*0.0f ,split);
-	float splitposoffset=splitoffset.x+splitoffset.y+splitoffset.z;
-	p_node.setPos(splitpos+splitposoffset);
+	glm::vec3 splitOffsetMask=entrywiseMul(p_splitOffset ,split);
+	float splitposoffset=splitOffsetMask.x+splitOffsetMask.y+splitOffsetMask.z;
+
+	float splitposW=splitposoffset+splitpos;
+	p_node.setPos(splitposW);
+
+	glm::vec3 nextLeftOffset = leftBoxPos/* + 1.0f * entrywiseMul(rsize, split)*/;
+	glm::vec3 nextRightOffset= rightBoxPos/* + 2.0f * entrywiseMul(lsize, split)*/;
 
 	// all changes made to node, add it to list
 	(*tree)[p_idx]=p_node; 
@@ -283,9 +288,9 @@ void KDTreeFactory::subdivide( unsigned int p_treeId, vector<Tri>* p_tris, int p
 		}
 	}
 	//Debug.Log("stack: "+m_tempTriListStack.Count);
-	subdivide(p_treeId, &leftTris, p_dimsz + 1, p_dim + 1, p_node.getLeftChild(), leftBoxPos, leftBox, pos, costLeft); // power of two structure
+	subdivide(p_treeId, &leftTris, p_dimsz + 1, p_dim + 1, p_node.getLeftChild(), leftBoxPos, leftBox, nextLeftOffset, costLeft); // power of two structure
 	//m_tempTriListStack->pop();
-	subdivide(p_treeId, &rightTris,p_dimsz + 1, p_dim + 1, p_node.getRightChild(), rightBoxPos, rightBox, pos, costRight);
+	subdivide(p_treeId, &rightTris,p_dimsz + 1, p_dim + 1, p_node.getRightChild(), rightBoxPos, rightBox, nextRightOffset, costRight);
 	//m_tempTriListStack->pop();
 }
 

@@ -26,16 +26,30 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 						 unsigned int p_numNodeIndices,
 						 float3* p_verts,float3* p_norms)
 {
-	float3 colarr[6]={make_float3(1.0f,0.0f,0.0f),
-					  make_float3(0.0f,1.0f,0.0f),
-					  make_float3(0.0f,0.0f,1.0f),
-					  make_float3(1.0f,0.0f,1.0f),
-					  make_float3(0.0f,1.0f,1.0f),
-					  make_float3(1.0f,1.0f,0.0f)};
+	float3 colarr[18]={make_float3(1.0f,0.0f,0.0f),
+					   make_float3(0.0f,1.0f,0.0f),
+					   make_float3(0.0f,0.0f,1.0f),
+					   make_float3(1.0f,0.0f,1.0f),
+					   make_float3(0.0f,1.0f,1.0f),
+					   make_float3(1.0f,1.0f,0.0f),
+					   make_float3(1.0f,0.5f,0.0f),
+					   make_float3(0.5f,1.0f,0.0f),
+					   make_float3(1.0f,0.0f,0.5f),
+					   make_float3(0.5f,0.5f,0.5f),
+					   make_float3(1.0f,0.7f,0.7f),
+					   make_float3(1.0f,1.0f,0.2f),
+					   make_float3(0.33f,0.25f,0.4f),
+					   make_float3(0.8f,1.0f,0.24f),
+					   make_float3(0.0f,0.66f,0.5f),
+					   make_float3(0.1f,0.231f,0.13f),
+					   make_float3(0.87f,0.5f,1.0f),
+					   make_float3(0.2f,0.2f,1.0f)};
+
 
 
 	float3 result=make_float3(0.0f,0.0f,0.0f);
-	float3 hitViz=make_float3(0.0f,0.0f,0.0f);
+	float3 hitViz=make_float3(0.25f,0.15f,0.15f);
+	float3 overlayViz=make_float3(0.0f,0.0f,0.0f);
 	float tnear = 0.0f, tfar = MAX_INTERSECT_DIST, t;
 	int retval = 0;
 	float3 treePos=p_pos;
@@ -43,7 +57,7 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 	float3 p1 = treePos - treeExt*0.5f;				// Get box min
 	float3 p2 = treePos + treeExt*0.5f;			// Get box max (world space)
 	//mat4mul(&p_view,&p1, &p1);
-	float3 D = make_float3(in_ray->dir.x,in_ray->dir.y,in_ray->dir.z)-treePos, 
+	float3 D = make_float3(in_ray->dir.x,in_ray->dir.y,in_ray->dir.z), 
 		   O = make_float3(in_ray->origin.x,in_ray->origin.y,in_ray->origin.z);	// Get ray
 	// store in small arrays for axis access
 	float ap1[3]={p1.x,p1.y,p1.z};
@@ -62,9 +76,9 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 	{
 		if (aD[i] < 0.0f) 
 		{
-			if (aO[i] < ap1[i]) return make_float3(0.0f,0.0f,0.0f); // Negative extents(note that author has anchor in corner here)
+			if (aO[i] < ap1[i]) return make_float3(1.0f,1.0f,1.0f); // Negative extents(note that author has anchor in corner here)
 		}
-		else if (aO[i] > ap2[i]) return make_float3(0.0f,0.0f,0.0f);// positive extents
+		else if (aO[i] > ap2[i]) return make_float3(1.0f,1.0f,1.0f);// positive extents
 	}
 	///////////////////////////////////////////
 	///////////////////////////////////////////
@@ -72,8 +86,12 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 	///////////////////////////////////////////
 	bool isInside=IntersectAABBCage(treePos, treeExt, in_ray, tfar, tnear, tfar);
 	if (!isInside) 
-		return make_float3(0.0f,0.0f,0.0f);
-
+		return make_float3(1.0f,1.0f,1.0f);
+	if (tnear>tfar)
+	{
+		tfar=tnear;
+		tnear=0.0f;
+	}
 
 	///////////////////////////////////////////
 	///////////////////////////////////////////
@@ -222,8 +240,9 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 				kdStack[exitpoint].m_pb.x = exit_pb[0];kdStack[exitpoint].m_pb.y = exit_pb[1];kdStack[exitpoint].m_pb.z = exit_pb[2];
 			}
 			// Fetch new node
-			if (currNodeIdx<=0) return hitViz;
+			if (currNodeIdx<=0) return make_float3(1.0f,1.0f,1.0f);
 			currNode=p_nodes[currNodeIdx];
+
 		}
 		//if (hitViz<0.47f) hitViz=1.0f;
 		//hitViz+=make_float3(0.0f,0.0f,0.01f);
@@ -235,17 +254,19 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 
 		///////////////////////////////////////////
 		// Get list of current triangles for leaf
-		
+					
+		if (currNodeIdx>0) hitViz=colarr[currNodeIdx%17];
+		if (currNodeIdx>0) overlayViz+=colarr[currNodeIdx%17]*0.05f;
 		int leafId=currNode.m_leftChildIdx;
-		if (leafId>-1) hitViz+=colarr[leafId%5]*0.5f;
-#ifdef YEAH
+		
+
 		if (leafId>-1)
 		{
 			
 			DKDLeaf leaf=p_leaflist[leafId];
 			int indexOffset=leaf.m_offset;
 			int indexCount=leaf.m_count;
-
+#ifdef YEAH
 			Material test;
 			test.diffuse = hitViz;
 			test.specular = make_float4(0.0f, 0.0f, 0.0f,0.0f);
@@ -286,9 +307,9 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 			//hitViz=make_float3(1.2f*(float)in_scene->numIndices/(float)MAXMESHLOCAL_INDICESBIN,0.0f,0.0f);
 			if (in_scene->numIndices>=MAXMESHLOCAL_INDICESBIN-1)
 				return make_float3(0.0f,0.0f,0.0f);
-
-		}
 #endif
+		}
+
 			
 		//return hitViz;
 		// If we got a hit, we return the result:
