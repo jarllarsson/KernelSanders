@@ -4,6 +4,7 @@
 #include <ToString.h>
 #include <DebugPrint.h>
 #include "KDTreeFactory.h"
+#include <Util.h>
 
 
 
@@ -47,6 +48,18 @@ int planeBoxOverlap(glm::vec3& normal,float d, float maxbox[3])
 	if(glm::dot(normal,vmax)+d>=0.0f) return 1;
 
 	return 0;
+}
+
+glm::vec3 calcNormalOfFace( glm::vec3* verts[3], glm::vec3* normals[3] )
+{
+	glm::vec3 p0 = (*verts)[1] - (*normals)[0];
+	glm::vec3 p1 = (*verts)[2] - (*normals)[0];
+	glm::vec3 faceNormal = glm::cross( p0, p1 );
+
+	glm::vec3 vertexNormal = (((*normals)[0]*(*normals)[1]+(*normals)[2])/3.0f);
+	float dot = glm::dot( faceNormal, vertexNormal );
+
+	return ( dot < 0.0f ) ? -faceNormal : faceNormal;
 }
 
 /*======================== X-tests ========================*/
@@ -136,6 +149,8 @@ int KDTreeFactory::buildKDTree( void* p_vec3ArrayXYZ,void* p_normArrayXYZ, int p
 	m_tempVertexList=(glm::vec3*)p_vec3ArrayXYZ;
 	m_tempNormalsList=(glm::vec3*)p_normArrayXYZ;
 	vector<Tri> triList((Tri*)p_indexArray,(Tri*)p_indexArray+p_iCount/3);
+	m_tempFaceNormalsList.clear();
+	m_tempFaceNormalsList.assign(p_iCount/3,NULL);
 	// Create root node
 	KDNode root;
 	//m_tempTriListStack->push(&triList);
@@ -172,6 +187,12 @@ int KDTreeFactory::buildKDTree( void* p_vec3ArrayXYZ,void* p_normArrayXYZ, int p
 	double timing=((currTimeStamp - prevTimeStamp) * secsPerCount);
 	DEBUGWARNING(( (string("KD Tree build time for ")+toString(p_vertCount)+string(" vertices :")+toString(timing)+string(" seconds.")).c_str() ));
 
+	for (int i=0;i<m_tempFaceNormalsList.size();i++)
+	{
+		SAFE_DELETE(m_tempFaceNormalsList[i]);
+	}
+	m_tempFaceNormalsList.clear();
+
 	//m_tempObjectsStack.pop();
 	//Debug.Log("fin stack: " + m_tempObjectsStack.Count);
 	// Build rest of tree using it
@@ -193,7 +214,7 @@ void KDTreeFactory::subdivide( unsigned int p_treeId, vector<Tri>* p_tris, int p
 	KDBounds nodeBounds={pos,parentSize};
 	debugboundslist->push_back(nodeBounds);
 	// End condition
-	if (p_dimsz > 3 || p_tris->size() < KD_MIN_INDICES_IN_NODE/3/* || p_idx/ *<<1* />sc_treeListMaxSize/ *-2* /*/) 
+	if (p_dimsz > 7 || p_tris->size() < KD_MIN_INDICES_IN_NODE/3/* || p_idx/ *<<1* />sc_treeListMaxSize/ *-2* /*/) 
 	{
 		int rem=(int)p_tris->size();
 		//
@@ -276,12 +297,12 @@ void KDTreeFactory::subdivide( unsigned int p_treeId, vector<Tri>* p_tris, int p
 	for (unsigned int i=0;i<count;i++)
 	{
 		Triparam param = {i,(*p_tris)[i]};
-		if (triIntersectNode(param,leftBoxPos, leftBox)) 
+		if (triIntersectNode(param,leftBoxPos, leftBox*1.05f)) 
 		{
 			//p_node.m_objects.Remove(obj);
 			leftTris.push_back(param.m_tri);
 		}
-		if (triIntersectNode(param, rightBoxPos, rightBox))
+		if (triIntersectNode(param, rightBoxPos, rightBox*1.05f))
 		{
 			//p_node.m_objects.Remove(obj);
 			rightTris.push_back(param.m_tri);
@@ -296,10 +317,27 @@ void KDTreeFactory::subdivide( unsigned int p_treeId, vector<Tri>* p_tris, int p
 
 bool KDTreeFactory::triIntersectNode( const Triparam& p_tri, const glm::vec3& pos, const glm::vec3& parentSize )
 {
-	glm::vec3* pv0=m_tempVertexList+(p_tri.m_tri.m_ids[0]);
-	glm::vec3* pv1=m_tempVertexList+(p_tri.m_tri.m_ids[1]);
-	glm::vec3* pv2=m_tempVertexList+(p_tri.m_tri.m_ids[2]);
-	glm::vec3* normal=m_tempNormalsList+(p_tri.m_faceId);
+	glm::vec3 pv0=(*(m_tempVertexList+(p_tri.m_tri.m_ids[0])));
+	glm::vec3 pv1=(*(m_tempVertexList+(p_tri.m_tri.m_ids[1])));
+	glm::vec3 pv2=(*(m_tempVertexList+(p_tri.m_tri.m_ids[2])));
+	// If face normal doesn't exist, create it and cache it!
+	//int facenormalIdx=(p_tri.m_faceId);
+	//if (m_tempFaceNormalsList[facenormalIdx]==NULL)
+	//{
+	//	glm::vec3* nv0=m_tempNormalsList+(p_tri.m_tri.m_ids[0]);
+	//	glm::vec3* nv1=m_tempNormalsList+(p_tri.m_tri.m_ids[1]);
+	//	glm::vec3* nv2=m_tempNormalsList+(p_tri.m_tri.m_ids[2]);
+	//	glm::vec3* v[]={pv0,pv1,pv2};
+	//	glm::vec3* n[]={nv0,nv1,nv2};
+	//	m_tempFaceNormalsList[facenormalIdx]=new glm::vec3(calcNormalOfFace(v,n));
+	//}
+	glm::vec3* nv0=m_tempNormalsList+(p_tri.m_tri.m_ids[0]);
+	glm::vec3* nv1=m_tempNormalsList+(p_tri.m_tri.m_ids[1]);
+	glm::vec3* nv2=m_tempNormalsList+(p_tri.m_tri.m_ids[2]);
+	glm::vec3 normal( ((*nv0)+(*nv1)+(*nv2))/3.0f );
+	//normal *= FLT_EPSILON;
+		//m_tempFaceNormalsList[facenormalIdx];
+
 	float boxhalfsize[3]={parentSize.x*0.5f,parentSize.y*0.5f,parentSize.z*0.5f};
 	// Use triangle-box overlap from Realtime rendering III pp.760-762
 	// http://fileadmin.cs.lth.se/cs/Personal/Tomas_Akenine-Moller/code/tribox2.txt
@@ -309,12 +347,16 @@ bool KDTreeFactory::triIntersectNode( const Triparam& p_tri, const glm::vec3& po
 	float trimin, trimax, p0, p1, p2, d, rad, fex, fey, fez;
 	// Subtract box center from vertex position
 	// to get triangle in aabb space
-	v0 = *pv0 - pos;
-	v1 = *pv1 - pos;
-	v2 = *pv2 - pos;
+	v0 = pv0 - pos;
+	v1 = pv1 - pos;
+	v2 = pv2 - pos;
+	// pad extents of halsize
+	boxhalfsize[0]+=max(max(abs(v0.x),abs(v1.x)),abs(v2.x))*0.5555f+FLT_EPSILON;
+	boxhalfsize[1]+=max(max(abs(v0.y),abs(v1.y)),abs(v2.y))*0.5555f+FLT_EPSILON;
+	boxhalfsize[2]+=max(max(abs(v0.z),abs(v1.z)),abs(v2.z))*0.5555f+FLT_EPSILON;
 	// Calc edges
 	e0 = v1 - v0, e1 = v2 - v1, e2 = v0 - v2;
-	/*  This is test 3. Is faster according to Möller */
+	/*  This is test 3. Running it here is faster according to Möller */
 	fex = fabsf( e0.x );
 	fey = fabsf( e0.y );
 	fez = fabsf( e0.z );
@@ -345,8 +387,10 @@ bool KDTreeFactory::triIntersectNode( const Triparam& p_tri, const glm::vec3& po
 	FINDMINMAX( v0.z, v1.z, v2.z, trimin, trimax );
 	if (trimin > boxhalfsize[2] || trimax < -boxhalfsize[2]) return false;
 	// We already have all the normals
-	d=glm::dot(*normal,v0);/* plane eq: normal.x+d=0 */
-	if(!planeBoxOverlap(*normal,d,boxhalfsize)) return false;
+	//CROSS(normal,e0,e1);
+	normal=glm::cross(e0,e1);
+	d=-glm::dot(normal,v0);/* plane eq: normal.x+d=0 */
+	if(!planeBoxOverlap(normal,d,boxhalfsize)/* && !planeBoxOverlap(normal,-d,boxhalfsize)*/) return false;
 	return true;
 }
 

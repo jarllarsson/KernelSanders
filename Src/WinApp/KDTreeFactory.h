@@ -99,5 +99,6 @@ private:
 	//stack<vector<Tri>*>* m_tempTriListStack;
 	glm::vec3* m_tempVertexList;
 	glm::vec3* m_tempNormalsList;
+	vector<glm::vec3*> m_tempFaceNormalsList;
 	glm::vec3 m_tempRootPos;
 };

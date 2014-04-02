@@ -39,6 +39,8 @@ int ModelImporter::loadFile( const char* p_path )
 			aiFace* f = &mmesh->mFaces[i];
 			if (f->mNumIndices<3)
 				DEBUGWARNING(("Found a poly with less than 3 vertices, ignoring..."));
+			else if (f->mNumIndices>3)
+				DEBUGWARNING(("Found a poly with more than 3 vertices, ignoring..."));
 			else
 			{
 				model->m_trisIndices.insert(model->m_trisIndices.end(),f->mIndices,f->mIndices+3); // NOTE! Only support for triangles!

@@ -282,7 +282,8 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 
 			bool hit=false;
 			float maxdist=kdStack[exitpoint].m_t;
-			intersection.dist=maxdist;
+			float od=intersection.dist;
+			if (maxdist<intersection.dist) intersection.dist=maxdist;
 			unsigned int* ind = p_nodeIndices;
 			for (unsigned int i=0;i<indexCount;i+=3)
 			{			
@@ -295,6 +296,10 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 			if (hit)
 			{
 				return hitViz*(0.6f+(intersection.normal.x+intersection.normal.y+intersection.normal.z)/3.0f);
+			}
+			else
+			{
+				intersection.dist=od;
 			}
 
 /*
