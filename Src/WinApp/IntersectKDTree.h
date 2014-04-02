@@ -45,8 +45,17 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 					   make_float3(0.87f,0.5f,1.0f),
 					   make_float3(0.2f,0.2f,1.0f)};
 
+	Intersection intersection;
+	intersection.dist = MAX_INTERSECT_DIST;
+	intersection.surface.diffuse = make_float4(0.0f,0.0f,0.0f,0.0f);
+	intersection.surface.specular = make_float4(0.0f,0.0f,0.0f,0.0f);
+	intersection.surface.reflection= 0.0f;
+
+	DKDLeaf leaf;
+	Material test;
 
 
+	float3 breakCol=make_float3(0.0f,0.0f,0.0f);
 	float3 result=make_float3(0.0f,0.0f,0.0f);
 	float3 hitViz=make_float3(0.25f,0.15f,0.15f);
 	float3 overlayViz=make_float3(0.0f,0.0f,0.0f);
@@ -76,9 +85,9 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 	{
 		if (aD[i] < 0.0f) 
 		{
-			if (aO[i] < ap1[i]) return make_float3(1.0f,1.0f,1.0f); // Negative extents(note that author has anchor in corner here)
+			if (aO[i] < ap1[i]) return breakCol; // Negative extents(note that author has anchor in corner here)
 		}
-		else if (aO[i] > ap2[i]) return make_float3(1.0f,1.0f,1.0f);// positive extents
+		else if (aO[i] > ap2[i]) return breakCol;// positive extents
 	}
 	///////////////////////////////////////////
 	///////////////////////////////////////////
@@ -86,11 +95,12 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 	///////////////////////////////////////////
 	bool isInside=IntersectAABBCage(treePos, treeExt, in_ray, tfar, tnear, tfar);
 	if (!isInside) 
-		return make_float3(1.0f,1.0f,1.0f);
+		return breakCol;
 	if (tnear>tfar)
 	{
+		float t=tfar;
 		tfar=tnear;
-		tnear=0.0f;
+		tnear=t;
 	}
 
 	///////////////////////////////////////////
@@ -141,6 +151,7 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 	///////////////////////////////////////////
 	int breaker=4;
 	int totalIndices=0;
+	bool hitTri=false;
 	while (currNodeIdx>0/* && breaker>0*/) // While we have a current node
 	{
 		breaker--;
@@ -216,8 +227,7 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 				// update distance width 
 				t = (splitpos - aO[axis]) / aD[axis]; // set t-distance to (splitdist - (active axis of rayorig)) / (active axis of ray dir)
 				// increase exit point, and store it
-				int tmp = exitpoint;
-				exitpoint++;
+				int tmp = exitpoint++;
 				// if the exitpoint==entrypoint, inrease exitpoint again
 				if (exitpoint == entrypoint) exitpoint++; 
 				// update pb
@@ -240,7 +250,7 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 				kdStack[exitpoint].m_pb.x = exit_pb[0];kdStack[exitpoint].m_pb.y = exit_pb[1];kdStack[exitpoint].m_pb.z = exit_pb[2];
 			}
 			// Fetch new node
-			if (currNodeIdx<=0) return make_float3(1.0f,1.0f,1.0f);
+			if (currNodeIdx<=0) return breakCol;
 			currNode=p_nodes[currNodeIdx];
 
 		}
@@ -263,28 +273,37 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 		if (leafId>-1)
 		{
 			
-			DKDLeaf leaf=p_leaflist[leafId];
+			leaf=p_leaflist[leafId];
 			int indexOffset=leaf.m_offset;
 			int indexCount=leaf.m_count;
-#ifdef YEAH
-			Material test;
-			test.diffuse = hitViz;
+
+			test.diffuse = make_float4(hitViz.x,hitViz.y,hitViz.z,0.0f);
 			test.specular = make_float4(0.0f, 0.0f, 0.0f,0.0f);
 			test.reflection = 0.0f;
-			for (unsigned int i=0;i<indexCount;i++)
-			{
-				const unsigned int* ind = in_scene->meshIndices;
-				result=IntersectTriangle(in_scene->meshVerts, in_scene->meshNorms, 
-					min(ind[i],MAXMESHLOCAL_VERTSBIN-1), min(ind[i+1],MAXMESHLOCAL_VERTSBIN-1), min(ind[i+2],MAXMESHLOCAL_VERTSBIN-1), 
+
+			bool hit=false;
+			float dist=kdStack[exitpoint].m_t;
+			float od=intersection.dist;
+			if (dist<intersection.dist) intersection.dist=dist;
+			unsigned int* ind = p_nodeIndices;
+			for (unsigned int i=0;i<indexCount;i+=3)
+			{			
+				hit|=IntersectTriangle(p_verts, p_norms, 
+					ind[indexOffset+i], ind[indexOffset+i+1], ind[indexOffset+i+2], 
 					&test, 
-					in_ray, inout_intersection,storeResults);
-				if (result && breakOnFirst) 
-					return true;
-
+					in_ray, &intersection,true);
+			
 			}	// for each face (three indices)
-
-
-			indexCount = cu_imini(indexCount,(int)p_numNodeIndices-indexOffset);			
+			if (hit)
+			{
+				return make_float3(intersection.normal.x,intersection.normal.y,intersection.normal.z);
+			}
+			else
+			{
+				//intersection.dist=od;
+			}
+/*
+			indexCount = cu_imini(indexCount,cu_imini(30,(int)p_numNodeIndices-indexOffset));			
 			totalIndices+=indexCount;
 
 			if (totalIndices>=MAXMESHLOCAL_INDICESBIN)
@@ -307,7 +326,7 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 			//hitViz=make_float3(1.2f*(float)in_scene->numIndices/(float)MAXMESHLOCAL_INDICESBIN,0.0f,0.0f);
 			if (in_scene->numIndices>=MAXMESHLOCAL_INDICESBIN-1)
 				return make_float3(0.0f,0.0f,0.0f);
-#endif
+*/
 		}
 
 			
@@ -326,7 +345,8 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 
 	///////////////////////////////////////////
 	///////////////////////////////////////////
-	return hitViz;
+
+	return hitViz+overlayViz;
 }
 
 #endif

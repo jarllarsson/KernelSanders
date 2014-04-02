@@ -313,9 +313,9 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	// Set the color
 	float dbgGridX=(float)drawMode*((float)blockIdx.x/(float)gridDim.x);
 	float dbgGridY=(float)drawMode*((float)blockIdx.y/(float)gridDim.y);
-	//p_outPixel[R_CH] = finalColor.x + (kdCol.x) + dbgGridX; // red
-	//p_outPixel[G_CH] = finalColor.y + (kdCol.y) + dbgGridY; // green
-	//p_outPixel[B_CH] = finalColor.z + (kdCol.z); // blue
+	//p_outPixel[R_CH] = finalColor.x + (kdCol.x)*0.1f + dbgGridX; // red
+	//p_outPixel[G_CH] = finalColor.y + (kdCol.y)*0.1f + dbgGridY; // green
+	//p_outPixel[B_CH] = finalColor.z + (kdCol.z)*0.1f; // blue
 	p_outPixel[R_CH] = (kdCol.x) + dbgGridX; // red
 	p_outPixel[G_CH] = (kdCol.y) + dbgGridY; // green
 	p_outPixel[B_CH] = (kdCol.z); // blue
