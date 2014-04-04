@@ -69,25 +69,29 @@
     <OutDir>$(SolutionDir)Lib\$(PlatformShortName)\</OutDir>
     <IntDir>$(SolutionDir)Obj\$(Configuration)\$(PlatformShortName)\</IntDir>
     <TargetName>$(ProjectName)_$(Configuration)</TargetName>
-    <IncludePath>$(SolutionDir)External\GLM\include\glm;$(SolutionDir)Src\Util;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)External\GLM\include\glm;$(SolutionDir)Src\Util;$(SolutionDir)External\FreeImage\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)External\FreeImage\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)Lib\$(PlatformShortName)\</OutDir>
     <IntDir>$(SolutionDir)Obj\$(Configuration)\$(PlatformShortName)\</IntDir>
     <TargetName>$(ProjectName)_$(Configuration)</TargetName>
-    <IncludePath>$(SolutionDir)External\GLM\include\glm;$(SolutionDir)Src\Util;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)External\GLM\include\glm;$(SolutionDir)Src\Util;$(SolutionDir)External\FreeImage\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)External\FreeImage\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)Lib\$(PlatformShortName)\</OutDir>
     <IntDir>$(SolutionDir)Obj\$(Configuration)\$(PlatformShortName)\</IntDir>
     <TargetName>$(ProjectName)_$(Configuration)</TargetName>
-    <IncludePath>$(SolutionDir)External\GLM\include\glm;$(SolutionDir)Src\Util;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)External\GLM\include\glm;$(SolutionDir)Src\Util;$(SolutionDir)External\FreeImage\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)External\FreeImage\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)Lib\$(PlatformShortName)\</OutDir>
     <IntDir>$(SolutionDir)Obj\$(Configuration)\$(PlatformShortName)\</IntDir>
     <TargetName>$(ProjectName)_$(Configuration)</TargetName>
-    <IncludePath>$(SolutionDir)External\GLM\include\glm;$(SolutionDir)Src\Util;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)External\GLM\include\glm;$(SolutionDir)Src\Util;$(SolutionDir)External\FreeImage\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)External\FreeImage\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -99,7 +103,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>FreeImage.lib;d3d11.lib;d3dcompiler.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -112,7 +116,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>FreeImage.lib;d3d11.lib;d3dcompiler.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -129,7 +133,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>FreeImage.lib;d3d11.lib;d3dcompiler.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -146,7 +150,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>FreeImage.lib;d3d11.lib;d3dcompiler.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -157,6 +161,7 @@
     <ClInclude Include="CBuffers.h" />
     <ClInclude Include="ComposeShader.h" />
     <ClInclude Include="D3DUtil.h" />
+    <ClInclude Include="FreeImageException.h" />
     <ClInclude Include="GraphicsDevice.h" />
     <ClInclude Include="GraphicsDeviceFactory.h" />
     <ClInclude Include="GraphicsException.h" />
@@ -173,6 +178,7 @@
     <ClInclude Include="ShaderVariableContainer.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TextureFactory.h" />
+    <ClInclude Include="TextureParser.h" />
     <ClInclude Include="ViewFactory.h" />
   </ItemGroup>
   <ItemGroup>
@@ -187,6 +193,7 @@
     <ClCompile Include="ShaderBase.cpp" />
     <ClCompile Include="ShaderFactory.cpp" />
     <ClCompile Include="TextureFactory.cpp" />
+    <ClCompile Include="TextureParser.cpp" />
     <ClCompile Include="ViewFactory.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

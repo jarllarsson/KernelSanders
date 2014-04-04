@@ -115,6 +115,12 @@
     <ClInclude Include="InstanceData.h">
       <Filter>Source Files\Buffers</Filter>
     </ClInclude>
+    <ClInclude Include="TextureParser.h">
+      <Filter>Source Files\Factories\TextureFactory</Filter>
+    </ClInclude>
+    <ClInclude Include="FreeImageException.h">
+      <Filter>Source Files\Exceptions</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GraphicsDevice.cpp">
@@ -152,6 +158,9 @@
     </ClCompile>
     <ClCompile Include="Mesh.cpp">
       <Filter>Source Files\Buffers</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureParser.cpp">
+      <Filter>Source Files\Factories\TextureFactory</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

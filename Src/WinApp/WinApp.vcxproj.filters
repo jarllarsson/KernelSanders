@@ -56,10 +56,10 @@
     <Filter Include="Source Files\HostSceneManager\Host Structures">
       <UniqueIdentifier>{a953dcc2-ce7f-498f-8c2f-b9c500f31f57}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ModelImporter">
+    <Filter Include="Source Files\ModelImporter">
       <UniqueIdentifier>{5b2e1b80-a434-4b2d-b8d5-0945dd2bb936}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ModelImporter\KDTree">
+    <Filter Include="Source Files\ModelImporter\KDTree">
       <UniqueIdentifier>{2dfda083-62b2-4aec-abea-02d139873880}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -170,16 +170,16 @@
       <Filter>Source Files\HostSceneManager</Filter>
     </ClInclude>
     <ClInclude Include="ModelImporter.h">
-      <Filter>ModelImporter</Filter>
+      <Filter>Source Files\ModelImporter</Filter>
     </ClInclude>
     <ClInclude Include="KDTreeFactory.h">
-      <Filter>ModelImporter\KDTree</Filter>
+      <Filter>Source Files\ModelImporter\KDTree</Filter>
     </ClInclude>
     <ClInclude Include="KDNode.h">
-      <Filter>ModelImporter\KDTree</Filter>
+      <Filter>Source Files\ModelImporter\KDTree</Filter>
     </ClInclude>
     <ClInclude Include="KDAxisMark.h">
-      <Filter>ModelImporter\KDTree</Filter>
+      <Filter>Source Files\ModelImporter\KDTree</Filter>
     </ClInclude>
     <ClInclude Include="DeviceKDStructures.h">
       <Filter>Source Files\Kernel\Kernels\Raytrace\Structures</Filter>
@@ -188,7 +188,7 @@
       <Filter>Source Files\Kernel\Kernels\Raytrace\Intersections</Filter>
     </ClInclude>
     <ClInclude Include="KDBounds.h">
-      <Filter>ModelImporter\KDTree</Filter>
+      <Filter>Source Files\ModelImporter\KDTree</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -223,13 +223,13 @@
       <Filter>Source Files\HostSceneManager\Host Structures</Filter>
     </ClCompile>
     <ClCompile Include="ModelImporter.cpp">
-      <Filter>ModelImporter</Filter>
+      <Filter>Source Files\ModelImporter</Filter>
     </ClCompile>
     <ClCompile Include="KDNode.cpp">
-      <Filter>ModelImporter\KDTree</Filter>
+      <Filter>Source Files\ModelImporter\KDTree</Filter>
     </ClCompile>
     <ClCompile Include="KDTreeFactory.cpp">
-      <Filter>ModelImporter\KDTree</Filter>
+      <Filter>Source Files\ModelImporter\KDTree</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

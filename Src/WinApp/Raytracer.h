@@ -46,6 +46,10 @@ using std::vector;
 __device__ __constant__ RaytraceConstantBuffer cb[1];
 
 
+texture<float, 2, cudaReadModeElementType> tex;
+
+
+
 __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 						 const int p_width, const int p_height,
 						 float3* p_verts,float3* p_norms,unsigned int p_numVerts,
@@ -157,19 +161,23 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	scene.numIndices=0;
 	scene.numVerts=0;
 	float3 kdCol=make_float3(0.0f,0.0f,0.0f);
-	kdCol=KDTraverse( &scene, &ray, kdExtents, kdPos,
-		p_nodes, p_leaflist, p_nodeIndices,
-		numNodeIndices,
-		p_verts,p_norms);
-	for (unsigned int i=0;i<numIndices;i++)
+	if (p_numNodes>0 && p_numLeaves>0 && p_numNodeIndices>2)
 	{
-		scene.meshIndices[i]=p_indices[i];
+		kdCol=KDTraverse( &scene, &ray, kdExtents, kdPos,
+			p_nodes, p_leaflist, p_nodeIndices,
+			numNodeIndices,
+			p_verts,p_norms);
+		for (unsigned int i=0;i<numIndices;i++)
+		{
+			scene.meshIndices[i]=p_indices[i];
+		}
+		for (unsigned int i=0;i<numVerts;i++)
+		{
+			scene.meshVerts[i]=p_verts[i];
+			scene.meshNorms[i]=p_norms[i];
+		}
 	}
-	for (unsigned int i=0;i<numVerts;i++)
-	{
-		scene.meshVerts[i]=p_verts[i];
-		scene.meshNorms[i]=p_norms[i];
-	}
+
 
 	// define some boxes
 	for (int i=0;i<MAXBOXES;i++)
@@ -310,6 +318,9 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 			depth=max_depth;
 		
 	}  while (reflectionfactor>0.01f && depth<max_depth);
+
+	float tCol=tex2D(tex, u, v);
+	kdCol=make_float3(tCol,tCol,tCol);
 
 	// Set the color
 	float dbgGridX=(float)drawMode*((float)blockIdx.x/(float)gridDim.x);

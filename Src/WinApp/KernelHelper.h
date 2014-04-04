@@ -34,7 +34,13 @@ public:
 	{
 		bool res = assertCudaResult(p_result);
 		if (!res)
+		{
 			DEBUGPRINT(( string("\n"+string(cudaGetErrorString(p_result))+" [ "+p_file+" : "+p_func+" ("+toString(p_line)+") ]\n\n").c_str() ));
+#ifdef _DEBUG
+			DEBUGWARNING(( string("\n"+string(cudaGetErrorString(p_result))+" [ "+p_file+" : "+p_func+" ("+toString(p_line)+") ]\n\n").c_str() ));
+#endif // DEBUG
+
+		}
 		return res;
 	}
 

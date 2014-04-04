@@ -31,8 +31,6 @@ using std::vector;
 
 
 
-texture<float, 2, cudaReadModeElementType> texRef;
-
 __global__ void RaytraceKernel(unsigned char *p_outSurface, 
 							   const int p_width, const int p_height, const size_t p_pitch,
 							   float3* p_verts,float3* p_norms,unsigned int p_numVerts,
@@ -75,6 +73,55 @@ extern "C" void RunRaytraceKernel(void* p_cb,void *surface,
 	cudaError_t res = cudaMemcpyToSymbol(cb, p_cb, sizeof(RaytraceConstantBuffer));
 	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
 
+	// Allocate texture
+	float* input;
+	int ww=656, hh=480;
+    input = new float[ww*hh];
+    for(int i = 0; i < ww*hh; ++i)
+    {
+        input[i] = (float)i/(float)(ww*hh);
+    }
+//     float* inputDevice;
+//     res=cudaMalloc ((void**)&inputDevice, 656 * 480 * sizeof(float) );
+// 	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
+//     res=cudaMemcpy(inputDevice, input, 656 * 480 * sizeof(float), cudaMemcpyHostToDevice);
+// 	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
+// 
+//     cudaChannelFormatDesc desc = cudaCreateChannelDesc<float>();
+// 
+// 	//const textureReference* textureReference;
+// 	//res=cudaGetTextureReference(&textureReference,"objectTexture");
+// 
+//     res=cudaBindTexture2D(0, &objectTexture, inputDevice, &desc, 656, 480, sizeof(float) * 656);
+// 	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
+
+	// Allocate array and copy image data
+    cudaChannelFormatDesc channelDesc =
+        cudaCreateChannelDesc(32, 0, 0, 0, cudaChannelFormatKindFloat);
+    cudaArray *cuArray;
+    res=cudaMallocArray(&cuArray,
+                                    &channelDesc,
+                                    ww,
+                                    hh);
+	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
+    res=cudaMemcpyToArray(cuArray,
+                                      0,
+                                      0,
+                                      input,
+                                      ww*hh*sizeof(float),
+                                      cudaMemcpyHostToDevice);
+	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
+
+    // Set texture parameters
+    tex.addressMode[0] = cudaAddressModeWrap;
+    tex.addressMode[1] = cudaAddressModeWrap;
+    tex.filterMode = cudaFilterModeLinear;
+    tex.normalized = true;    // access with normalized texture coordinates
+
+    // Bind the array to the texture
+    res=cudaBindTextureToArray(&tex, cuArray, &channelDesc);
+	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
+
 	// Set up dimensions
 	dim3 Db = dim3(16, 16);   // block dimensions are fixed to be 256 threads
     dim3 Dg = dim3((width+Db.x-1)/Db.x, (height+Db.y-1)/Db.y);
@@ -90,6 +137,11 @@ extern "C" void RunRaytraceKernel(void* p_cb,void *surface,
 							   p_numNodes,p_numLeaves,p_numNodeIndices);
 
 	res = cudaDeviceSynchronize();
+	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
+
+	res=cudaUnbindTexture(&tex);
+	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
+    res=cudaFreeArray(cuArray);
 	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
 
 } 

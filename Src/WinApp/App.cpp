@@ -65,6 +65,7 @@ App::App( HINSTANCE p_hInstance )
 	m_modelImporter = new ModelImporter();
 	m_input = new OISHelper();
 	m_input->doStartup(m_context->getWindowHandle());
+	m_kdDebugBoxInstances=NULL;
 
 	// Finally create and register scene manager
 	m_sceneMgr = new HostSceneManager();
@@ -113,7 +114,7 @@ void App::run()
 	float thrustPowInc=0.0f;
 
 	// load assets
-	
+	/*
 	int duck = m_modelImporter->loadFile("../Assets/sphere.dae");
 	ModelImporter::ModelData* duckMdl=m_modelImporter->getStoredModel(duck);
 
@@ -142,7 +143,7 @@ void App::run()
 		m_kdDebugBoxMats.push_back(glm::transpose(translation*scale));
 	}
 	m_kdDebugBoxInstances=m_graphicsDevice->getBufferFactoryRef()->createMat4InstanceBuffer((void*)&m_kdDebugBoxMats[0],numBounds);
-
+	*/
 	//
 
 	while (!m_context->closeRequested() && run)
