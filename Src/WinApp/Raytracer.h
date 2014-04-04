@@ -52,7 +52,7 @@ texture<float, 2, cudaReadModeElementType> tex;
 
 __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 						 const int p_width, const int p_height,
-						 float3* p_verts,float2* p_uvs,float3* p_norms,unsigned int p_numVerts,
+						 float3* p_verts,float3* p_uvs,float3* p_norms,unsigned int p_numVerts,
 						 unsigned int* p_indices,unsigned int p_numIndices,
 						 float3 p_kdExtents, float3 p_kdPos,
 						 TriPart* p_tris, unsigned int p_numTris,
@@ -78,8 +78,25 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 				 numTris=min(p_numTris,MAXTRIS);
 	float3 kdExtents=p_kdExtents;
 	float3 kdPos=p_kdPos;
-	unsigned int numNodeIndices=p_numNodeIndices;
-
+	unsigned int numNodes=p_numNodes, numLeaves=p_numLeaves, numNodeIndices=p_numNodeIndices;
+	// define a scene
+	Scene scene;
+	// Copy mesh data to local memory
+	//if (numNodes>0 && numLeaves>0 && numIndices>2)
+	//{
+	//	for (unsigned int i=0;i<numIndices;i++)
+	//	{
+	//		scene.meshIndices[i]=p_indices[i];
+	//	}
+	//	for (unsigned int i=0;i<numVerts;i++)
+	//	{
+	//		scene.meshVerts[i]=p_verts[i];
+	//	}
+	//	for (unsigned int i=0;i<numVerts;i++)
+	//	{
+	//		scene.meshNorms[i]=p_norms[i];
+	//	}
+	//}
 
 	// =======================================================
 	//                   TEST SETUP CODE
@@ -99,9 +116,6 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	mat4mul(&camRotation,&viewFrameDir, &ray.dir); // transform viewFrameDir with the viewMatrix to get the world space ray
 	Ray shadowRay;	
 
-
-	// define a scene
-	Scene scene;
 
 	// define some spheres
 
@@ -160,22 +174,22 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	// copy data for mesh
 	scene.numIndices=0;
 	scene.numVerts=0;
+
 	float3 kdCol=make_float3(0.0f,0.0f,0.0f);
-	if (p_numNodes>0 && p_numLeaves>0 && p_numNodeIndices>2)
+	if (numNodes>0 && numLeaves>0 && numNodeIndices>2)
 	{
 		kdCol=KDTraverse( &scene, &ray, kdExtents, kdPos,
 			p_nodes, p_leaflist, p_nodeIndices,
-			numNodeIndices,
-			p_verts,p_norms);
-		for (unsigned int i=0;i<numIndices;i++)
-		{
-			scene.meshIndices[i]=p_indices[i];
-		}
-		for (unsigned int i=0;i<numVerts;i++)
-		{
-			scene.meshVerts[i]=p_verts[i];
-			scene.meshNorms[i]=p_norms[i];
-		}
+			numNodeIndices,p_verts,p_norms);
+		//for (unsigned int i=0;i<numIndices;i++)
+		//{
+		//	scene.meshIndices[i]=p_indices[i];
+		//}
+		//for (unsigned int i=0;i<numVerts;i++)
+		//{
+		//	scene.meshVerts[i]=p_verts[i];
+		//	scene.meshNorms[i]=p_norms[i];
+		//}
 	}
 
 
@@ -320,7 +334,7 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	}  while (reflectionfactor>0.01f && depth<max_depth);
 
 	float tCol=tex2D(tex, u, v);
-	kdCol=make_float3(tCol,tCol,tCol);
+	float3 back=make_float3(tCol,tCol,tCol);
 
 	// Set the color
 	float dbgGridX=(float)drawMode*((float)blockIdx.x/(float)gridDim.x);
@@ -328,9 +342,9 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	//p_outPixel[R_CH] = finalColor.x + (kdCol.x)*0.1f + dbgGridX; // red
 	//p_outPixel[G_CH] = finalColor.y + (kdCol.y)*0.1f + dbgGridY; // green
 	//p_outPixel[B_CH] = finalColor.z + (kdCol.z)*0.1f; // blue
-	p_outPixel[R_CH] = (kdCol.x) + dbgGridX; // red
-	p_outPixel[G_CH] = (kdCol.y) + dbgGridY; // green
-	p_outPixel[B_CH] = (kdCol.z); // blue
+	p_outPixel[R_CH] = back.x+(kdCol.x) + dbgGridX; // red
+	p_outPixel[G_CH] = back.y+(kdCol.y) + dbgGridY; // green
+	p_outPixel[B_CH] = back.z+(kdCol.z); // blue
 	p_outPixel[A_CH] = finalColor.w; // alpha
 }
 

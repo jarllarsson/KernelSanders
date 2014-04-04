@@ -33,7 +33,7 @@ using std::vector;
 
 __global__ void RaytraceKernel(unsigned char *p_outSurface, 
 							   const int p_width, const int p_height, const size_t p_pitch,
-							   float3* p_verts,float2* p_uvs,float3* p_norms,unsigned int p_numVerts,
+							   float3* p_verts,float3* p_uvs,float3* p_norms,unsigned int p_numVerts,
 							   unsigned int* p_indices,unsigned int p_numIndices,
 							   float3 p_kdExtents, float3 p_kdPos,
 							   TriPart* p_tris, unsigned int p_numTris,
@@ -81,19 +81,6 @@ extern "C" void RunRaytraceKernel(void* p_cb,void *surface,
     {
         input[i] = (float)i/(float)(ww*hh);
     }
-//     float* inputDevice;
-//     res=cudaMalloc ((void**)&inputDevice, 656 * 480 * sizeof(float) );
-// 	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
-//     res=cudaMemcpy(inputDevice, input, 656 * 480 * sizeof(float), cudaMemcpyHostToDevice);
-// 	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
-// 
-//     cudaChannelFormatDesc desc = cudaCreateChannelDesc<float>();
-// 
-// 	//const textureReference* textureReference;
-// 	//res=cudaGetTextureReference(&textureReference,"objectTexture");
-// 
-//     res=cudaBindTexture2D(0, &objectTexture, inputDevice, &desc, 656, 480, sizeof(float) * 656);
-// 	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
 
 	// Allocate array and copy image data
     cudaChannelFormatDesc channelDesc =
@@ -129,7 +116,7 @@ extern "C" void RunRaytraceKernel(void* p_cb,void *surface,
 	//DEBUGPRINT(( ("\n"+toString(width)+" x "+toString(height)+" @ "+toString(1000*reinterpret_cast<RaytraceConstantBuffer*>(p_cb)->b)).c_str() ));
 
     RaytraceKernel<<<Dg,Db>>>((unsigned char *)surface, width, height, pitch, 
-							  (float3*)p_verts, (float2*) p_uvs, (float3*)p_norms,p_numVerts,
+							  (float3*)p_verts, (float3*) p_uvs, (float3*)p_norms,p_numVerts,
 							  (unsigned int*)p_indices, p_numIndices,
 							  *((float3*)p_kdExtents),*((float3*)p_kdPos),
 							  (TriPart*)p_tris,p_numTris,
@@ -143,6 +130,7 @@ extern "C" void RunRaytraceKernel(void* p_cb,void *surface,
 	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
     res=cudaFreeArray(cuArray);
 	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
+	delete [] input;
 
 } 
 

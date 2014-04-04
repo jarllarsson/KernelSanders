@@ -45,6 +45,8 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 					   make_float3(0.87f,0.5f,1.0f),
 					   make_float3(0.2f,0.2f,1.0f)};
 
+//	p_verts=in_scene->meshVerts; p_norms=in_scene->meshNorms;
+
 	Intersection intersection;
 	intersection.dist = MAX_INTERSECT_DIST;
 	intersection.surface.diffuse = make_float4(0.0f,0.0f,0.0f,0.0f);

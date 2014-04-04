@@ -29,16 +29,14 @@ HScene* HostSceneManager::getScenePtr()
 	return &m_scene;
 }
 
-void HostSceneManager::addMeshTris( void* p_vec3ArrayXYZ, int p_vertCount,
-								    unsigned int* p_indexArray, int p_iCount, 
-								    void* p_vec3normalArrayXYZ,void* p_vec2uvArray )
+void HostSceneManager::addMeshTris( void* p_vec3ArrayXYZ, int p_vertCount,unsigned int* p_indexArray, int p_iCount, void* p_vec3normalArrayXYZ,void* p_vec3uvArray )
 {
 	//int start=m_scene.tri.size();
 	//int maxcount=start+p_vertCount;
 		//min(start+p_vertCount,MAXTRIS);
 	glm::vec3* arrV=reinterpret_cast<glm::vec3*>(p_vec3ArrayXYZ);
 	glm::vec3* arrN=reinterpret_cast<glm::vec3*>(p_vec3normalArrayXYZ);
-	glm::vec2* arrUV=reinterpret_cast<glm::vec2*>(p_vec2uvArray);
+	glm::vec3* arrUV=reinterpret_cast<glm::vec3*>(p_vec3uvArray);
 	m_scene.meshVerts.insert(m_scene.meshVerts.end(),arrV,arrV+p_vertCount);
 	m_scene.meshIndices.insert(m_scene.meshIndices.end(),p_indexArray,p_indexArray+p_iCount);
 	m_scene.meshNorms.insert(m_scene.meshNorms.end(),arrN,arrN+p_vertCount);

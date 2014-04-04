@@ -94,8 +94,6 @@ void RaytraceKernel::Execute( KernelData* p_data, float p_dt )
 		{
 			res = cudaFree(*devVerts);
 			KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
-			res = cudaFree(*devUVs);
-			KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
 			res = cudaFree(*devIndices);
 			KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
 		}		
@@ -131,7 +129,7 @@ void RaytraceKernel::Execute( KernelData* p_data, float p_dt )
 		//
 		res = cudaMalloc((void**)devUVs, sizeof(glm::vec3) * numverts);
 		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
-		res = cudaMemcpy((void*)*devUVs, verts, sizeof(glm::vec2) * numverts, cudaMemcpyHostToDevice);
+		res = cudaMemcpy((void*)*devUVs, verts, sizeof(glm::vec3) * numverts, cudaMemcpyHostToDevice);
 		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
 		//
 		res = cudaMalloc((void**)devNorms, sizeof(glm::vec3) * numverts);

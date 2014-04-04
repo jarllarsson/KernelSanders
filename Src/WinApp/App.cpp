@@ -114,15 +114,15 @@ void App::run()
 	float thrustPowInc=0.0f;
 
 	// load assets
-	/*
+	
 	int duck = m_modelImporter->loadFile("../Assets/sphere.dae");
 	ModelImporter::ModelData* duckMdl=m_modelImporter->getStoredModel(duck);
 
 	aiMesh* mmesh=duckMdl->m_model->mMeshes[0];
 	m_sceneMgr->addMeshTris(mmesh->mVertices,mmesh->mNumVertices,
 							&duckMdl->m_trisIndices[0],duckMdl->m_trisIndices.size(),
-							mmesh->mNormals);
-
+							mmesh->mNormals,mmesh->mTextureCoords);
+	
 	int treeId=duckMdl->m_treeId;
 	vector<KDNode>* KDnodes=m_modelImporter->getKDTree(treeId);
 	vector<KDLeaf>* KDleaves=m_modelImporter->getKDLeafList(treeId);
@@ -143,7 +143,7 @@ void App::run()
 		m_kdDebugBoxMats.push_back(glm::transpose(translation*scale));
 	}
 	m_kdDebugBoxInstances=m_graphicsDevice->getBufferFactoryRef()->createMat4InstanceBuffer((void*)&m_kdDebugBoxMats[0],numBounds);
-	*/
+	
 	//
 
 	while (!m_context->closeRequested() && run)

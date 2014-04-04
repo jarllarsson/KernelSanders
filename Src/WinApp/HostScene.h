@@ -38,7 +38,7 @@ struct HScene
 	vector<HBox> box;
 	// Mesh
 	vector<glm::vec3> meshVerts;
-	vector<glm::vec2> meshUVs;
+	vector<glm::vec3> meshUVs;
 	vector<unsigned int> meshIndices;
 	vector<glm::vec3> meshNorms;
 	// KD
