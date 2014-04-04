@@ -52,7 +52,7 @@ texture<float, 2, cudaReadModeElementType> tex;
 
 __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 						 const int p_width, const int p_height,
-						 float3* p_verts,float3* p_norms,unsigned int p_numVerts,
+						 float3* p_verts,float2* p_uvs,float3* p_norms,unsigned int p_numVerts,
 						 unsigned int* p_indices,unsigned int p_numIndices,
 						 float3 p_kdExtents, float3 p_kdPos,
 						 TriPart* p_tris, unsigned int p_numTris,

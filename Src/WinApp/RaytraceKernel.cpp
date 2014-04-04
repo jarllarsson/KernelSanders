@@ -7,7 +7,7 @@ extern "C"
 {
 	void RunRaytraceKernel(void* p_cb,void* p_colorArray,
 		int width, int height, int pitch,
-		void* p_verts,void* p_norms,unsigned int p_numVerts,
+		void* p_verts,void* p_uvs,void* p_norms,unsigned int p_numVerts,
 		void* p_indices,unsigned int p_numIndices,
 		void* p_kdExtents, void* p_kdPos,
 		void* p_tris, unsigned int p_numTris,
@@ -62,13 +62,16 @@ void RaytraceKernel::Execute( KernelData* p_data, float p_dt )
 
 	// Get scene objects
 	void* verts = NULL;
+	void* uvs = NULL;
 	void* norms = NULL;
 	void* indices = NULL;
 	void* tris = NULL;
 	void** devVerts=blob->m_vertsLinearMemDeviceRef;
+	void** devUVs=blob->m_uvsLinearMemDeviceRef;
 	void** devNorms=blob->m_normsLinearMemDeviceRef;
 	void** devIndices=blob->m_indicesLinearMemDeviceRef;
 	void** devTris=blob->m_trisLinearMemDeviceRef;
+
 
 	void* KDnodes = NULL;
 	void* KDleaves = NULL;
@@ -81,13 +84,17 @@ void RaytraceKernel::Execute( KernelData* p_data, float p_dt )
 	if (scene->isDirty(HScene::MESH)) // Mesh is updated
 	{
 		verts=reinterpret_cast<void*>(&scene->meshVerts[0]); // get verts as void* array
+		uvs=reinterpret_cast<void*>(&scene->meshUVs[0]);
 		norms=reinterpret_cast<void*>(&scene->meshNorms[0]);
 		indices=reinterpret_cast<void*>(&scene->meshIndices[0]);
 		//
 		if (devVerts!=NULL && *devVerts!=NULL &&
-			devIndices!=NULL && *devIndices!=NULL) 
+			devIndices!=NULL && *devIndices!=NULL
+			) 
 		{
 			res = cudaFree(*devVerts);
+			KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
+			res = cudaFree(*devUVs);
 			KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
 			res = cudaFree(*devIndices);
 			KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
@@ -97,7 +104,11 @@ void RaytraceKernel::Execute( KernelData* p_data, float p_dt )
 			res = cudaFree(*devNorms);
 			KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
 		}
-
+		if (devUVs!=NULL && *devUVs!=NULL) 
+		{
+			res = cudaFree(*devUVs);
+			KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
+		}
 		if (scene->KDnode.size()>0) KDnodes  =reinterpret_cast<void*>(&scene->KDnode[0]);
 		if (scene->KDleaves.size()>0) KDleaves =reinterpret_cast<void*>(&scene->KDleaves[0]);
 		if (scene->KDindices.size()>0) KDindices=reinterpret_cast<void*>(&scene->KDindices[0]);
@@ -116,6 +127,11 @@ void RaytraceKernel::Execute( KernelData* p_data, float p_dt )
 		res = cudaMalloc((void**)devVerts, sizeof(glm::vec3) * numverts);
 		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
 		res = cudaMemcpy((void*)*devVerts, verts, sizeof(glm::vec3) * numverts, cudaMemcpyHostToDevice);
+		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
+		//
+		res = cudaMalloc((void**)devUVs, sizeof(glm::vec3) * numverts);
+		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
+		res = cudaMemcpy((void*)*devUVs, verts, sizeof(glm::vec2) * numverts, cudaMemcpyHostToDevice);
 		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
 		//
 		res = cudaMalloc((void**)devNorms, sizeof(glm::vec3) * numverts);
@@ -170,7 +186,7 @@ void RaytraceKernel::Execute( KernelData* p_data, float p_dt )
 	RunRaytraceKernel(reinterpret_cast<void*>(constantBuffer),
 					  blob->m_textureLinearMemDevice,
 					  width,height,(int)pitch,					  
-					  *devVerts,*devNorms,numverts,
+					  *devVerts,*devUVs,*devNorms,numverts,
 					  *devIndices,numindices,
 					  (void*)&kdBoundsExt,(void*)&kdBoundsPos,
 					  *devTris,numtris,

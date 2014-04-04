@@ -51,6 +51,7 @@ private:
 	RaytraceConstantBuffer  m_cb;
 	// Global, storage between calls
 	void* m_vertArray;
+	void* m_uvsArray;
 	void* m_normsArray;
 	void* m_indicesArray;
 	void* m_trisArray;
