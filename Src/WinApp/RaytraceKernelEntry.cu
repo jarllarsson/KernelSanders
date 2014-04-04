@@ -129,7 +129,7 @@ extern "C" void RunRaytraceKernel(void* p_cb,void *surface,
 	//DEBUGPRINT(( ("\n"+toString(width)+" x "+toString(height)+" @ "+toString(1000*reinterpret_cast<RaytraceConstantBuffer*>(p_cb)->b)).c_str() ));
 
     RaytraceKernel<<<Dg,Db>>>((unsigned char *)surface, width, height, pitch, 
-							  (float3*)p_verts, (float3*)p_norms,p_numVerts,
+							  (float3*)p_verts, (float2*) p_uvs, (float3*)p_norms,p_numVerts,
 							  (unsigned int*)p_indices, p_numIndices,
 							  *((float3*)p_kdExtents),*((float3*)p_kdPos),
 							  (TriPart*)p_tris,p_numTris,
