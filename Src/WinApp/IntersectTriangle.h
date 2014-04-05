@@ -12,11 +12,31 @@
 #include "RaytraceLighting.h"
 #include "Primitives.h"
 #include "Ray.h"
+#include "DeviceResources.h"
 
 
 using std::vector; 
 
 #define TRIEPSILON 1.0f/100000.0f
+
+// Compute barycentric coordinates (u, v, w) for
+// point p with respect to triangle (a, b, c)
+// Cramer's rule
+__device__ float3 Barycentric(float3& p_point, float3& a, float3& b, float3& c)
+{
+	float3 v0 = b - a, v1 = c - a, v2 = p_point - a;
+	float inv_den = 1.0f / (v0.x * v1.y - v1.x * v0.y);
+	float v = (v2.x * v1.y - v1.x * v2.y) * inv_den;
+	float w = (v0.x * v2.y - v2.x * v0.y) * inv_den;
+	float u = 1.0f - v - w;
+	return make_float3(u,v,w);
+}
+
+__device__ float3 InterpolateUV(float3& p_barycentric, float3& p_uvA, float3& p_uvB, float3& p_uvC)
+{
+	float3 uv = p_uvA * p_barycentric.x + p_uvB * p_barycentric.y + p_uvC * p_barycentric.z;
+	return uv;
+}
 
 __device__ bool IntersectTriangle(const Tri* in_tri, const Ray* in_ray, Intersection* inout_intersection, bool storeResult)
 {
@@ -57,7 +77,8 @@ __device__ bool IntersectTriangle(const Tri* in_tri, const Ray* in_ray, Intersec
 	return result;
 }
 
-__device__ bool IntersectTriangle(const float3* vertArr, const float3* normArr, 
+
+__device__ bool IntersectTriangle(const float3* vertArr, const float3* uvArr, const float3* normArr, 
 								  unsigned int i0, unsigned int i1, unsigned int i2, 
 								  Material* mat,
 								  const Ray* in_ray, Intersection* inout_intersection, bool storeResult)
@@ -69,6 +90,9 @@ __device__ bool IntersectTriangle(const float3* vertArr, const float3* normArr,
 	float3 n0 = normArr[i0];
 	float3 n1 = normArr[i1];
 	float3 n2 = normArr[i2];
+	float3 uv0 = uvArr[i0];
+	float3 uv1 = uvArr[i1];
+	float3 uv2 = uvArr[i2];
 	float3 edge1 = vert1 - vert0;
 	float3 edge2 = vert2 - vert0;
 	float3 dir = make_float3(in_ray->dir.x,in_ray->dir.y,in_ray->dir.z);
@@ -93,7 +117,13 @@ __device__ bool IntersectTriangle(const float3* vertArr, const float3* normArr,
 		{
 			inout_intersection->dist=t;
 			inout_intersection->surface=*mat;
-			inout_intersection->pos=in_ray->origin+t*in_ray->dir;
+			float4 triPos=in_ray->origin+t*in_ray->dir;
+			inout_intersection->pos=triPos;
+
+			float3 barycentric=Barycentric(make_float3(triPos.x,triPos.y,triPos.z),
+										   vert0,vert1,vert2);
+			float3 uv=InterpolateUV(barycentric,uv0,uv1,uv2);
+			inout_intersection->surface.diffuse = make_float4(uv.x,uv.y,0.0f,0.0f);
 
 			float3 normvec = cu_normalize(n0+u*(n1-n0)+v*(n2-n0));
 			inout_intersection->normal=make_float4(normvec.x,normvec.y,normvec.z,inout_intersection->normal.w);

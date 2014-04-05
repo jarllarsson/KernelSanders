@@ -24,7 +24,7 @@ __device__ int getAxisNumber(DKDAxisMark p_axis)
 __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_view,*/float3& p_extends, float3& p_pos,
 						 DKDNode* p_nodes, DKDLeaf* p_leaflist, unsigned int* p_nodeIndices, 
 						 unsigned int p_numNodeIndices,
-						 float3* p_verts,float3* p_norms)
+						 float3* p_verts,float3* p_uvs,float3* p_norms)
 {
 	float3 colarr[18]={make_float3(1.0f,0.0f,0.0f),
 					   make_float3(0.0f,1.0f,0.0f),
@@ -289,7 +289,7 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 			unsigned int* ind = p_nodeIndices;
 			for (unsigned int i=0;i<indexCount;i+=3)
 			{			
-				hit|=IntersectTriangle(p_verts, p_norms, 
+				hit|=IntersectTriangle(p_verts, p_uvs, p_norms, 
 					ind[indexOffset+i], ind[indexOffset+i+1], ind[indexOffset+i+2], 
 					&test, 
 					in_ray, &intersection,true);
@@ -297,7 +297,8 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 			}	// for each face (three indices)
 			if (hit)
 			{
-				return hitViz*(0.6f+(intersection.normal.x+intersection.normal.y+intersection.normal.z)/3.0f);
+				//return hitViz*(0.6f+(intersection.normal.x+intersection.normal.y+intersection.normal.z)/3.0f);
+				return make_float3(intersection.surface.diffuse.x,intersection.surface.diffuse.y,0.0f);
 			}
 			else
 			{

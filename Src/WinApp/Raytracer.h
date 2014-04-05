@@ -19,6 +19,7 @@
 #include "IntersectionInfo.h"
 #include "DeviceKDStructures.h"
 #include "IntersectKDTree.h"
+#include "DeviceResources.h"
 
  
 #pragma comment(lib, "cudart") 
@@ -43,10 +44,6 @@ using std::vector;
 ///---------------------------------------------------------------------------------------
 
 
-__device__ __constant__ RaytraceConstantBuffer cb[1];
-
-
-texture<float, 2, cudaReadModeElementType> tex;
 
 
 
@@ -180,7 +177,7 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	{
 		kdCol=KDTraverse( &scene, &ray, kdExtents, kdPos,
 			p_nodes, p_leaflist, p_nodeIndices,
-			numNodeIndices,p_verts,p_norms);
+			numNodeIndices,p_verts,p_uvs,p_norms);
 		//for (unsigned int i=0;i<numIndices;i++)
 		//{
 		//	scene.meshIndices[i]=p_indices[i];
@@ -342,9 +339,9 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	//p_outPixel[R_CH] = finalColor.x + (kdCol.x)*0.1f + dbgGridX; // red
 	//p_outPixel[G_CH] = finalColor.y + (kdCol.y)*0.1f + dbgGridY; // green
 	//p_outPixel[B_CH] = finalColor.z + (kdCol.z)*0.1f; // blue
-	p_outPixel[R_CH] = back.x+(kdCol.x) + dbgGridX; // red
-	p_outPixel[G_CH] = back.y+(kdCol.y) + dbgGridY; // green
-	p_outPixel[B_CH] = back.z+(kdCol.z); // blue
+	p_outPixel[R_CH] = /*back.x+*/(kdCol.x) + dbgGridX; // red
+	p_outPixel[G_CH] = /*back.y+*/(kdCol.y) + dbgGridY; // green
+	p_outPixel[B_CH] = /*back.z+*/(kdCol.z); // blue
 	p_outPixel[A_CH] = finalColor.w; // alpha
 }
 

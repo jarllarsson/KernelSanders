@@ -190,6 +190,9 @@
     <ClInclude Include="KDBounds.h">
       <Filter>Source Files\ModelImporter\KDTree</Filter>
     </ClInclude>
+    <ClInclude Include="DeviceResources.h">
+      <Filter>Source Files\Kernel\Kernels\Raytrace</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
