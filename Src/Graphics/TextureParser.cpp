@@ -65,6 +65,52 @@ ID3D11ShaderResourceView* TextureParser::loadTexture(ID3D11Device* p_device,
 	return newShaderResurceView;
 }
 
+RawTexture* TextureParser::loadTexture( const char* p_filePath )
+{
+	FREE_IMAGE_FORMAT imageFormat;
+	FIBITMAP* image;
+	bool succeededLoadingFile = true;
+	RawTexture* texture;
+
+	imageFormat = FreeImage_GetFIFFromFilename(p_filePath);
+	if( imageFormat != FIF_UNKNOWN )
+		image = FreeImage_Load(imageFormat, p_filePath);
+	else
+	{
+		// Revert to fallback if texture unknown
+		succeededLoadingFile = false;
+		DEBUGWARNING(((string("Unknown texture file format, cannot parse the file, reverting to fallback texture. ") + 
+			toString(p_filePath)).c_str()));
+	}
+	// If width==0, we cannot use the texture, also revert to fallback
+	if (succeededLoadingFile && FreeImage_GetWidth(image)==0)
+	{
+		DEBUGWARNING(((string("Texture file not found, reverting to fallback texture. ") + 
+			toString(p_filePath)).c_str()));
+		succeededLoadingFile = false;
+	}
+	if(succeededLoadingFile)
+	{
+		//FreeImage_FlipVertical(image);
+
+		 texture = createTexture(FreeImage_GetBits(image), FreeImage_GetWidth(image),
+			FreeImage_GetHeight(image), FreeImage_GetPitch(image), FreeImage_GetBPP(image));
+
+		/************************************************************************/
+		/* Clean up the mess afterwards											*/
+		/************************************************************************/
+		FreeImage_Unload(image);
+	}
+	else
+	{
+		BYTE* data = generateFallbackTexture();
+		texture = createTexture(data,10,10,128,32);
+
+		delete data;
+	}
+	return texture;
+}
+
 ID3D11ShaderResourceView* TextureParser::createTexture( ID3D11Device* p_device, 
 													   ID3D11DeviceContext* p_context, 
 													   const byte* p_source, int p_width, 
@@ -184,6 +230,11 @@ ID3D11ShaderResourceView* TextureParser::createTexture( ID3D11Device* p_device,
 	delete [] data;
 
 	return newShaderResurceView;
+}
+
+RawTexture* TextureParser::createTexture( const byte* p_source, int p_width, int p_height, int p_pitch, int p_bitLevel )
+{
+
 }
 
 BYTE* TextureParser::generateFallbackTexture()

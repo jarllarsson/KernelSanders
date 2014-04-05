@@ -4,6 +4,7 @@
 #include <d3d11.h>
 #include "GraphicsException.h"
 #include "FreeImageException.h"
+#include "RawTexture.h"
 
 // =======================================================================================
 //                                      TextureParseer
@@ -44,6 +45,13 @@ public:
 		ID3D11DeviceContext* p_context, const byte* p_source, int p_width, int p_height, 
 		int p_pitch, int p_bitLevel,
 		TEXTURE_TYPE p_type );
+
+	///-----------------------------------------------------------------------------------
+	/// Handles the loading and creation of textures files. Returns raw data.
+	/// \param p_filePath
+	/// \return RawTexture*
+	///-----------------------------------------------------------------------------------
+	static RawTexture* loadTexture(const char* p_filePath);
 
 	///-----------------------------------------------------------------------------------
 	/// Generates a fallback texture used when the provided path or file is not valid

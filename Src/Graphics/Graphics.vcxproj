@@ -169,6 +169,7 @@
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshShader.h" />
     <ClInclude Include="PVertex.h" />
+    <ClInclude Include="RawTexture.h" />
     <ClInclude Include="RenderStateEnums.h" />
     <ClInclude Include="RenderStateHelper.h" />
     <ClInclude Include="ShaderBase.h" />
