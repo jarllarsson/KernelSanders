@@ -53,6 +53,8 @@ public:
 	///-----------------------------------------------------------------------------------
 	static RawTexture* loadTexture(const char* p_filePath);
 
+	static RawTexture* createTexture( FIBITMAP* p_bitmap, int p_width, int p_height);
+
 	///-----------------------------------------------------------------------------------
 	/// Generates a fallback texture used when the provided path or file is not valid
 	/// \return BYTE*

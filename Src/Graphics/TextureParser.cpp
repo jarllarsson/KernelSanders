@@ -93,8 +93,8 @@ RawTexture* TextureParser::loadTexture( const char* p_filePath )
 	{
 		//FreeImage_FlipVertical(image);
 
-		 texture = createTexture(FreeImage_GetBits(image), FreeImage_GetWidth(image),
-			FreeImage_GetHeight(image), FreeImage_GetPitch(image), FreeImage_GetBPP(image));
+		 texture = createTexture(image, FreeImage_GetWidth(image),
+			FreeImage_GetHeight(image));
 
 		/************************************************************************/
 		/* Clean up the mess afterwards											*/
@@ -103,10 +103,21 @@ RawTexture* TextureParser::loadTexture( const char* p_filePath )
 	}
 	else
 	{
-		BYTE* data = generateFallbackTexture();
-		texture = createTexture(data,10,10,128,32);
-
-		delete data;
+		float* input;
+		int ww=656, hh=480;
+		input = new float[ww*hh*4];
+		for(int i = 0; i < ww*hh*4; i+=4)
+		{
+			// r
+			input[i] = /*(unsigned char)(256.0f**/(float)i/(float)(ww*hh)/*)*/;
+			// g
+			input[i+1] = /*(unsigned char)(256.0f*(*/1.0f-((float)i/(float)(ww*hh))/*)*/;
+			// b
+			input[i+2] = 128;
+			// a
+			input[i+3] = 0;
+		}
+		texture = new RawTexture(input,ww,hh,4);
 	}
 	return texture;
 }
@@ -232,10 +243,35 @@ ID3D11ShaderResourceView* TextureParser::createTexture( ID3D11Device* p_device,
 	return newShaderResurceView;
 }
 
-RawTexture* TextureParser::createTexture( const byte* p_source, int p_width, int p_height, int p_pitch, int p_bitLevel )
+RawTexture* TextureParser::createTexture( FIBITMAP* p_bitmap, int p_width, int p_height)
 {
+	int width = p_width;
+	int height = p_height;
 
+	float* newData = NULL;
+
+	unsigned int channels=4;
+	unsigned int size=p_width*p_height*channels;
+	newData = new float[size];
+
+	for (unsigned int x=0;x<p_width;x++)
+	for (unsigned int y=0;y<p_height;y++)
+	{
+		unsigned int idx=y*p_width+x*channels;
+		RGBQUAD* color;
+		bool res=FreeImage_GetPixelColor(p_bitmap, x, y, color)==0?false:true;
+		if (!res)
+			throw GraphicsException("Bitmap was parsed incorrectly! ",__FILE__,__FUNCTION__,__LINE__);
+
+		newData[idx]=((float)color->rgbRed/256.0f);
+		newData[idx+1]=((float)color->rgbGreen/256.0f);
+		newData[idx+2]=((float)color->rgbBlue/256.0f);
+		newData[idx+3]=((float)color->rgbReserved/256.0f);
+	}
+	RawTexture* tex=new RawTexture(newData,width,height,channels);
+	return tex;
 }
+
 
 BYTE* TextureParser::generateFallbackTexture()
 {
