@@ -328,8 +328,8 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 		
 	}  while (reflectionfactor>0.01f && depth<max_depth);
 
-//	float tCol=tex2D(tex, u, v);
-	//float3 back=make_float3(tCol,tCol,tCol);
+	float4 tCol=tex2D(tex, u, v);
+	float3 back=make_float3(tCol.x,tCol.y,tCol.z);
 
 	// Set the color
 	float dbgGridX=(float)drawMode*((float)blockIdx.x/(float)gridDim.x);
@@ -337,9 +337,9 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	//p_outPixel[R_CH] = finalColor.x + (kdCol.x)*0.1f + dbgGridX; // red
 	//p_outPixel[G_CH] = finalColor.y + (kdCol.y)*0.1f + dbgGridY; // green
 	//p_outPixel[B_CH] = finalColor.z + (kdCol.z)*0.1f; // blue
-	p_outPixel[R_CH] = /*back.x+*/(kdCol.x) + dbgGridX; // red
-	p_outPixel[G_CH] = /*back.y+*/(kdCol.y) + dbgGridY; // green
-	p_outPixel[B_CH] = /*back.z+*/(kdCol.z); // blue
+	p_outPixel[R_CH] = back.x+(kdCol.x) + dbgGridX; // red
+	p_outPixel[G_CH] = back.y+(kdCol.y) + dbgGridY; // green
+	p_outPixel[B_CH] = back.z+(kdCol.z); // blue
 	p_outPixel[A_CH] = finalColor.w; // alpha
 }
 

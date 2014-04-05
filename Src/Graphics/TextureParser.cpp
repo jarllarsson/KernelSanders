@@ -92,7 +92,7 @@ RawTexture* TextureParser::loadTexture( const char* p_filePath )
 	}
 	if(succeededLoadingFile)
 	{
-		//FreeImage_FlipVertical(image);
+		FreeImage_FlipVertical(image);
 
 		 texture = createTexture(image, FreeImage_GetWidth(image),
 			FreeImage_GetHeight(image));
@@ -252,22 +252,23 @@ RawTexture* TextureParser::createTexture( FIBITMAP* p_bitmap, int p_width, int p
 	float* newData = NULL;
 
 	unsigned int channels=4;
-	unsigned int size=p_width*p_height*channels;
+	unsigned int size=width*height*channels;
 	newData = new float[size];
+	vector<float> g;
 
-	for (unsigned int x=0;x<p_width;x++)
-	for (unsigned int y=0;y<p_height;y++)
+	for (unsigned int y=0;y<height;y++)
+	for (unsigned int x=0;x<width;x++)
 	{
-		unsigned int idx=y*p_width+x*channels;
+		unsigned int idx=y*width+x*channels;
 		RGBQUAD color;
 		bool res=FreeImage_GetPixelColor(p_bitmap, x, y, &color)==0?false:true;
 		if (!res)
 			throw GraphicsException("Bitmap was parsed incorrectly! ",__FILE__,__FUNCTION__,__LINE__);
 
-		newData[idx]=((float)color.rgbRed/256.0f);
-		newData[idx+1]=((float)color.rgbGreen/256.0f);
-		newData[idx+2]=((float)color.rgbBlue/256.0f);
-		newData[idx+3]=((float)color.rgbReserved/256.0f);
+		newData[idx]=((float)color.rgbRed/256.0f);		g.push_back(newData[idx]);
+		newData[idx+1]=((float)color.rgbGreen/256.0f);	g.push_back(newData[idx+1]);
+		newData[idx+2]=((float)color.rgbBlue/256.0f);	g.push_back(newData[idx+2]);
+		newData[idx+3]=1.0f;							g.push_back(newData[idx+3]);
 	}
 	RawTexture* tex=new RawTexture(newData,width,height,channels);
 	return tex;

@@ -115,13 +115,14 @@ void App::run()
 
 	// load assets
 	
-	int duck = m_modelImporter->loadFile("../Assets/sphere.dae");
+	int duck = m_modelImporter->loadFile("../Assets/teapots.dae");
 	ModelImporter::ModelData* duckMdl=m_modelImporter->getStoredModel(duck);
 
 	aiMesh* mmesh=duckMdl->m_model->mMeshes[0];
 	m_sceneMgr->addMeshTris(mmesh->mVertices,mmesh->mNumVertices,
 							&duckMdl->m_trisIndices[0],duckMdl->m_trisIndices.size(),
 							mmesh->mNormals,mmesh->mTextureCoords);
+	m_sceneMgr->addTexture(m_modelImporter->getModelTexture(duck));
 	
 	int treeId=duckMdl->m_treeId;
 	vector<KDNode>* KDnodes=m_modelImporter->getKDTree(treeId);

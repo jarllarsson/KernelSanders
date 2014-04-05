@@ -23,6 +23,7 @@
 // device specific
 #include "DeviceResources.h"
 #include "Raytracer.h"
+#include <RawTexture.h>
  
 #pragma comment(lib, "cudart") 
 
@@ -65,6 +66,7 @@ extern "C" void RunRaytraceKernel(void* p_cb,void *surface,
 			int width, int height, int pitch,
 			void* p_verts,void* p_uvs,void* p_norms,unsigned int p_numVerts,
 			void* p_indices,unsigned int p_numIndices,
+			RawTexture* p_texture,
 			void* p_kdExtents, void* p_kdPos,
 			void* p_tris, unsigned int p_numTris,
 			void* p_nodes, void* p_leaflist, void* p_nodeIndices,
@@ -75,20 +77,25 @@ extern "C" void RunRaytraceKernel(void* p_cb,void *surface,
 	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
 
 	// Allocate texture
-	float4* input;
+	//float4* input;
 	int ww=656, hh=480;
-    input = new float4[ww*hh];
-    for(int i = 0; i < ww*hh; i++)
-    {
-		// r
-        input[i].x = /*(unsigned char)(256.0f**/(float)i/(float)(ww*hh)/*)*/;
-		// g
-		input[i].y = /*(unsigned char)(256.0f*(*/1.0f-((float)i/(float)(ww*hh))/*)*/;
-		// b
-		input[i].z = 128;
-		// a
-		input[i].w = 0;
-    }
+    // input = new float4[ww*hh];
+    // for(int i = 0; i < ww*hh; i++)
+    // {
+	//  	// r
+    //     input[i].x = /*(unsigned char)(256.0f**/(float)i/(float)(ww*hh)/*)*/;
+	//  	// g
+	//  	input[i].y = /*(unsigned char)(256.0f*(*/1.0f-((float)i/(float)(ww*hh))/*)*/;
+	//  	// b
+	//  	input[i].z = 128;
+	//  	// a
+	//  	input[i].w = 0;
+    // }
+
+	float4* texinput=(float4*)p_texture->m_data;
+	ww=p_texture->m_width;
+	hh=p_texture->m_height;
+
 
 	// Allocate array and copy image data
     cudaChannelFormatDesc channelDesc = cudaCreateChannelDesc(32, 32, 32, 32, cudaChannelFormatKindFloat);
@@ -105,7 +112,7 @@ extern "C" void RunRaytraceKernel(void* p_cb,void *surface,
     res=cudaMemcpyToArray(cuArray,
                                       0,
                                       0,
-                                      input,
+                                      texinput,
                                       ww*hh*sizeof(float4),
                                       cudaMemcpyHostToDevice);
 	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
@@ -113,7 +120,7 @@ extern "C" void RunRaytraceKernel(void* p_cb,void *surface,
     // Set texture parameters
     tex.addressMode[0] = cudaAddressModeWrap;
     tex.addressMode[1] = cudaAddressModeWrap;
-    tex.filterMode = cudaFilterModeLinear;
+    tex.filterMode = cudaFilterModePoint;
     tex.normalized = true;    // access with normalized texture coordinates
 
     // Bind the array to the texture
@@ -141,7 +148,7 @@ extern "C" void RunRaytraceKernel(void* p_cb,void *surface,
 	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
     res=cudaFreeArray(cuArray);
 	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
-	delete [] input;
+	//delete [] texinput;
 
 } 
 

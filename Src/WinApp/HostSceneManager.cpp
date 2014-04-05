@@ -62,3 +62,9 @@ void HostSceneManager::addKDTree(KDBounds p_bounds, KDNode* p_nodeArray, int p_n
 	m_scene.setDirty(HScene::MESH);
 }
 
+void HostSceneManager::addTexture( RawTexture* p_texture )
+{
+	m_scene.texture=p_texture;
+}
+
+

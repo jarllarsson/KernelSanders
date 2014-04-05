@@ -6,6 +6,7 @@
 #include <vector>
 #include "KDNode.h"
 #include "KDBounds.h"
+#include <RawTexture.h>
 
 using namespace std;
 // =======================================================================================
@@ -41,6 +42,7 @@ struct HScene
 	vector<glm::vec3> meshUVs;
 	vector<unsigned int> meshIndices;
 	vector<glm::vec3> meshNorms;
+	RawTexture* texture;
 	// KD
 	vector<KDNode> KDnode;	
 	vector<KDLeaf> KDleaves;

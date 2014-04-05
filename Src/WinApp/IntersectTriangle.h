@@ -31,6 +31,17 @@ __device__ float3 Barycentric(float3& p_point, float3& a, float3& b, float3& c)
 	float w = (v0.x * v2.y - v2.x * v0.y) * inv_den;
 	float u = 1.0f - v - w;
 	return make_float3(u,v,w);
+//  float3 v0 = b - a, v1 = c - a, v2 = p_point - a;
+//  float d00 = cu_dot(v0, v0);
+//  float d01 = cu_dot(v0, v1);
+//  float d11 = cu_dot(v1, v1);
+//  float d20 = cu_dot(v2, v0);
+//  float d21 = cu_dot(v2, v1);
+//  float invDenom = 1.0 / (d00 * d11 - d01 * d01);
+//  float v = (d11 * d20 - d01 * d21) * invDenom;
+//  float w = (d00 * d21 - d01 * d20) * invDenom;
+//  float u = 1.0f - v - w;
+//  return make_float3(u,v,w);
 }
 
 __device__ float3 InterpolateUV(float3& p_barycentric, float3& p_uvA, float3& p_uvB, float3& p_uvC)
