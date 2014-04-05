@@ -193,6 +193,9 @@
     <ClInclude Include="DeviceResources.h">
       <Filter>Source Files\Kernel\Kernels\Raytrace</Filter>
     </ClInclude>
+    <ClInclude Include="KernelTextureHelper.h">
+      <Filter>Source Files\Kernel\Kernels\Raytrace\Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

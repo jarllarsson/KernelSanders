@@ -45,8 +45,6 @@ using std::vector;
 
 
 
-
-
 __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 						 const int p_width, const int p_height,
 						 float3* p_verts,float3* p_uvs,float3* p_norms,unsigned int p_numVerts,
@@ -330,8 +328,8 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 		
 	}  while (reflectionfactor>0.01f && depth<max_depth);
 
-	float tCol=tex2D(tex, u, v);
-	float3 back=make_float3(tCol,tCol,tCol);
+//	float tCol=tex2D(tex, u, v);
+	//float3 back=make_float3(tCol,tCol,tCol);
 
 	// Set the color
 	float dbgGridX=(float)drawMode*((float)blockIdx.x/(float)gridDim.x);

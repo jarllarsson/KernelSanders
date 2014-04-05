@@ -1,9 +1,5 @@
-#ifndef DEVICE_RAYTRACER_RESOURCES
-#define DEVICE_RAYTRACER_RESOURCES
-
+#pragma once
 __device__ __constant__ RaytraceConstantBuffer cb[1];
 
 
-texture<float, 2, cudaReadModeElementType> tex;
-
-#endif
+texture<float4, 2, cudaReadModeElementType> tex;

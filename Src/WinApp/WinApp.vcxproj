@@ -223,6 +223,7 @@
     <ClInclude Include="KDTreeFactory.h" />
     <ClInclude Include="KernelMathMatrix.h" />
     <ClInclude Include="KernelMathOperators.h" />
+    <ClInclude Include="KernelTextureHelper.h" />
     <ClInclude Include="LightStructures.h" />
     <ClInclude Include="ModelImporter.h" />
     <ClInclude Include="KDNode.h" />

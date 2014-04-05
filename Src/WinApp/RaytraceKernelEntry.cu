@@ -21,6 +21,7 @@
 #include "KernelHelper.h"
 
 // device specific
+#include "DeviceResources.h"
 #include "Raytracer.h"
  
 #pragma comment(lib, "cudart") 
@@ -74,28 +75,38 @@ extern "C" void RunRaytraceKernel(void* p_cb,void *surface,
 	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
 
 	// Allocate texture
-	float* input;
+	float4* input;
 	int ww=656, hh=480;
-    input = new float[ww*hh];
-    for(int i = 0; i < ww*hh; ++i)
+    input = new float4[ww*hh];
+    for(int i = 0; i < ww*hh; i++)
     {
-        input[i] = (float)i/(float)(ww*hh);
+		// r
+        input[i].x = /*(unsigned char)(256.0f**/(float)i/(float)(ww*hh)/*)*/;
+		// g
+		input[i].y = /*(unsigned char)(256.0f*(*/1.0f-((float)i/(float)(ww*hh))/*)*/;
+		// b
+		input[i].z = 128;
+		// a
+		input[i].w = 0;
     }
 
 	// Allocate array and copy image data
-    cudaChannelFormatDesc channelDesc =
-        cudaCreateChannelDesc(32, 0, 0, 0, cudaChannelFormatKindFloat);
+    cudaChannelFormatDesc channelDesc = cudaCreateChannelDesc(32, 32, 32, 32, cudaChannelFormatKindFloat);
+		//cudaCreateChannelDesc(8, 8, 8, 8, cudaChannelFormatKindUnsigned);
+		//cudaCreateChannelDesc<uchar4>();
+        //cudaCreateChannelDesc(32, 0, 0, 0, cudaChannelFormatKindFloat);
     cudaArray *cuArray;
     res=cudaMallocArray(&cuArray,
                                     &channelDesc,
                                     ww,
                                     hh);
 	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
+
     res=cudaMemcpyToArray(cuArray,
                                       0,
                                       0,
                                       input,
-                                      ww*hh*sizeof(float),
+                                      ww*hh*sizeof(float4),
                                       cudaMemcpyHostToDevice);
 	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
 
