@@ -298,7 +298,7 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 			if (hit)
 			{
 				//return hitViz*(0.6f+(intersection.normal.x+intersection.normal.y+intersection.normal.z)/3.0f);
-				return make_float3(intersection.surface.diffuse.x,intersection.surface.diffuse.y,0.0f);
+				return make_float3(intersection.surface.diffuse.x,intersection.surface.diffuse.y,intersection.surface.diffuse.z);
 			}
 			else
 			{

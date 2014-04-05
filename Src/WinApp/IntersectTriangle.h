@@ -123,7 +123,8 @@ __device__ bool IntersectTriangle(const float3* vertArr, const float3* uvArr, co
 			float3 barycentric=Barycentric(make_float3(triPos.x,triPos.y,triPos.z),
 										   vert0,vert1,vert2);
 			float3 uv=InterpolateUV(barycentric,uv0,uv1,uv2);
-			inout_intersection->surface.diffuse = make_float4(uv.x,uv.y,0.0f,0.0f);
+			float texCol = tex2D(tex, uv.x, uv.y);
+			inout_intersection->surface.diffuse = make_float4(texCol,texCol,texCol,0.0f);
 
 			float3 normvec = cu_normalize(n0+u*(n1-n0)+v*(n2-n0));
 			inout_intersection->normal=make_float4(normvec.x,normvec.y,normvec.z,inout_intersection->normal.w);
