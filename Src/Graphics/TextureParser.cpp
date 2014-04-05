@@ -1,4 +1,5 @@
 #include "TextureParser.h"
+#include <FreeImage.h>
 #include <Util.h>
 #include <vector>
 #include <DebugPrint.h>
@@ -258,15 +259,15 @@ RawTexture* TextureParser::createTexture( FIBITMAP* p_bitmap, int p_width, int p
 	for (unsigned int y=0;y<p_height;y++)
 	{
 		unsigned int idx=y*p_width+x*channels;
-		RGBQUAD* color;
-		bool res=FreeImage_GetPixelColor(p_bitmap, x, y, color)==0?false:true;
+		RGBQUAD color;
+		bool res=FreeImage_GetPixelColor(p_bitmap, x, y, &color)==0?false:true;
 		if (!res)
 			throw GraphicsException("Bitmap was parsed incorrectly! ",__FILE__,__FUNCTION__,__LINE__);
 
-		newData[idx]=((float)color->rgbRed/256.0f);
-		newData[idx+1]=((float)color->rgbGreen/256.0f);
-		newData[idx+2]=((float)color->rgbBlue/256.0f);
-		newData[idx+3]=((float)color->rgbReserved/256.0f);
+		newData[idx]=((float)color.rgbRed/256.0f);
+		newData[idx+1]=((float)color.rgbGreen/256.0f);
+		newData[idx+2]=((float)color.rgbBlue/256.0f);
+		newData[idx+3]=((float)color.rgbReserved/256.0f);
 	}
 	RawTexture* tex=new RawTexture(newData,width,height,channels);
 	return tex;

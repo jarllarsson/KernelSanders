@@ -1,6 +1,5 @@
 #pragma once
 #include <windows.h>
-#include <FreeImage.h>
 #include <d3d11.h>
 #include "GraphicsException.h"
 #include "FreeImageException.h"
@@ -19,6 +18,8 @@
 /// Detailed description.....
 /// Created on: 5-12-2012 
 ///---------------------------------------------------------------------------------------
+
+struct FIBITMAP;
 
 class TextureParser
 {

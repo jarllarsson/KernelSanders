@@ -13,6 +13,11 @@ ModelImporter::~ModelImporter()
 		aiReleaseImport(m_models[i]->m_model);
 		delete m_models[i];
 	}
+	for (int i=0;i<m_textures.size();i++)
+	{
+		delete [] m_textures[i]->m_data;
+		delete m_textures[i];
+	}
 	aiDetachAllLogStreams();
 }
 
@@ -46,7 +51,9 @@ int ModelImporter::loadFile( const char* p_path )
 				model->m_trisIndices.insert(model->m_trisIndices.end(),f->mIndices,f->mIndices+3); // NOTE! Only support for triangles!
 				indexCount+=3;
 			}
-		}
+		}		
+		int texId=m_textures.size();
+		m_textures.push_back(m_textureParser.loadTexture("../Assets/bmo.png"));
 		// build kd-tree representation of the index list for the mesh
 // 		glm::vec3 extents(max(abs(model->m_sceneMax.x),abs(model->m_sceneMin.x)),
 // 			max(abs(model->m_sceneMax.y),abs(model->m_sceneMin.y)),
@@ -54,7 +61,10 @@ int ModelImporter::loadFile( const char* p_path )
 // 		extents -= model->m_sceneCenter;
 		int treeId = m_treeFactory.buildKDTree((void*)mmesh->mVertices,(void*)mmesh->mNormals,mmesh->mNumVertices,
 								  &model->m_trisIndices[0],model->m_trisIndices.size(),model->m_sceneMin,model->m_sceneMax);
+
+
 		model->m_treeId=treeId;
+		model->m_textureId=texId;
 		m_models.push_back(model);
 		result = static_cast<int>(m_models.size()-1);
 	}
@@ -143,4 +153,9 @@ KDBounds ModelImporter::getTreeBounds( int p_idx )
 vector<KDBounds>* ModelImporter::getDebugNodeBounds( int p_idx )
 {
 	return m_treeFactory.getDebugNodeBounds(p_idx);
+}
+
+RawTexture* ModelImporter::getModelTexture( int p_idx )
+{
+	return m_textures[p_idx];
 }
