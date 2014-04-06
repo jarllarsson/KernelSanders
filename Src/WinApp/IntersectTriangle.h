@@ -50,6 +50,15 @@ __device__ float3 InterpolateUV(float3& p_barycentric, float3& p_uvA, float3& p_
 	return uv;
 }
 
+__device__ float2 InterpolateUV(float2& p_hitUv, float3& p_uvA, float3& p_uvB, float3& p_uvC)
+{
+	float2 uvA=make_float2(p_uvA.x,p_uvA.y);
+	float2 uvB=make_float2(p_uvB.x,p_uvB.y); 
+	float2 uvC=make_float2(p_uvC.x,p_uvC.y);
+	float2 uv = uvA * p_hitUv.x + uvB * p_hitUv.y + uvC * 1.0f;
+	return uv;
+}
+
 __device__ bool IntersectTriangle(const Tri* in_tri, const Ray* in_ray, Intersection* inout_intersection, bool storeResult)
 {
 	bool result = false;
@@ -132,12 +141,14 @@ __device__ bool IntersectTriangle(const float3* vertArr, const float3* uvArr, co
 			float4 triPos=in_ray->origin+t*in_ray->dir;
 			inout_intersection->pos=triPos;
 
-			float3 barycentric=Barycentric(make_float3(triPos.x,triPos.y,triPos.z),
-										   vert0,vert1,vert2);
-			float3 uv=InterpolateUV(barycentric,uv0,uv1,uv2);
+			float3 barycentric=Barycentric(make_float3(u,v,0.0f),
+										   vert0,vert1,vert2);					//???
+			float3 uv=InterpolateUV(make_float3(u,v,0.0f),uv0,uv1,uv2);			//???
 			float4 texCol=tex2D(tex,uv.x,uv.y);
 				//sampleTextureRGB(tex,make_float2(uv.x,uv.y));
 			inout_intersection->surface.diffuse = texCol;
+			inout_intersection->surface.diffuse += make_float4(0.0f,u,v,0.0f);
+				//texCol;
 
 			float3 normvec = cu_normalize(n0+u*(n1-n0)+v*(n2-n0));
 			inout_intersection->normal=make_float4(normvec.x,normvec.y,normvec.z,inout_intersection->normal.w);
