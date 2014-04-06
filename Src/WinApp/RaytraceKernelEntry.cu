@@ -108,19 +108,19 @@ extern "C" void RunRaytraceKernel(void* p_cb,void *surface,
                                     ww,
                                     hh);
 	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
-
+	int s=sizeof(float4);
     res=cudaMemcpyToArray(cuArray,
                                       0,
                                       0,
                                       texinput,
-                                      ww*hh*sizeof(float4),
+                                      ww*hh*s,
                                       cudaMemcpyHostToDevice);
 	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
 
     // Set texture parameters
     tex.addressMode[0] = cudaAddressModeWrap;
     tex.addressMode[1] = cudaAddressModeWrap;
-    tex.filterMode = cudaFilterModePoint;
+    tex.filterMode = cudaFilterModeLinear;
     tex.normalized = true;    // access with normalized texture coordinates
 
     // Bind the array to the texture

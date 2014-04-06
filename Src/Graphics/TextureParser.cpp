@@ -106,9 +106,11 @@ RawTexture* TextureParser::loadTexture( const char* p_filePath )
 	{
 		float* input;
 		int ww=656, hh=480;
-		input = new float[ww*hh*4];
-		for(int i = 0; i < ww*hh*4; i+=4)
+		input = new float[ww*hh*4];		
+		for(int y = 0; y < hh; y++)
+		for(int x = 0; x < ww; x++)
 		{
+			unsigned int i=y*ww*4+x*4;
 			// r
 			input[i] = /*(unsigned char)(256.0f**/(float)i/(float)(ww*hh)/*)*/;
 			// g
@@ -259,7 +261,7 @@ RawTexture* TextureParser::createTexture( FIBITMAP* p_bitmap, int p_width, int p
 	for (unsigned int y=0;y<height;y++)
 	for (unsigned int x=0;x<width;x++)
 	{
-		unsigned int idx=y*width+x*channels;
+		unsigned int idx=y*width*channels+x*channels;
 		RGBQUAD color;
 		bool res=FreeImage_GetPixelColor(p_bitmap, x, y, &color)==0?false:true;
 		if (!res)
