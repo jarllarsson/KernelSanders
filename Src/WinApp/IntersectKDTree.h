@@ -21,10 +21,13 @@ __device__ int getAxisNumber(DKDAxisMark p_axis)
 	return p_axis.b_1+p_axis.b_2*2;
 }
 
-__device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_view,*/float3& p_extends, float3& p_pos,
+__device__ bool KDTraverse( const Scene* in_scene, const Ray* in_ray, /*float4x4 p_view,*/float3& p_extends, float3& p_pos,
 						 DKDNode* p_nodes, DKDLeaf* p_leaflist, unsigned int* p_nodeIndices, 
 						 unsigned int p_numNodeIndices,
-						 float3* p_verts,float3* p_uvs,float3* p_norms)
+						 float3* p_verts,float3* p_uvs,float3* p_norms,
+						 float3* p_outDbgCol,
+						 Intersection* inout_intersection, 
+						 bool storeResult)
 {
 	float3 colarr[18]={make_float3(1.0f,0.0f,0.0f),
 					   make_float3(0.0f,1.0f,0.0f),
@@ -47,17 +50,19 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 
 //	p_verts=in_scene->meshVerts; p_norms=in_scene->meshNorms;
 
-	Intersection intersection;
-	intersection.dist = MAX_INTERSECT_DIST;
-	intersection.surface.diffuse = make_float4(0.0f,0.0f,0.0f,0.0f);
-	intersection.surface.specular = make_float4(0.0f,0.0f,0.0f,0.0f);
-	intersection.surface.reflection= 0.0f;
+	// Intersection intersection;
+	// intersection.dist = MAX_INTERSECT_DIST;
+	// intersection.surface.diffuse = make_float4(0.0f,0.0f,0.0f,0.0f);
+	// intersection.surface.specular = make_float4(0.0f,0.0f,0.0f,0.0f);
+	// intersection.surface.reflection= 0.0f;
 
 	DKDLeaf leaf;
-	Material test;
+	Material material;
 
 
 	float3 breakCol=make_float3(0.0f,0.0f,0.0f);
+	*p_outDbgCol=breakCol;
+
 	float3 result=make_float3(0.0f,0.0f,0.0f);
 	float3 hitViz=make_float3(0.25f,0.15f,0.15f);
 	float3 overlayViz=make_float3(0.0f,0.0f,0.0f);
@@ -87,9 +92,9 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 	{
 		if (aD[i] < 0.0f) 
 		{
-			if (aO[i] < ap1[i]) return breakCol; // Negative extents(note that author has anchor in corner here)
+			if (aO[i] < ap1[i]) return false; // Negative extents(note that author has anchor in corner here)
 		}
-		else if (aO[i] > ap2[i]) return breakCol;// positive extents
+		else if (aO[i] > ap2[i]) return false;// positive extents
 	}
 	///////////////////////////////////////////
 	///////////////////////////////////////////
@@ -97,7 +102,7 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 	///////////////////////////////////////////
 	bool isInside=IntersectAABBCage(treePos, treeExt, in_ray, tfar, tnear, tfar);
 	if (!isInside) 
-		return breakCol;
+		return false;
 	if (tnear>tfar)
 	{
 		float t=tfar;
@@ -251,7 +256,11 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 				kdStack[exitpoint].m_pb.x = exit_pb[0];kdStack[exitpoint].m_pb.y = exit_pb[1];kdStack[exitpoint].m_pb.z = exit_pb[2];
 			}
 			// Fetch new node
-			if (currNodeIdx<=0) return breakCol;
+			if (currNodeIdx<=0)
+			{
+				*p_outDbgCol=hitViz*0.6f+overlayViz;
+				return false;
+			}
 			currNode=p_nodes[currNodeIdx];
 
 		}
@@ -267,7 +276,7 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 		// Get list of current triangles for leaf
 					
 		if (currNodeIdx>0) hitViz=colarr[currNodeIdx%17];
-		if (currNodeIdx>0) overlayViz+=colarr[currNodeIdx%17]*0.05f;
+		if (currNodeIdx>0) overlayViz+=colarr[currNodeIdx%17]*0.5f;
 		int leafId=currNode.m_leftChildIdx;
 		
 
@@ -278,58 +287,33 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 			int indexOffset=leaf.m_offset;
 			int indexCount=leaf.m_count;
 
-			test.diffuse = make_float4(hitViz.x,hitViz.y,hitViz.z,0.0f);
-			test.specular = make_float4(0.0f, 0.0f, 0.0f,0.0f);
-			test.reflection = 0.0f;
+			material.diffuse = make_float4(hitViz.x,hitViz.y,hitViz.z,0.0f);
+			material.specular = make_float4(0.0f, 0.0f, 0.0f,0.0f);
+			material.reflection = 0.0f;
 
 			bool hit=false;
 			float maxdist=kdStack[exitpoint].m_t;
-			float od=intersection.dist;
-			if (maxdist<intersection.dist) intersection.dist=maxdist;
+			float od=inout_intersection->dist;
+			if (maxdist<inout_intersection->dist) inout_intersection->dist=maxdist;
 			unsigned int* ind = p_nodeIndices;
 			for (unsigned int i=0;i<indexCount;i+=3)
 			{			
 				hit|=IntersectTriangle(p_verts, p_uvs, p_norms, 
 					ind[indexOffset+i], ind[indexOffset+i+1], ind[indexOffset+i+2], 
-					&test, 
-					in_ray, &intersection,true);
+					&material, 
+					in_ray, inout_intersection,storeResult);
 			
 			}	// for each face (three indices)
 			if (hit)
 			{
-				//return hitViz*(0.6f+(intersection.normal.x+intersection.normal.y+intersection.normal.z)/3.0f);
-				return make_float3(intersection.surface.diffuse.x,intersection.surface.diffuse.y,intersection.surface.diffuse.z);
+				*p_outDbgCol=hitViz*(0.6f+(inout_intersection->normal.x+inout_intersection->normal.y+inout_intersection->normal.z)/3.0f);
+				return true;
+					// make_float3(intersection.surface.diffuse.x,intersection.surface.diffuse.y,intersection.surface.diffuse.z);
 			}
 			else
 			{
-				intersection.dist=od;
+				inout_intersection->dist=od;
 			}
-
-/*
-			indexCount = cu_imini(indexCount,cu_imini(30,(int)p_numNodeIndices-indexOffset));			
-			totalIndices+=indexCount;
-
-			if (totalIndices>=MAXMESHLOCAL_INDICESBIN)
-				indexCount-=totalIndices-MAXMESHLOCAL_INDICESBIN;			
-			
-			//float dist = kdStack[exitpoint].m_t; // get the current max distance (voxel back)
-			// Check all triangles that's in the node
-			// Fetch all triangles in path
-			int vertOffset=in_scene->numVerts;
-			in_scene->numIndices+=indexCount;
-			in_scene->numVerts+=indexCount;
-			for (unsigned int i=0;i<indexCount;i++)
-			{
-				unsigned int index=p_nodeIndices[indexOffset+i]; // fetch index
-				int newindex=vertOffset+i;
-				in_scene->meshVerts[newindex]=p_verts[index]; // and get corresponding
-				in_scene->meshNorms[newindex]=p_norms[index]; // vertex and normals data
-				in_scene->meshIndices[newindex]=newindex; // store new index (note this method creates vertex copies)
-			}
-			//hitViz=make_float3(1.2f*(float)in_scene->numIndices/(float)MAXMESHLOCAL_INDICESBIN,0.0f,0.0f);
-			if (in_scene->numIndices>=MAXMESHLOCAL_INDICESBIN-1)
-				return make_float3(0.0f,0.0f,0.0f);
-*/
 		}
 
 			
@@ -348,8 +332,10 @@ __device__ float3 KDTraverse( Scene* in_scene, const Ray* in_ray, /*float4x4 p_v
 
 	///////////////////////////////////////////
 	///////////////////////////////////////////
-
-	return hitViz*0.6f+overlayViz;
+	
+	*p_outDbgCol=hitViz*0.6f+overlayViz;
+	return false; 
+		//hitViz*0.6f+overlayViz;
 }
 
 #endif

@@ -10,6 +10,7 @@
 #include "Primitives.h"
 #include "LightStructures.h"
 #include "RaytraceSurfaceMaterial.h"
+#include "DeviceKDStructures.h"
 
 
 #pragma comment(lib, "cudart") 
@@ -41,6 +42,16 @@ struct Scene
 	float3 meshVerts[MAXMESHLOCAL_VERTSBIN];
 	float3 meshNorms[MAXMESHLOCAL_VERTSBIN];
 	unsigned int meshIndices[MAXMESHLOCAL_INDICESBIN];
+	// Mesh stuff
+	float3 kdExtents;
+	float3 kdPos;
+	DKDNode* nodes;
+	DKDLeaf* leaflist;
+	unsigned int* nodeIndices;
+	float3* verts;
+	float3* uvs;
+	float3* norms;
+	unsigned int numNodes, numLeaves, numNodeIndices;
 };
 
 #endif

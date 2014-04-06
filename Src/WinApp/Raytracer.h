@@ -166,26 +166,22 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 		scene.tri[i].mat.reflection = 0.0f;
 	}
 
-	// copy data for mesh
+
 	scene.numIndices=0;
 	scene.numVerts=0;
 
-	float3 kdCol=make_float3(0.0f,0.0f,0.0f);
-	if (numNodes>0 && numLeaves>0 && numNodeIndices>2)
-	{
-		kdCol=KDTraverse( &scene, &ray, kdExtents, kdPos,
-			p_nodes, p_leaflist, p_nodeIndices,
-			numNodeIndices,p_verts,p_uvs,p_norms);
-		//for (unsigned int i=0;i<numIndices;i++)
-		//{
-		//	scene.meshIndices[i]=p_indices[i];
-		//}
-		//for (unsigned int i=0;i<numVerts;i++)
-		//{
-		//	scene.meshVerts[i]=p_verts[i];
-		//	scene.meshNorms[i]=p_norms[i];
-		//}
-	}
+	scene.kdExtents=kdExtents;
+	scene.kdPos=kdPos;
+	scene.nodes=p_nodes;
+	scene.leaflist=p_leaflist;
+	scene.nodeIndices=p_nodeIndices;
+	scene.numNodes=p_numNodes;
+	scene.numLeaves=p_numLeaves;
+	scene.numNodeIndices=numNodeIndices;
+	scene.verts=p_verts;
+	scene.uvs=p_uvs;
+	scene.norms=p_norms;
+
 
 
 	// define some boxes
@@ -254,6 +250,7 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	float4 currentColor = make_float4(0.0f,0.0f,0.0f,0.0f);
 	SurfaceLightingData dat;
 	float4 lightColor = make_float4(0.0f,0.0f,0.0f,0.0f);	
+	float3 debugColor = make_float3(0.0f,0.0f,0.0f);
 
 	// =======================================================
 
@@ -262,7 +259,7 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	do
 	{
 		currentColor = make_float4(0.0f,0.0f,0.0f,1.0f);
-		bool result = IntersectAll(&scene,&ray,&intersection,false,false);			// Do the intersection tests
+		bool result = IntersectAll(&scene,&ray,&intersection,false,false,&debugColor);			// Do the intersection tests
 
 		// If defined, render starry sky
 #ifdef RENDER_STARRY_SKY
@@ -334,12 +331,12 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	// Set the color
 	float dbgGridX=(float)drawMode*((float)blockIdx.x/(float)gridDim.x);
 	float dbgGridY=(float)drawMode*((float)blockIdx.y/(float)gridDim.y);
-	//p_outPixel[R_CH] = finalColor.x + (kdCol.x)*0.1f + dbgGridX; // red
-	//p_outPixel[G_CH] = finalColor.y + (kdCol.y)*0.1f + dbgGridY; // green
-	//p_outPixel[B_CH] = finalColor.z + (kdCol.z)*0.1f; // blue
-	p_outPixel[R_CH] = /*+back.x*/(kdCol.x) + dbgGridX; // red
-	p_outPixel[G_CH] = /*+back.y*/(kdCol.y) + dbgGridY; // green
-	p_outPixel[B_CH] = /*+back.z*/(kdCol.z); // blue
+	p_outPixel[R_CH] = finalColor.x + dbgGridX; // red
+	p_outPixel[G_CH] = finalColor.y + dbgGridY; // green
+	p_outPixel[B_CH] = finalColor.z; // blue
+	//p_outPixel[R_CH] = /*+back.x*/(debugColor.x) + dbgGridX; // red
+	//p_outPixel[G_CH] = /*+back.y*/(debugColor.y) + dbgGridY; // green
+	//p_outPixel[B_CH] = /*+back.z*/(debugColor.z); // blue
 	p_outPixel[A_CH] = finalColor.w; // alpha
 }
 

@@ -19,6 +19,7 @@
 #include "IntersectPlane.h"
 #include "IntersectTriangle.h"
 #include "IntersectBox.h"
+#include "IntersectKDTree.h"
 
 
 // =======================================================================================
@@ -33,10 +34,27 @@
 /// 25-4-2013 Jarl Larsson
 ///---------------------------------------------------------------------------------------
 
-__device__ bool IntersectAll(const Scene* in_scene, const Ray* in_ray, Intersection* inout_intersection, bool breakOnFirst,bool previousResult)
+__device__ bool IntersectAll(const Scene* in_scene, const Ray* in_ray, Intersection* inout_intersection, bool breakOnFirst,bool previousResult,
+							 float3* p_outDbgCol)
 {
 	bool result=previousResult;
 	bool storeResults = !breakOnFirst;
+
+
+	float3 kdCol=make_float3(0.0f,0.0f,0.0f);
+	if (in_scene->numNodes>0 && in_scene->numLeaves>0 && in_scene->numNodeIndices>2)
+	{
+		float3 extents=in_scene->kdExtents, pos=in_scene->kdPos;
+		result|=KDTraverse( in_scene, in_ray, 
+			extents,pos,
+			in_scene->nodes, in_scene->leaflist, in_scene->nodeIndices,
+			in_scene->numNodeIndices,in_scene->verts,in_scene->uvs,in_scene->norms,
+			&kdCol,inout_intersection, storeResults);
+		if (result && breakOnFirst) 
+			return true;
+	}
+	(*p_outDbgCol)+=kdCol;
+
 
     #pragma unroll MAXSPHERES
 	for (int i=0;i<MAXSPHERES;i++)
