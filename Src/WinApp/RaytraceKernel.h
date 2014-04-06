@@ -49,14 +49,18 @@ struct RaytraceKernelData : public KernelData
 class RaytraceKernel : public IKernelHandler
 {
 public:
-	RaytraceKernel();
+	RaytraceKernel(MeasurementBin* p_measurer);
 	virtual ~RaytraceKernel();
 
 
 	virtual void SetPerKernelArgs();
 
 	virtual void Execute(KernelData* p_data, float p_dt);
+
 protected:
 private:
-
+	void initPerformanceMeasurement();
+	void startPerformanceMeasurement();
+	void completePerformanceMeasurement();
+	cudaEvent_t kerneltimerStart, kerneltimerStop;
 };

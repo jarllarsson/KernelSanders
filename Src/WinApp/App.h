@@ -7,6 +7,7 @@
 #include <CBuffers.h>
 #include <Buffer.h>
 #include <vector>
+#include <MeasurementBin.h>
 
 class Context;
 class GraphicsDevice;
@@ -33,7 +34,7 @@ using namespace std;
 class App
 {
 public:
-	App(HINSTANCE p_hInstance);
+	App(HINSTANCE p_hInstance,MeasurementBin* p_measurer);
 	virtual ~App();
 
 	void run();

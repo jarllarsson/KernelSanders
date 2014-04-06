@@ -16,14 +16,14 @@ extern "C"
 		unsigned int p_numNodes,unsigned int p_numLeaves,unsigned int p_numNodeIndices);
 }
 
-RaytraceKernel::RaytraceKernel() : IKernelHandler()
+RaytraceKernel::RaytraceKernel(MeasurementBin* p_measurer) : IKernelHandler(p_measurer)
 {
 
 }
 
 RaytraceKernel::~RaytraceKernel()
 {
-
+	m_measurments->finishRound();
 }
 
 void RaytraceKernel::SetPerKernelArgs()
@@ -50,6 +50,11 @@ void RaytraceKernel::Execute( KernelData* p_data, float p_dt )
 	unsigned int numKDindices=scene->KDindices.size();
 	glm::vec3 kdBoundsPos=scene->KDRootBounds.m_pos;
 	glm::vec3 kdBoundsExt=scene->KDRootBounds.m_extents;
+
+	// Init performance measurements if available
+	initPerformanceMeasurement();
+	// Start timer
+	startPerformanceMeasurement();
 
 	// Map render textures
 	cudaStream_t stream = 0;
@@ -203,9 +208,62 @@ void RaytraceKernel::Execute( KernelData* p_data, float p_dt )
 		cudaMemcpyDeviceToDevice); // kind
 	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
 
+	// Finish performance measurement
+	completePerformanceMeasurement();
+
 	// unmap textures
 	res = cudaGraphicsUnmapResources(resourceCount, &blob->m_textureResource/*[0]*/, stream);
 	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
 
 }
+
+void RaytraceKernel::initPerformanceMeasurement()
+{
+	if (m_doMeasurements)
+	{
+		cudaError_t res = cudaEventCreate(&kerneltimerStart);
+		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
+		res = cudaEventCreate(&kerneltimerStop);
+		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
+	}
+}
+
+
+void RaytraceKernel::startPerformanceMeasurement()
+{
+	if (m_doMeasurements)
+	{
+		cudaError_t res = cudaEventRecord(kerneltimerStart, 0);
+		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
+	}
+}
+
+void RaytraceKernel::completePerformanceMeasurement()
+{
+	if (m_doMeasurements)
+	{
+		cudaError_t res = cudaEventRecord(kerneltimerStop, 0);
+		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
+
+		// make sure GPU has finished copying
+		res = cudaDeviceSynchronize();
+		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
+
+		// get the time elapsed between events
+		float elapsedTimeMs=0.0f;
+		res=cudaEventElapsedTime(&elapsedTimeMs, kerneltimerStart, kerneltimerStop);
+		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
+
+		//clean up memory
+		res=cudaEventDestroy(kerneltimerStop);
+		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
+		res=cudaEventDestroy(kerneltimerStart);
+		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
+
+		// add current measurement to bin
+		m_measurments->m_measurements.push_back(elapsedTimeMs);
+	}
+}
+
+
 

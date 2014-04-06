@@ -11,6 +11,9 @@
     <Filter Include="Source Files\Debug">
       <UniqueIdentifier>{6d417b59-cff5-4c3c-acc6-72379e584977}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\PerformanceMeasurement">
+      <UniqueIdentifier>{da794a59-aeeb-4c6f-b5d3-f1b8180c18b1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ToString.h">
@@ -31,10 +34,16 @@
     <ClInclude Include="Util.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="MeasurementBin.h">
+      <Filter>Source Files\PerformanceMeasurement</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Util.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MeasurementBin.cpp">
+      <Filter>Source Files\PerformanceMeasurement</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

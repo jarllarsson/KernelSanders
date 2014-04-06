@@ -23,7 +23,7 @@
 
 const double App::DTCAP=0.5;
 
-App::App( HINSTANCE p_hInstance )
+App::App( HINSTANCE p_hInstance,MeasurementBin* p_measurer )
 {
 	int width=600,
 		height=400;
@@ -51,7 +51,7 @@ App::App( HINSTANCE p_hInstance )
 	// Kernels
 	try
 	{
-		m_kernelDevice = new KernelDevice(m_graphicsDevice->getDevicePointer());
+		m_kernelDevice = new KernelDevice(m_graphicsDevice->getDevicePointer(),p_measurer);
 		m_kernelDevice->registerCanvas(m_graphicsDevice->getInteropCanvasHandle());
 	}
 	catch (KernelException& e)

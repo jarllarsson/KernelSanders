@@ -1,6 +1,7 @@
 #pragma once
 
 #include "KernelHelper.h"
+#include <MeasurementBin.h>
 
 struct KernelData
 {
@@ -22,7 +23,7 @@ struct KernelData
 class IKernelHandler
 {
 public:
-	IKernelHandler();
+	IKernelHandler(MeasurementBin* p_measurer);
 	virtual ~IKernelHandler();
 	/* For OpenCL or directCompute, loading and binding would be necessary
 	void LoadProgram(const string& path);
@@ -48,11 +49,17 @@ public:
 	/// Get the latest timing results
 	/// \return double
 	///-----------------------------------------------------------------------------------
-	double GetLastExecTimeNS() const {return m_profilingExecTime;}
+	//MeasurementBin* GetExecTimes() {return &m_measurments;}
+
+	void ActivateMeasurements() {m_doMeasurements=true;}
+	void DeactivateMeasurements() {m_doMeasurements=false;}
+
 protected:
 
 	// Debugging
-	double m_profilingExecTime;
+	//double m_profilingExecTime;
+	MeasurementBin* m_measurments;
 
+	bool m_doMeasurements;
 private:
 };

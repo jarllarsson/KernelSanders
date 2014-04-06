@@ -28,7 +28,7 @@ public:
 		J_RAYTRACEWORLD,
 	};
 
-	KernelDevice(void* p_device);
+	KernelDevice(void* p_device, MeasurementBin* p_measurer);
 	virtual ~KernelDevice();
 
 	void registerCanvas(void** p_texture);

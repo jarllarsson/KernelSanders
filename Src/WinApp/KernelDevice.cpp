@@ -11,7 +11,8 @@
 #include "RaytraceDefines.h"
 
 
-KernelDevice::KernelDevice( void* p_device )
+KernelDevice::KernelDevice( void* p_device, 
+						    MeasurementBin* p_measurer )
 {
 	ZeroMemory(&m_cb,sizeof(m_cb));
 	m_width=1; m_height=1;
@@ -34,12 +35,12 @@ KernelDevice::KernelDevice( void* p_device )
 
 
 
-	m_raytracer = new RaytraceKernel();
+	m_raytracer = new RaytraceKernel(p_measurer);
+	m_raytracer->ActivateMeasurements();
 }
 
 KernelDevice::~KernelDevice()
 {
-
 	cudaError_t res = cudaGraphicsUnregisterResource( m_gbufferHandle.m_textureResource);
 	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
 	res = cudaFree(m_gbufferHandle.m_textureLinearMem);

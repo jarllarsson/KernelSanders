@@ -9,6 +9,7 @@ typedef HINSTANCE__* HINSTANCE;
 #include <DebugPrint.h>
 #include <ToString.h>
 #include <vld.h>
+#include <MeasurementBin.h>
 
 using namespace std;
 
@@ -34,9 +35,21 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR pCmdLin
 #endif
 	SetThreadAffinityMask(GetCurrentThread(), 1);
 
-	
-	App myApp(hInstance);
-	myApp.run();
+	/*
+	Number of threads per thread group. 
+	Screen resolution. 
+	Trace depth. 
+	Number of light sources. 
+	Number of triangles. 
+	*/
+
+	MeasurementBin measurer;
+
+	App* mainApp = new App(hInstance,&measurer);
+	mainApp->run();
+	delete mainApp;
+
+	measurer.saveResults("ALL");
 
 	return 0;
 }
