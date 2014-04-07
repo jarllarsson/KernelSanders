@@ -77,3 +77,57 @@ void KDNode::setLeftChild( int p_idx )
 {
 	m_leftChildIdx=p_idx;
 }
+
+
+// write to the stream
+std::ostream& operator<<( std::ostream &stream,  const KDNode& v )
+{
+	//stream.write( (char*)&v.m_split.b_1, sizeof(v.m_split.b_1) );
+	//stream.write( (char*)&v.m_split.b_2, sizeof(v.m_split.b_2) );
+	//stream.write( (char*)&v.m_isLeaf, sizeof(v.m_isLeaf) );
+	//stream.write( (char*)&v.m_position, sizeof(v.m_position) );
+	//stream.write( (char*)&v.m_leftChildIdx, sizeof(v.m_leftChildIdx) );
+	stream<<v.m_split.b_1 <<'\n';
+	stream<<v.m_split.b_2 <<'\n';
+	stream<<v.m_isLeaf <<'\n';
+	stream<<v.m_position <<'\n';
+	stream<<v.m_leftChildIdx <<'\n';
+	return stream;
+}
+
+std::istream& operator>>( std::istream& stream, KDNode& v )
+{
+	//stream.read( (char*)&v.m_split.b_1, sizeof(v.m_split.b_1) );
+	//stream.read( (char*)&v.m_split.b_2, sizeof(v.m_split.b_2) );
+	//stream.read( (char*)&v.m_isLeaf, sizeof(v.m_isLeaf) );
+	//stream.read( (char*)&v.m_position, sizeof(v.m_position) );
+	//stream.read( (char*)&v.m_leftChildIdx, sizeof(v.m_leftChildIdx) );
+	int i=0;
+	stream>>i;
+	v.m_split.b_1=i;
+	stream>>v.m_split.b_2;
+	stream>>v.m_isLeaf;
+	stream>>v.m_position;
+	stream>>v.m_leftChildIdx;
+	return stream;
+}
+
+
+// write to the stream
+std::ostream& operator<<( std::ostream &stream,  const KDLeaf& v )
+{
+	//stream.write( (char*)&v.m_offset, sizeof(v.m_offset) );
+	//stream.write( (char*)&v.m_count, sizeof(v.m_count) );
+	stream<<v.m_offset <<'\n';
+	stream<<v.m_count <<'\n';
+	return stream;
+}
+
+std::istream& operator>>( std::istream& stream, KDLeaf& v )
+{
+	//stream.read( (char*)&v.m_offset, sizeof(v.m_offset) );
+	//stream.read( (char*)&v.m_count, sizeof(v.m_count) );
+	stream>>v.m_offset;
+	stream>>v.m_count;
+	return stream;
+}

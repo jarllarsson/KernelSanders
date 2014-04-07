@@ -49,7 +49,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR pCmdLin
 	mainApp->run();
 	delete mainApp;
 
-	measurer.saveResults("ALL");
+	measurer.saveResults("../Output/ALL");
 
 	return 0;
 }

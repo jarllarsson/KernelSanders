@@ -1,6 +1,7 @@
 #pragma once
 
 #include "KDAxisMark.h"
+#include <fstream>
 
 // =======================================================================================
 //                                      KDNode
@@ -39,6 +40,9 @@ public:
 	void setLeafData(int p_leafDataIdx);
 	void setPos(float p_pos);
 
+	friend std::ostream& operator<<( std::ostream& stream, const KDNode& v );
+	friend std::istream& operator>>( std::istream& stream, KDNode& v );
+
 protected:
 private:
 	void init();
@@ -56,4 +60,8 @@ struct KDLeaf
 {
 	int m_offset; // offset in KD-sorted index list
 	int m_count; // number of indices for this node
+
+	friend std::ostream& operator<<( std::ostream& stream, const KDLeaf& v );
+	friend std::istream& operator>>( std::istream& stream, KDLeaf& v );
+
 };

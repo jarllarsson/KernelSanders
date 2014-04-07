@@ -57,7 +57,8 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	// Normalized device coordinates of pixel. (-1 to 1)
 	const float u = (p_x / (float) p_width)*2.0f-1.0f;
 	const float v = (p_y / (float) p_height)*2.0f-1.0f;
-
+	const int tx = blockIdx.x*blockDim.x + threadIdx.x;
+	const int ty = blockIdx.y*blockDim.y + threadIdx.y;
 
 	// Store contents of constant buffer in local mem
 	float time = cb[0].m_time;
@@ -76,23 +77,72 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	unsigned int numNodes=p_numNodes, numLeaves=p_numLeaves, numNodeIndices=p_numNodeIndices;
 	// define a scene
 	Scene scene;
+
+	scene.numIndices=0;
+	scene.numVerts=0;
+
+	scene.kdExtents=kdExtents;
+	scene.kdPos=kdPos;
+	scene.nodes=p_nodes;
+	scene.leaflist=p_leaflist;
+	scene.nodeIndices=p_nodeIndices;
+	scene.numNodes=p_numNodes;
+	scene.numLeaves=p_numLeaves;
+	scene.numNodeIndices=numNodeIndices;
+	scene.verts=p_verts;
+	scene.uvs=p_uvs;
+	scene.norms=p_norms;
+
+#pragma region unusedshared
 	// Copy mesh data to local memory
 	//if (numNodes>0 && numLeaves>0 && numIndices>2)
 	//{
-	//	for (unsigned int i=0;i<numIndices;i++)
-	//	{
-	//		scene.meshIndices[i]=p_indices[i];
-	//	}
-	//	for (unsigned int i=0;i<numVerts;i++)
-	//	{
-	//		scene.meshVerts[i]=p_verts[i];
-	//	}
-	//	for (unsigned int i=0;i<numVerts;i++)
-	//	{
-	//		scene.meshNorms[i]=p_norms[i];
-	//	}
+	//	extern __shared__ DKDNode		snodes[];
+	//	extern __shared__ DKDLeaf		sleaves[];
+	//	extern __shared__ unsigned int	snindices[];
+	//	extern __shared__ float3		sverts[];
+	//	extern __shared__ float3		suvs[];
+	//	extern __shared__ float3		snorms[];
+	//
+	//	snodes[];
+	//	sleaves[];
+	//	snindices[];
+	//	sverts[];
+	//	suvs[];
+	//	snorms[];
+	//
+	//	scene.nodes=snodes;
+	//	scene.leaflist=sleaves;
+	//	scene.nodeIndices=snindices;
+	//	scene.verts=sverts;
+	//	scene.uvs=suvs;
+	//	scene.norms=snorms;
+	//	//for (unsigned int i=0;i<numNodes;i++)
+	//	//{
+	//	//	scene.nodes[i]=p_nodes[i];
+	//	//}
+	//	//for (unsigned int i=0;i<numLeaves;i++)
+	//	//{
+	//	//	scene.leaflist[i]=p_leaflist[i];
+	//	//}
+	//	//for (unsigned int i=0;i<numNodeIndices;i++)
+	//	//{
+	//	//	scene.nodeIndices[i]=p_nodeIndices[i];
+	//	//}
+	//	//for (unsigned int i=0;i<numVerts;i++)
+	//	//{
+	//	//	scene.verts[i]=p_verts[i];
+	//	//}
+	//	//for (unsigned int i=0;i<numVerts;i++)
+	//	//{
+	//	//	scene.norms[i]=p_norms[i];
+	//	//}
+	//	//for (unsigned int i=0;i<numVerts;i++)
+	//	//{
+	//	//	scene.uvs[i]=p_uvs[i];
+	//	//}
 	//}
-
+#pragma endregion
 	// =======================================================
 	//                   TEST SETUP CODE
 	// =======================================================
@@ -167,20 +217,6 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	}
 
 
-	scene.numIndices=0;
-	scene.numVerts=0;
-
-	scene.kdExtents=kdExtents;
-	scene.kdPos=kdPos;
-	scene.nodes=p_nodes;
-	scene.leaflist=p_leaflist;
-	scene.nodeIndices=p_nodeIndices;
-	scene.numNodes=p_numNodes;
-	scene.numLeaves=p_numLeaves;
-	scene.numNodeIndices=numNodeIndices;
-	scene.verts=p_verts;
-	scene.uvs=p_uvs;
-	scene.norms=p_norms;
 
 
 

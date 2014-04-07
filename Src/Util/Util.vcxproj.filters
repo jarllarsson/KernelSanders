@@ -37,6 +37,9 @@
     <ClInclude Include="MeasurementBin.h">
       <Filter>Source Files\PerformanceMeasurement</Filter>
     </ClInclude>
+    <ClInclude Include="FileHandler.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Util.cpp">

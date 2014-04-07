@@ -5,6 +5,7 @@
 #include <DebugPrint.h>
 #include "KDTreeFactory.h"
 #include <Util.h>
+#include <fstream>
 
 
 
@@ -144,8 +145,9 @@ KDTreeFactory::~KDTreeFactory()
 	m_debugTreeNodeBounds.clear();
 }
 
-int KDTreeFactory::buildKDTree( void* p_vec3ArrayXYZ,void* p_normArrayXYZ, int p_vertCount, unsigned int* p_indexArray, int p_iCount, const glm::vec3& p_boundsMin, const glm::vec3& p_boundsMax )
+int KDTreeFactory::buildKDTree( int p_levels, void* p_vec3ArrayXYZ,void* p_normArrayXYZ, int p_vertCount, unsigned int* p_indexArray, int p_iCount, const glm::vec3& p_boundsMin, const glm::vec3& p_boundsMax )
 {
+	m_buildLevel=p_levels;
 	m_tempVertexList=(glm::vec3*)p_vec3ArrayXYZ;
 	m_tempNormalsList=(glm::vec3*)p_normArrayXYZ;
 	vector<Tri> triList((Tri*)p_indexArray,(Tri*)p_indexArray+p_iCount/3);
@@ -214,7 +216,7 @@ void KDTreeFactory::subdivide( unsigned int p_treeId, vector<Tri>* p_tris, int p
 	KDBounds nodeBounds={pos,parentSize};
 	debugboundslist->push_back(nodeBounds);
 	// End condition
-	if (p_dimsz > 4 || p_tris->size() < KD_MIN_INDICES_IN_NODE/3/* || p_idx/ *<<1* />sc_treeListMaxSize/ *-2* /*/) 
+	if (p_dimsz > m_buildLevel || p_tris->size() < KD_MIN_INDICES_IN_NODE/3/* || p_idx/ *<<1* />sc_treeListMaxSize/ *-2* /*/) 
 	{
 		int rem=(int)p_tris->size();
 		//
@@ -598,8 +600,125 @@ vector<KDBounds>* KDTreeFactory::getDebugNodeBounds( int p_idx )
 	return m_debugTreeNodeBounds[p_idx];
 }
 
+int KDTreeFactory::loadKDTree(int p_levels, const char* p_path)
+{
+	m_buildLevel=p_levels;
+	vector<KDNode>* tree=new vector<KDNode>/*(sc_treeListMaxSize)*/;
+	vector<KDLeaf>*	leafList=new vector<KDLeaf>;
+	vector<int>*	leafDataList=new vector<int>;
+	vector<KDBounds>* debugNodeBoundsList=new vector<KDBounds>; // only for debug draw
+	KDBounds treeBounds;
 
+	ifstream inFile;
+	inFile.open(string(p_path)+"."+toString(p_levels)+".kdcache");
+	if( !inFile.good() || !inFile.is_open() ) 
+	{		
+		delete tree;
+		delete leafList;
+		delete leafDataList;
+		delete debugNodeBoundsList;
+		return -1;
+	}
+	else
+	{
+		//string dump;
+		int numNodes=0, numLeaves=0, numData=0, numDbg=0;
+		// write all settings
+		inFile >> numNodes;
+		inFile >> numLeaves;
+		inFile >> numData;
+		inFile >> numDbg;
+		inFile >> treeBounds;
+		// data
+		//inFile >> dump;
+		for (int i=0;i<numNodes;i++)
+		{
+			KDNode node;
+			inFile >> node;
+			tree->push_back(node);
+		}
+		//inFile >> dump;
+		for (int i=0;i<numLeaves;i++)
+		{
+			KDLeaf leaf;
+			inFile >> leaf;
+			leafList->push_back(leaf);
+		}
+		//inFile >> dump;
+		for (int i=0;i<numData;i++)
+		{
+			int data;
+			inFile >> data;
+			leafDataList->push_back(data);
+		}
+		//inFile >> dump;
+		for (int i=0;i<numDbg;i++)
+		{			
+			KDBounds dbg;
+			inFile >> dbg;
+			debugNodeBoundsList->push_back(dbg);
+		}
+		//write_file_binary("test.bin", 
+		//	reinterpret_cast<char const *>(buffer), 
+		//	sizeof(double)*100);
+	}
+	inFile.close();
+	int treeId=addTree(tree,leafList,leafDataList,debugNodeBoundsList);
+	m_treeBounds.push_back(treeBounds);
+	return treeId;
+}
 
+bool KDTreeFactory::saveKDTree(int p_levels, const char* p_path, int p_idx)
+{
+	m_buildLevel=p_levels;
+	ofstream outFile;
+	outFile.open( string(p_path)+"."+toString(p_levels)+".kdcache" );
+
+	if( !outFile.good() || !outFile.is_open() ) 
+	{
+		return false;
+	} 
+	else 
+	{
+		// write all settings
+		outFile << m_trees[p_idx]->size() <<'\n';
+		outFile << m_leafLists[p_idx]->size() <<'\n';
+		outFile << m_leafDataLists[p_idx]->size() <<'\n';
+		outFile << m_debugTreeNodeBounds[p_idx]->size() <<'\n';
+		outFile << m_treeBounds[p_idx] << '\n';
+		// data
+		//outFile << "NODES";
+		for (int i=0;i<m_trees[p_idx]->size();i++)
+		{
+			outFile << (*m_trees[p_idx])[i];
+		}
+		//outFile << "LEAVES";
+		for (int i=0;i<m_leafLists[p_idx]->size();i++)
+		{
+			outFile << (*m_leafLists[p_idx])[i];
+		}
+		//outFile << "LEAF DATA";
+		for (int i=0;i<m_leafDataLists[p_idx]->size();i++)
+		{
+			outFile << (*m_leafDataLists[p_idx])[i] <<'\n';
+		}
+		//outFile << "DEBUG DATA";
+		for (int i=0;i<m_debugTreeNodeBounds[p_idx]->size();i++)
+		{
+			outFile << (*m_debugTreeNodeBounds[p_idx])[i];
+		}
+		//write_file_binary("test.bin", 
+		//	reinterpret_cast<char const *>(buffer), 
+		//	sizeof(double)*100);
+	}
+	outFile.close();
+
+	//vector<KDNode>* tree=new vector<KDNode>/*(sc_treeListMaxSize)*/;
+	//vector<KDLeaf>*	leafList=new vector<KDLeaf>;
+	//vector<int>*	leafDataList=new vector<int>;
+	//vector<KDBounds>* debugNodeBoundsList=new vector<KDBounds>; // only for debug draw
+	//int treeId=addTree(tree,leafList,leafDataList,debugNodeBoundsList);
+}
 
 //void KDTreeFactory::clearTempStack()
 //{

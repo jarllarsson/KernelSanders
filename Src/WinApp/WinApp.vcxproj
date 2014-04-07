@@ -252,6 +252,7 @@
     <ClCompile Include="HostScene.cpp" />
     <ClCompile Include="HostSceneManager.cpp" />
     <ClCompile Include="IKernelHandler.cpp" />
+    <ClCompile Include="KDBounds.cpp" />
     <ClCompile Include="KDNode.cpp" />
     <ClCompile Include="KDTreeFactory.cpp" />
     <ClCompile Include="KernelDevice.cpp" />

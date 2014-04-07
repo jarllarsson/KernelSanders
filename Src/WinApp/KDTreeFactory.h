@@ -32,7 +32,9 @@ public:
 	virtual ~KDTreeFactory();
 
 	// Builds a tree, stores it and returns the index to it
-	int buildKDTree(void* p_vec3ArrayXYZ,void* p_normArrayXYZ, int p_vertCount, unsigned int* p_indexArray, int p_iCount, const glm::vec3& p_boundsMin, const glm::vec3& p_boundsMax);
+	int buildKDTree(int p_levels, void* p_vec3ArrayXYZ,void* p_normArrayXYZ, int p_vertCount, unsigned int* p_indexArray, int p_iCount, const glm::vec3& p_boundsMin, const glm::vec3& p_boundsMax);
+	int loadKDTree(int p_levels, const char* p_path);
+	bool saveKDTree(int p_levels, const char* p_path, int p_idx);
 
 	vector<KDNode>* getTree(int p_idx);
 	vector<KDLeaf>* getLeafList(int p_idx);
@@ -88,6 +90,7 @@ private:
 	float m_traversalCost;
 	float m_intersectionCost;
 
+	int m_buildLevel;
 
 	// Storage
 	vector<vector<KDNode>*> m_trees;

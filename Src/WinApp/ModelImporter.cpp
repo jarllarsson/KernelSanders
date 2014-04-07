@@ -67,9 +67,17 @@ int ModelImporter::loadFile( const char* p_path )
 // 			max(abs(model->m_sceneMax.y),abs(model->m_sceneMin.y)),
 // 			max(abs(model->m_sceneMax.z),abs(model->m_sceneMin.z)));
 // 		extents -= model->m_sceneCenter;
-		int treeId = m_treeFactory.buildKDTree((void*)mmesh->mVertices,(void*)mmesh->mNormals,mmesh->mNumVertices,
-								  &model->m_trisIndices[0],model->m_trisIndices.size(),model->m_sceneMin,model->m_sceneMax);
+		int treeId = -1;
+		int treeLevel=6;
 
+		treeId=m_treeFactory.loadKDTree(treeLevel,p_path);
+		if (treeId==-1)
+		{
+			treeId=m_treeFactory.buildKDTree(treeLevel,(void*)mmesh->mVertices,(void*)mmesh->mNormals,mmesh->mNumVertices,
+								  &model->m_trisIndices[0],model->m_trisIndices.size(),model->m_sceneMin,model->m_sceneMax);
+		
+			m_treeFactory.saveKDTree(treeLevel,p_path,treeId);
+		}
 
 		model->m_treeId=treeId;
 		model->m_textureId=texId;

@@ -114,7 +114,7 @@ public:
 		}
 		return reval;
 	}
-protected:	
+//protected:	
 	// b_2 b_1
 	// 00 - x
 	// 01 - y

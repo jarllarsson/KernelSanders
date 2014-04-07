@@ -155,7 +155,7 @@ __device__ bool IntersectTriangle(const float3* vertArr, const float3* uvArr, co
 				//tex2D(tex,uv.x,uv.y);
 				//sampleTextureRGB(tex,make_float2(uv.x,uv.y));
 			inout_intersection->surface.diffuse = texCol;
-			inout_intersection->surface.diffuse += make_float4(0.0f,u,v,0.0f);
+			//inout_intersection->surface.diffuse += make_float4(0.0f,u,v,0.0f);
 				//texCol;
 
 			float3 normvec = cu_normalize(n0+u*(n1-n0)+v*(n2-n0));
