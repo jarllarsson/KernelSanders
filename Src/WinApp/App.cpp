@@ -125,7 +125,7 @@ void App::run()
 							indices,
 							duckMdl->m_trisIndices.size(),
 							reinterpret_cast<void*>(mmesh->mNormals),
-							mmesh->mTextureCoords);
+							reinterpret_cast<void*>(mmesh->mTextureCoords));
 	RawTexture* t=m_modelImporter->getModelTexture(duck);
 	m_sceneMgr->addTexture(t);
 	

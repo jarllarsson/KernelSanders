@@ -41,7 +41,13 @@ void HostSceneManager::addMeshTris( void* p_vec3ArrayXYZ, int p_vertCount,char32
 	m_scene.meshVerts.insert(m_scene.meshVerts.end(),arrV,arrV+p_vertCount);
 	m_scene.meshIndices.insert(m_scene.meshIndices.end(),p_indexArray,p_indexArray+p_iCount);
 	m_scene.meshNorms.insert(m_scene.meshNorms.end(),arrN,arrN+p_vertCount);
-	m_scene.meshUVs.insert(m_scene.meshUVs.end(),arrUV,arrUV+p_vertCount);
+	DEBUGPRINT(( (string("\nVC:")+toString(p_vertCount)+string("\n\n")).c_str()));
+	for (int i=0;i<p_vertCount;i++)
+	{
+		m_scene.meshUVs.push_back(arrUV[i]);
+		DEBUGPRINT(( (toString(i)+string("\n")).c_str()));
+	}
+	//m_scene.meshUVs.insert(m_scene.meshUVs.end(),arrUV,arrUV+p_vertCount);
 	m_scene.setDirty(HScene::MESH);
 // 	for (int i=start;i<maxcount;i+=3)
 // 	{
