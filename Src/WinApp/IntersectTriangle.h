@@ -147,10 +147,12 @@ __device__ bool IntersectTriangle(const float3* vertArr, const float3* uvArr, co
 			float4 triPos=in_ray->origin+t*in_ray->dir;
 			inout_intersection->pos=triPos;
 
-			float3 barycentric=Barycentric(make_float3(u,v,0.0f),
-										   vert0,vert1,vert2);					//???
+			/*float3 barycentric=Barycentric(make_float3(u,v,0.0f),
+										   vert0,vert1,vert2);				*/
 			float3 uv=InterpolateUV(make_float3((1.0f-u-v),u,v),uv0,uv1,uv2);			//???
 			float4 texCol=tex2D(tex,uv.x,uv.y);
+				//make_float4(uv1.x,uv1.y,uv1.z,1.0f);
+				//tex2D(tex,uv.x,uv.y);
 				//sampleTextureRGB(tex,make_float2(uv.x,uv.y));
 			inout_intersection->surface.diffuse = texCol;
 			inout_intersection->surface.diffuse += make_float4(0.0f,u,v,0.0f);

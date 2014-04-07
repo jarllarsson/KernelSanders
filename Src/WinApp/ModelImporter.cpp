@@ -27,7 +27,8 @@ int ModelImporter::loadFile( const char* p_path )
 	int result=-1;
 	// we are taking one of the postprocessing presets to avoid
 	// spelling out 20+ single postprocessing flags here.
-	const aiScene* tscene = aiImportFile(p_path,aiProcessPreset_TargetRealtime_MaxQuality);
+	const aiScene* tscene = aiImportFile(p_path,
+		aiProcessPreset_TargetRealtime_MaxQuality | aiProcess_GenUVCoords | aiProcess_TransformUVCoords);
 
 	if (tscene!=NULL) 
 	{
@@ -54,7 +55,12 @@ int ModelImporter::loadFile( const char* p_path )
 			}
 		}		
 		int texId=m_textures.size();
-		DEBUGWARNING((toString(texId).c_str()));
+		// string has="has uvs";
+		// if (!mmesh->HasTextureCoords(0))
+		// {
+		// 	has="no uvs";
+		// }
+		// DEBUGWARNING(( has.c_str() ));
 		m_textures.push_back(m_textureParser.loadTexture("../Assets/bmo.png"));
 		// build kd-tree representation of the index list for the mesh
 // 		glm::vec3 extents(max(abs(model->m_sceneMax.x),abs(model->m_sceneMin.x)),

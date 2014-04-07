@@ -92,7 +92,7 @@ RawTexture* TextureParser::loadTexture( const char* p_filePath )
 	}
 	if(succeededLoadingFile)
 	{
-		FreeImage_FlipVertical(image);
+		FreeImage_FlipHorizontal(image);
 
 		 texture = createTexture(image, FreeImage_GetWidth(image),
 			FreeImage_GetHeight(image));
@@ -112,13 +112,13 @@ RawTexture* TextureParser::loadTexture( const char* p_filePath )
 		{
 			unsigned int i=y*ww*4+x*4;
 			// r
-			input[i] = /*(unsigned char)(256.0f**/(float)i/(float)(ww*hh)/*)*/;
+			input[i] = (float)i/(float)(ww*hh*4);
 			// g
-			input[i+1] = /*(unsigned char)(256.0f*(*/1.0f-((float)i/(float)(ww*hh))/*)*/;
+			input[i+1] = (1.0f-((float)i/(float)(ww*hh*4)));
 			// b
-			input[i+2] = 128;
+			input[i+2] = 0.5f;
 			// a
-			input[i+3] = 0;
+			input[i+3] = 1.0f;
 		}
 		texture = new RawTexture(input,ww,hh,4);
 	}

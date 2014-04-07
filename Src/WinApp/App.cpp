@@ -115,7 +115,7 @@ void App::run()
 
 	// load assets
 	
-	int duck = m_modelImporter->loadFile("../Assets/sphere.dae");
+	int duck = m_modelImporter->loadFile("../Assets/teapots.dae");
 	ModelImporter::ModelData* duckMdl=m_modelImporter->getStoredModel(duck);
 
 	aiMesh* mmesh=duckMdl->m_model->mMeshes[0];
@@ -125,7 +125,7 @@ void App::run()
 							indices,
 							duckMdl->m_trisIndices.size(),
 							reinterpret_cast<void*>(mmesh->mNormals),
-							reinterpret_cast<void*>(mmesh->mTextureCoords));
+							reinterpret_cast<void*>(mmesh->mTextureCoords[0]));
 	RawTexture* t=m_modelImporter->getModelTexture(duck);
 	m_sceneMgr->addTexture(t);
 	
