@@ -25,8 +25,8 @@ public:
 	bool saveResults(string fileName);
 
 	vector<float> m_measurements;
-	float m_mean;
-	float m_std;
-	vector<float> m_allMeans;
-	vector<float> m_allSTDs;
+	double m_mean;
+	double m_std;
+	vector<double> m_allMeans;
+	vector<double> m_allSTDs;
 };

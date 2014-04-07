@@ -3,13 +3,13 @@
 
 float MeasurementBin::calculateMean()
 {
-	float accumulate=0.0f;
+	double accumulate=0.0;
 	unsigned int count=m_measurements.size();
 	for (int i=0;i<count;i++)
 	{
-		accumulate+=m_measurements[i];
+		accumulate+=(double)m_measurements[i];
 	}
-	m_mean = accumulate/(float)count;
+	m_mean = accumulate/(double)count;
 	return m_mean;
 }
 
@@ -17,13 +17,13 @@ float MeasurementBin::calculateSTD()
 {
 	float mean=calculateMean();
 	unsigned int count=m_measurements.size();
-	float squaredDistsToMean;
+	double squaredDistsToMean=0.0;
 	for (int i=0;i<count;i++)
 	{
-		float dist=m_measurements[i]-mean;
+		double dist=(double)m_measurements[i]-(double)mean;
 		squaredDistsToMean+=dist*dist;
 	}
-	float standardDeviation=sqrt((double)squaredDistsToMean/(double)count);
+	double standardDeviation=sqrt(squaredDistsToMean/(double)count);
 	m_std=standardDeviation;
 	return standardDeviation;
 }

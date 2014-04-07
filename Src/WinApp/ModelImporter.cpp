@@ -3,7 +3,8 @@
 
 ModelImporter::ModelImporter()
 {
-
+	m_models=vector<ModelData*>();
+	m_textures=vector<RawTexture*>();
 }
 
 ModelImporter::~ModelImporter()
@@ -53,6 +54,7 @@ int ModelImporter::loadFile( const char* p_path )
 			}
 		}		
 		int texId=m_textures.size();
+		DEBUGWARNING((toString(texId).c_str()));
 		m_textures.push_back(m_textureParser.loadTexture("../Assets/bmo.png"));
 		// build kd-tree representation of the index list for the mesh
 // 		glm::vec3 extents(max(abs(model->m_sceneMax.x),abs(model->m_sceneMin.x)),
@@ -157,5 +159,7 @@ vector<KDBounds>* ModelImporter::getDebugNodeBounds( int p_idx )
 
 RawTexture* ModelImporter::getModelTexture( int p_idx )
 {
-	return m_textures[p_idx];
+	if (p_idx<m_textures.size() && p_idx>=0)
+		return m_textures[p_idx];
+	return NULL;
 }

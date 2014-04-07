@@ -119,10 +119,15 @@ void App::run()
 	ModelImporter::ModelData* duckMdl=m_modelImporter->getStoredModel(duck);
 
 	aiMesh* mmesh=duckMdl->m_model->mMeshes[0];
-	m_sceneMgr->addMeshTris(mmesh->mVertices,mmesh->mNumVertices,
-							&duckMdl->m_trisIndices[0],duckMdl->m_trisIndices.size(),
-							mmesh->mNormals,mmesh->mTextureCoords);
-	m_sceneMgr->addTexture(m_modelImporter->getModelTexture(duck));
+	char32_t* indices=&(duckMdl->m_trisIndices[0]);
+	m_sceneMgr->addMeshTris(reinterpret_cast<void*>(mmesh->mVertices),
+							mmesh->mNumVertices,
+							indices,
+							duckMdl->m_trisIndices.size(),
+							reinterpret_cast<void*>(mmesh->mNormals),
+							mmesh->mTextureCoords);
+	RawTexture* t=m_modelImporter->getModelTexture(duck);
+	m_sceneMgr->addTexture(t);
 	
 	int treeId=duckMdl->m_treeId;
 	vector<KDNode>* KDnodes=m_modelImporter->getKDTree(treeId);
