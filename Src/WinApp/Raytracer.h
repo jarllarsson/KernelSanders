@@ -1,7 +1,7 @@
 #ifndef RAYTRACER_H
 #define RAYTRACER_H
 
-//#define RENDER_STARRY_SKY
+#define RENDER_STARRY_SKY
 
 #include <iostream> 
 #include <vector> 
@@ -164,14 +164,14 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 
 	// define some spheres
 
-	scene.sphere[0].pos = make_float4(7.0f,5.0f,0.0f,1.0f);
-	scene.sphere[0].rad = 0.5f;
+	scene.sphere[0].pos = make_float4(17.0f,15.0f,0.0f,1.0f);
+	scene.sphere[0].rad = 10.5f;
 	scene.sphere[0].mat.diffuse = make_float4(0.5f, 0.79f, 0.22f,1.0f);
 	scene.sphere[0].mat.specular = make_float4(1.0f, 1.0f, 1.0f,500.0f);
 	scene.sphere[0].mat.reflection = 0.5f;
 
-	scene.sphere[1].pos = make_float4(5.0f,5.0f,0.0f,1.0f);
-	scene.sphere[1].rad = 0.6f;
+	scene.sphere[1].pos = make_float4(15.0f,15.0f,0.0f,1.0f);
+	scene.sphere[1].rad = 10.6f;
 	scene.sphere[1].mat.diffuse = make_float4(0.0f, 1.0f, 0.0f,1.0f);
 	scene.sphere[1].mat.specular = make_float4(0.0f, 0.0f, 0.0f,0.0f);
 	scene.sphere[1].mat.reflection = 0.5f;
@@ -179,7 +179,7 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	for (int i=2;i<MAXSPHERES;i++)
 	{
 		scene.sphere[i].pos = make_float4((float)(i%3),(float)i+4.0f,(float)i,1.0f);
-		scene.sphere[i].rad = i*0.1f;
+		scene.sphere[i].rad = i*10.1f;
 		scene.sphere[i].mat.diffuse = make_float4((float)i/(float)MAXSPHERES, 1.0f-((float)i/(float)MAXSPHERES), ((float)i/(float)(MAXSPHERES*0.2f)) ,1.0f);
 		scene.sphere[i].mat.specular = make_float4(1.0f, 1.0f, 1.0f,0.8f);
 		scene.sphere[i].mat.reflection = (float)i/(float)MAXSPHERES;
@@ -228,9 +228,9 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 			cos((float)i)*50.0f*(1.0f+sin(time)),
 			0.0f);
 		// float4 tesst = (float4)(1.0f,0.0f,0.0f,0.0f);
-		scene.box[i].sides[0] = make_float4(1.0f,0.0f,0.0f,0.0f);  // x
-		scene.box[i].sides[1] = make_float4(0.0f,1.0f,0.0f,0.0f);  // y
-		scene.box[i].sides[2] = make_float4(0.0f,0.0f,1.0f,0.0f);  // z
+		scene.box[i].sides[0] = make_float4(10.0f,0.0f,0.0f,0.0f);  // x
+		scene.box[i].sides[1] = make_float4(0.0f,10.0f,0.0f,0.0f);  // y
+		scene.box[i].sides[2] = make_float4(0.0f,0.0f,10.0f,0.0f);  // z
 		// mat4mul(viewMatrix,&tesst, &box[i].sides[0]);
 		scene.box[i].hlengths[0] = (1+i);
 		scene.box[i].hlengths[1] = (1+i);
@@ -270,6 +270,7 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 		(1.0f+ray.dir.z),
 		(1.0f+ray.dir.y),
 		0.0f)*0.05f;
+	//finalColor=make_float4(1.0f,1.0f,1.0f,0.0f);
 
 	Intersection intersection;
 	intersection.dist = MAX_INTERSECT_DIST;
@@ -295,12 +296,15 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	do
 	{
 		currentColor = make_float4(0.0f,0.0f,0.0f,1.0f);
-		bool result = IntersectAll(&scene,&ray,&intersection,false,false,&debugColor);			// Do the intersection tests
+		bool result=false;
 
+		result = IntersectAll(&scene,&ray,&intersection,false,result,&debugColor);			// Do the intersection tests
+		
 		// If defined, render starry sky
 #ifdef RENDER_STARRY_SKY
-		MarchAll(&ray,&intersection,false,result);
+		result = MarchAll(&ray,&intersection,false,result);
 #endif
+
 		
 		if (intersection.dist >= 0.0f && intersection.dist<MAX_INTERSECT_DIST)
 		{

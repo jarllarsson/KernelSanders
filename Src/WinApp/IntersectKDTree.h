@@ -60,7 +60,7 @@ __device__ bool KDTraverse( const Scene* in_scene, const Ray* in_ray, /*float4x4
 	Material material;
 
 
-	float3 breakCol=make_float3(0.0f,0.0f,0.0f);
+	float3 breakCol=make_float3(1.0f,1.0f,1.0f);
 	*p_outDbgCol=breakCol;
 
 	float3 result=make_float3(0.0f,0.0f,0.0f);
@@ -258,7 +258,7 @@ __device__ bool KDTraverse( const Scene* in_scene, const Ray* in_ray, /*float4x4
 			// Fetch new node
 			if (currNodeIdx<=0)
 			{
-				*p_outDbgCol=hitViz*0.6f+overlayViz;
+				*p_outDbgCol=hitViz*0.01f+overlayViz;
 				return false;
 			}
 			currNode=p_nodes[currNodeIdx];
@@ -276,7 +276,7 @@ __device__ bool KDTraverse( const Scene* in_scene, const Ray* in_ray, /*float4x4
 		// Get list of current triangles for leaf
 					
 		if (currNodeIdx>0) hitViz=colarr[currNodeIdx%17];
-		if (currNodeIdx>0) overlayViz+=colarr[currNodeIdx%17]*0.5f;
+		if (currNodeIdx>0) overlayViz+=colarr[currNodeIdx%17]*0.05f;
 		int leafId=currNode.m_leftChildIdx;
 		
 
