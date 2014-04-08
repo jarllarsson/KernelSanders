@@ -65,12 +65,12 @@ __device__ bool IntersectAll(const Scene* in_scene, const Ray* in_ray, Intersect
 	}	// for each sphere	
 
 	//#pragma unroll MAXPLANES 
-	//for (int i=0;i<MAXPLANES;i++)
-	//{
-	//	result|=IntersectPlane(&(in_scene->plane[i]), in_ray, inout_intersection,storeResults);
-	//	if (result && breakOnFirst) 
-	//		return true;
-	//}	// for each plane
+	for (int i=0;i<MAXPLANES;i++)
+	{
+		result|=IntersectPlane(&(in_scene->plane[i]), in_ray, inout_intersection,storeResults);
+		if (result && breakOnFirst) 
+			return true;
+	}	// for each plane
 
 
 	//#pragma unroll MAXTRIS
@@ -117,7 +117,7 @@ __device__ bool IntersectAll(const Scene* in_scene, const Ray* in_ray, Intersect
 		for (int i=0;i<MAXLIGHTS-1;i++)
 		{
 			t.pos = in_scene->light[i].vec;
-			t.rad = 0.5f;
+			t.rad = 0.01f;
 			t.mat.diffuse = in_scene->light[i].diffuseColor;
 			t.mat.specular = make_float4(1.0f, 1.0f, 1.0f,1.0f);
 			t.mat.reflection = 0.0f;

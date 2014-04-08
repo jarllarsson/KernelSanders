@@ -15,7 +15,7 @@ Context::Context( HINSTANCE p_hInstance, const string& p_title,
 	WNDCLASSEX wcex;
 	wcex.cbSize = sizeof(WNDCLASSEX); 
 	wcex.style          = CS_HREDRAW | CS_VREDRAW;
-	wcex.lpfnWndProc    = WndProc; // Callback function
+	wcex.lpfnWndProc    = (WNDPROC) WndProc; // Callback function
 	wcex.cbClsExtra     = 0;
 	wcex.cbWndExtra     = 0;
 	wcex.hInstance      = m_hInstance;
@@ -50,7 +50,9 @@ Context::Context( HINSTANCE p_hInstance, const string& p_title,
 	}
 
 	ShowWindow( m_hWnd, true );
+	UpdateWindow(m_hWnd);
 	ShowCursor(true);
+	//ShowCursor(true);
 	m_instance=this;
 }
 

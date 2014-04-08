@@ -9,7 +9,7 @@
 #define MAXPLANES 1
 #define MAXTRIS 100
 #define MAXBOXES 2
-#define MAXLIGHTS 1
+#define MAXLIGHTS 2
 #define MAXMESHLOCAL_VERTSBIN 120
 #define MAXMESHLOCAL_INDICESBIN 120 // estimate
 
@@ -24,5 +24,7 @@
 #define UCHAR_COLOR_TO_FLOAT 0.00390625f
 
 #define MAX_INTERSECT_DIST 9999999.0f
+
+
 
 #endif

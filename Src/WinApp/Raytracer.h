@@ -191,9 +191,9 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 		scene.plane[i].distance = -5.0f;
 		scene.plane[i].normal = make_float4(0.0f,1.0f,0.0f,0.0f);
 		//scene.plane[i].mat.diffuse = (float4)( 71.0f/255.0f, 21.0f/255.0f, 87.0f/255.0f ,1.0f);
-		scene.plane[i].mat.diffuse = make_float4( 0.1f, 0.5f, 1.0f ,1.0f);
-		scene.plane[i].mat.specular = make_float4(0.1f, 0.1f, 0.1f,0.1f);
-		scene.plane[i].mat.reflection = 0.0f;
+		scene.plane[i].mat.diffuse = 1.2f*make_float4( 0.15625f, 0.37641f, 0.3394f ,1.0f);
+		scene.plane[i].mat.specular = 0.1f*make_float4(0.5f, 0.9f, 0.86f,0.1f);
+		scene.plane[i].mat.reflection = 0.3f;
 
 	}
 
@@ -245,8 +245,8 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	for (int i=0;i<MAXLIGHTS-1;i++)
 	{
 		// scene.light[i].vec = (float4)(i*5.0f*sin((1.0f+i)*time),i+sin(time),100.0f*sin(time) + i*2.0f*cos((1.0f+i)*time),1.0f);
-		scene.light[i].vec = make_float4(sin(time*2.0f)*10.0f,-1.0f,-cos(time*2.0f)*10.0f,1.0f);
-		scene.light[i].diffusePower = 10.0f;
+		scene.light[i].vec = make_float4(sin(i+time*2.0f)*3.0f*((float)i*0.5f),2.0f-cos(i+time*2.0f)*2.0f,(float)(i-2)*-cos(i+time*2.0f)*3.0f,1.0f);
+		scene.light[i].diffusePower = 0.5f;
 		scene.light[i].specularPower = 1.0f;
 		scene.light[i].diffuseColor = make_float4(1.0f,1.0f,1.0f,1.0f);
 		scene.light[i].specularColor = make_float4(1.0f,1.0f,1.0f,0.0f);
@@ -254,10 +254,11 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	
 
 	// Create a directional light
-	scene.light[MAXLIGHTS-1].vec = cu_normalize(make_float4(sin(time),sin(time*0.5f),cos(time),0.0f));
+	scene.light[MAXLIGHTS-1].vec = cu_normalize(make_float4(1.0f,-1.0f,0.3f,0.0f));
+		//cu_normalize(make_float4(sin(time),sin(time*0.5f),cos(time),0.0f));
 	scene.light[MAXLIGHTS-1].diffusePower = 1.0f;
 	scene.light[MAXLIGHTS-1].specularPower = 1.0f;
-	scene.light[MAXLIGHTS-1].diffuseColor = make_float4(1.0f, 1.0f,1.0f,1.0f);
+	scene.light[MAXLIGHTS-1].diffuseColor = make_float4(1.0f, 0.9f,0.7f,1.0f);
   	scene.light[MAXLIGHTS-1].specularColor = make_float4(1.0f,1.0f,1.0f,0.0f);
 	
 
@@ -266,11 +267,15 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	// TRANSFORM
 
 	// 2. Declare var for final color storage
-	float4 finalColor = make_float4((1.0f+ray.dir.x),
-		(1.0f+ray.dir.z),
-		(1.0f+ray.dir.y),
-		0.0f)*0.05f;
-	finalColor=make_float4(1.0f,1.0f,1.0f,0.0f);
+// 	float4 finalColor = make_float4((1.0f+ray.dir.x),
+// 		(1.0f+ray.dir.z),
+// 		(1.0f+ray.dir.y),
+// 		0.0f)*0.05f;
+	float4 finalColor = make_float4((1.0f+ray.dir.x)*0.8f,
+		0.5f+1.0f-(1.0f+ray.dir.z)*2.5f,
+		0.5f+(1.0f+ray.dir.y)*2.5f,
+		0.0f)*0.5f;
+	//finalColor=make_float4(1.0f,1.0f,1.0f,0.0f);
 
 	Intersection intersection;
 	intersection.dist = MAX_INTERSECT_DIST;
@@ -365,12 +370,21 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 		
 	}  while (reflectionfactor>0.01f && depth<max_depth);
 
-	float4 tCol=tex2D(tex, u, v);
-	float3 back=make_float3(tCol.x,tCol.y,tCol.z);
+	//float4 tCol=tex2D(tex, u, v);
+	//float3 back=make_float3(tCol.x,tCol.y,tCol.z);
 
 	// Set the color
-	float dbgGridX=(float)drawMode*((float)blockIdx.x/(float)gridDim.x);
-	float dbgGridY=(float)drawMode*((float)blockIdx.y/(float)gridDim.y);
+	float showgrid=0.0f;
+	if (drawMode==1) 
+		showgrid=1.0f;
+	else if (drawMode==2)
+	{
+		finalColor.x=debugColor.x;
+		finalColor.y=debugColor.y;
+		finalColor.z=debugColor.z;
+	}
+	float dbgGridX=showgrid*((float)blockIdx.x/(float)gridDim.x);
+	float dbgGridY=showgrid*((float)blockIdx.y/(float)gridDim.y);
 	p_outPixel[R_CH] = finalColor.x + dbgGridX; // red
 	p_outPixel[G_CH] = finalColor.y + dbgGridY; // green
 	p_outPixel[B_CH] = finalColor.z; // blue

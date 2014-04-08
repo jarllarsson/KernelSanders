@@ -236,6 +236,7 @@
     <ClInclude Include="KernelException.h" />
     <ClInclude Include="KernelHelper.h" />
     <ClInclude Include="Ray.h" />
+    <ClInclude Include="RaytraceColourPalette.h" />
     <ClInclude Include="RaytraceConstantBuffer.h" />
     <ClInclude Include="KernelMathHelper.h" />
     <ClInclude Include="RaytraceKernel.h" />

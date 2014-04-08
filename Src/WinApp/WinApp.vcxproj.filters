@@ -196,6 +196,9 @@
     <ClInclude Include="KernelTextureHelper.h">
       <Filter>Source Files\Kernel\Kernels\Raytrace\Utils</Filter>
     </ClInclude>
+    <ClInclude Include="RaytraceColourPalette.h">
+      <Filter>Source Files\Kernel\Kernels</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

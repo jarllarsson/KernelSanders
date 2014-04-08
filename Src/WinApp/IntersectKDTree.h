@@ -15,6 +15,7 @@
 #include "Ray.h"
 #include "DeviceKDStructures.h"
 #include "IntersectTriangle.h"
+#include "RaytraceColourPalette.h"
 
 __device__ int getAxisNumber(DKDAxisMark p_axis)
 {
@@ -29,24 +30,7 @@ __device__ bool KDTraverse( const Scene* in_scene, const Ray* in_ray, /*float4x4
 						 Intersection* inout_intersection, 
 						 bool storeResult)
 {
-	float3 colarr[18]={make_float3(1.0f,0.0f,0.0f),
-					   make_float3(0.0f,1.0f,0.0f),
-					   make_float3(0.0f,0.0f,1.0f),
-					   make_float3(1.0f,0.0f,1.0f),
-					   make_float3(0.0f,1.0f,1.0f),
-					   make_float3(1.0f,1.0f,0.0f),
-					   make_float3(1.0f,0.5f,0.0f),
-					   make_float3(0.5f,1.0f,0.0f),
-					   make_float3(1.0f,0.0f,0.5f),
-					   make_float3(0.5f,0.5f,0.5f),
-					   make_float3(1.0f,0.7f,0.7f),
-					   make_float3(1.0f,1.0f,0.2f),
-					   make_float3(0.33f,0.25f,0.4f),
-					   make_float3(0.8f,1.0f,0.24f),
-					   make_float3(0.0f,0.66f,0.5f),
-					   make_float3(0.1f,0.231f,0.13f),
-					   make_float3(0.87f,0.5f,1.0f),
-					   make_float3(0.2f,0.2f,1.0f)};
+
 
 //	p_verts=in_scene->meshVerts; p_norms=in_scene->meshNorms;
 
