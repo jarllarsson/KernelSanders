@@ -28,7 +28,7 @@ int ModelImporter::loadFile( const char* p_path )
 	// we are taking one of the postprocessing presets to avoid
 	// spelling out 20+ single postprocessing flags here.
 	const aiScene* tscene = aiImportFile(p_path,
-		aiProcessPreset_TargetRealtime_MaxQuality | aiProcess_GenUVCoords | aiProcess_TransformUVCoords);
+		aiProcessPreset_TargetRealtime_MaxQuality | aiProcess_GenUVCoords | aiProcess_PreTransformVertices | aiProcess_TransformUVCoords);
 
 	if (tscene!=NULL) 
 	{
@@ -40,6 +40,21 @@ int ModelImporter::loadFile( const char* p_path )
 		model->m_sceneCenter.z = (model->m_sceneMin.z + model->m_sceneMax.z) / 2.0f;
 		// Create index list that is guaranteed to only contain triangle faces (list size multiple of 3)
 		aiMesh* mmesh=tscene->mMeshes[0];
+		string tex="bmo.png";
+		if (tscene->HasMaterials())
+		{	
+			aiMaterial* mat = tscene->mMaterials[mmesh->mMaterialIndex];
+			if (mat && mat->GetTextureCount(aiTextureType_DIFFUSE)>0)
+			{
+				aiString ntex;
+				aiReturn texFound = mat->GetTexture(aiTextureType_DIFFUSE,0,&ntex);
+				if (texFound==aiReturn_SUCCESS &&
+					ntex.length>0)
+				{
+					tex=ntex.C_Str();
+				}
+			}
+		}
 		int indexCount=0;
 		for (unsigned int i=0;i<mmesh->mNumFaces;i++)
 		{
@@ -61,14 +76,14 @@ int ModelImporter::loadFile( const char* p_path )
 		// 	has="no uvs";
 		// }
 		// DEBUGWARNING(( has.c_str() ));
-		m_textures.push_back(m_textureParser.loadTexture("../Assets/bmo.png"));
+		m_textures.push_back(m_textureParser.loadTexture((string("../Assets/")+tex).c_str()));
 		// build kd-tree representation of the index list for the mesh
 // 		glm::vec3 extents(max(abs(model->m_sceneMax.x),abs(model->m_sceneMin.x)),
 // 			max(abs(model->m_sceneMax.y),abs(model->m_sceneMin.y)),
 // 			max(abs(model->m_sceneMax.z),abs(model->m_sceneMin.z)));
 // 		extents -= model->m_sceneCenter;
 		int treeId = -1;
-		int treeLevel=4;
+		int treeLevel=5;
 
 		treeId=m_treeFactory.loadKDTree(treeLevel,p_path);
 		if (treeId==-1)

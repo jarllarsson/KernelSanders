@@ -299,12 +299,12 @@ void KDTreeFactory::subdivide( unsigned int p_treeId, vector<Tri>* p_tris, int p
 	for (unsigned int i=0;i<count;i++)
 	{
 		Triparam param = {i,(*p_tris)[i]};
-		if (triIntersectNode(param,leftBoxPos, leftBox*1.05f)) 
+		if (triIntersectNode(param,leftBoxPos, leftBox*1.0f)) 
 		{
 			//p_node.m_objects.Remove(obj);
 			leftTris.push_back(param.m_tri);
 		}
-		if (triIntersectNode(param, rightBoxPos, rightBox*1.05f))
+		if (triIntersectNode(param, rightBoxPos, rightBox*1.0f))
 		{
 			//p_node.m_objects.Remove(obj);
 			rightTris.push_back(param.m_tri);
@@ -353,9 +353,9 @@ bool KDTreeFactory::triIntersectNode( const Triparam& p_tri, const glm::vec3& po
 	v1 = pv1 - pos;
 	v2 = pv2 - pos;
 	// pad extents of halsize
-	boxhalfsize[0]+=max(max(abs(v0.x),abs(v1.x)),abs(v2.x))*0.5555f+FLT_EPSILON;
-	boxhalfsize[1]+=max(max(abs(v0.y),abs(v1.y)),abs(v2.y))*0.5555f+FLT_EPSILON;
-	boxhalfsize[2]+=max(max(abs(v0.z),abs(v1.z)),abs(v2.z))*0.5555f+FLT_EPSILON;
+	boxhalfsize[0]+=max(max(abs(v0.x),abs(v1.x)),abs(v2.x))*0.25555f+FLT_EPSILON;
+	boxhalfsize[1]+=max(max(abs(v0.y),abs(v1.y)),abs(v2.y))*0.25555f+FLT_EPSILON;
+	boxhalfsize[2]+=max(max(abs(v0.z),abs(v1.z)),abs(v2.z))*0.25555f+FLT_EPSILON;
 	// Calc edges
 	e0 = v1 - v0, e1 = v2 - v1, e2 = v0 - v2;
 	/*  This is test 3. Running it here is faster according to Möller */

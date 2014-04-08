@@ -92,7 +92,7 @@ RawTexture* TextureParser::loadTexture( const char* p_filePath )
 	}
 	if(succeededLoadingFile)
 	{
-		FreeImage_FlipHorizontal(image);
+		//FreeImage_FlipVertical(image);
 
 		 texture = createTexture(image, FreeImage_GetWidth(image),
 			FreeImage_GetHeight(image));
