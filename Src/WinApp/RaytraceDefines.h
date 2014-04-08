@@ -9,7 +9,7 @@
 #define MAXPLANES 1
 #define MAXTRIS 100
 #define MAXBOXES 2
-#define MAXLIGHTS 2
+#define MAXLIGHTS 10
 #define MAXMESHLOCAL_VERTSBIN 120
 #define MAXMESHLOCAL_INDICESBIN 120 // estimate
 

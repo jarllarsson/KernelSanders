@@ -20,6 +20,7 @@
 #include "DeviceKDStructures.h"
 #include "IntersectKDTree.h"
 #include "DeviceResources.h"
+#include "RaytraceColourPalette.h"
 
  
 #pragma comment(lib, "cudart") 
@@ -188,11 +189,11 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	// define a plane
 	for (int i=0;i<MAXPLANES;i++)
 	{
-		scene.plane[i].distance = -5.0f;
-		scene.plane[i].normal = make_float4(0.0f,1.0f,0.0f,0.0f);
+		scene.plane[i].distance = 0.0f;
+		scene.plane[i].normal = make_float4(0.0f,-1.0f,0.0f,0.0f);
 		//scene.plane[i].mat.diffuse = (float4)( 71.0f/255.0f, 21.0f/255.0f, 87.0f/255.0f ,1.0f);
-		scene.plane[i].mat.diffuse = 1.2f*make_float4( 0.15625f, 0.37641f, 0.3394f ,1.0f);
-		scene.plane[i].mat.specular = 0.1f*make_float4(0.5f, 0.9f, 0.86f,0.1f);
+		scene.plane[i].mat.diffuse = make_float4( 0.15625f, 0.37641f, 0.3394f ,1.0f);
+		scene.plane[i].mat.specular = 0.1f*make_float4(0.5f, 0.9f, 0.86f,0.0f);
 		scene.plane[i].mat.reflection = 0.3f;
 
 	}
@@ -245,10 +246,11 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	for (int i=0;i<MAXLIGHTS-1;i++)
 	{
 		// scene.light[i].vec = (float4)(i*5.0f*sin((1.0f+i)*time),i+sin(time),100.0f*sin(time) + i*2.0f*cos((1.0f+i)*time),1.0f);
-		scene.light[i].vec = make_float4(sin(i+time*2.0f)*3.0f*((float)i*0.5f),2.0f-cos(i+time*2.0f)*2.0f,(float)(i-2)*-cos(i+time*2.0f)*3.0f,1.0f);
-		scene.light[i].diffusePower = 0.5f;
-		scene.light[i].specularPower = 1.0f;
-		scene.light[i].diffuseColor = make_float4(1.0f,1.0f,1.0f,1.0f);
+		scene.light[i].vec = make_float4(sin(i+time*0.3f)*2.0f*((float)(i+1)*0.15f),1.99f-cos(i+time*0.3f)*2.0f,(float)(i-2)*-cos(i+time*0.3f)*1.0f,1.0f);
+		scene.light[i].diffusePower = 2000.0f;
+		scene.light[i].specularPower = 0.001f;
+		float3 col=colarr[i];
+		scene.light[i].diffuseColor = make_float4(0.001f*col.x+0.0001f,0.001f*col.y,0.001f*col.z+0.0001f,1.0f);
 		scene.light[i].specularColor = make_float4(1.0f,1.0f,1.0f,0.0f);
 	}
 	
@@ -271,10 +273,10 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 // 		(1.0f+ray.dir.z),
 // 		(1.0f+ray.dir.y),
 // 		0.0f)*0.05f;
-	float4 finalColor = make_float4((1.0f+ray.dir.x)*0.8f,
-		0.5f+1.0f-(1.0f+ray.dir.z)*2.5f,
-		0.5f+(1.0f+ray.dir.y)*2.5f,
-		0.0f)*0.5f;
+	float4 finalColor = make_float4(0.1f+(1.0f+ray.dir.z),
+		0.5f+(1.0f+ray.dir.x)*1.5f,
+		0.6f+(1.0f+ray.dir.y)*2.5f,
+		0.0f)*0.15f;
 	//finalColor=make_float4(1.0f,1.0f,1.0f,0.0f);
 
 	Intersection intersection;
@@ -286,7 +288,7 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 
 	// Raytrace:
 	float reflectionfactor = 0.0f;
-	int max_depth = 1;
+	int max_depth = 2;
 	int depth = 0;
 
 	float4 currentColor = make_float4(0.0f,0.0f,0.0f,0.0f);

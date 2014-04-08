@@ -74,13 +74,13 @@ __device__ bool IntersectAll(const Scene* in_scene, const Ray* in_ray, Intersect
 
 
 	//#pragma unroll MAXTRIS
-	for (int i=0;i<in_scene->numTris;i++)
-	{
-		result|=IntersectTriangle(&(in_scene->tri[i]), in_ray, inout_intersection,storeResults);
-		if (result && breakOnFirst) 
-			return true;
-
-	}	// for each tri
+	//for (int i=0;i<in_scene->numTris;i++)
+	//{
+	//	result|=IntersectTriangle(&(in_scene->tri[i]), in_ray, inout_intersection,storeResults);
+	//	if (result && breakOnFirst) 
+	//		return true;
+	//
+	//}	// for each tri
 
 	//#pragma unroll MAXTRIS
 	//Material test;
@@ -117,9 +117,9 @@ __device__ bool IntersectAll(const Scene* in_scene, const Ray* in_ray, Intersect
 		for (int i=0;i<MAXLIGHTS-1;i++)
 		{
 			t.pos = in_scene->light[i].vec;
-			t.rad = 0.01f;
-			t.mat.diffuse = in_scene->light[i].diffuseColor;
-			t.mat.specular = make_float4(1.0f, 1.0f, 1.0f,1.0f);
+			t.rad = 0.05f;
+			t.mat.diffuse = make_float4(1.0f, 1.0f, 1.0f,1.0f)+in_scene->light[i].diffuseColor;
+			t.mat.specular = make_float4(0.0f, 0.0f, 0.0f,1.0f);
 			t.mat.reflection = 0.0f;
 			IntersectSphere(&(t), in_ray, inout_intersection,storeResults);
 		}	// debug for each light

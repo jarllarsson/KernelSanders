@@ -44,7 +44,7 @@ __device__ bool KDTraverse( const Scene* in_scene, const Ray* in_ray, /*float4x4
 	Material material;
 
 
-	float3 breakCol=make_float3(1.0f,1.0f,1.0f);
+	float3 breakCol=make_float3(0.0f,0.0f,0.0f);
 	*p_outDbgCol=breakCol;
 
 	float3 result=make_float3(0.0f,0.0f,0.0f);
