@@ -10,6 +10,8 @@ Context::Context( HINSTANCE p_hInstance, const string& p_title,
 	m_sizeDirty=false;
 	m_hInstance = p_hInstance; 
 	m_title = p_title;
+	m_origTitle= p_title;
+	setToUpdateOnResize(true);
 
 	// Register class
 	WNDCLASSEX wcex;
@@ -112,6 +114,20 @@ bool Context::isSizeDirty()
 	return isDirty;
 }
 
+bool Context::shouldUpdateOnResize()
+{
+	return m_updateOnResize;
+}
+
+void Context::setToUpdateOnResize( bool p_set )
+{
+	m_updateOnResize=p_set;
+	if (m_updateOnResize)
+		setTitle( m_origTitle+" [rz] " );
+	else
+		setTitle( m_origTitle );
+}
+
 
 LRESULT CALLBACK WndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam )
 {
@@ -136,9 +152,11 @@ LRESULT CALLBACK WndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam 
 
 	case WM_SIZE:
 		{
+			
 			Context* context = Context::getInstance();
-			if (context)
+			if (context && context->shouldUpdateOnResize())
 				context->resize(LOWORD(lParam),HIWORD(lParam),false);
+				
 		}
 		break;
 

@@ -207,14 +207,14 @@ void App::run()
                 m_controller->moveAngularThrust(glm::vec3(0.0f,0.0f,-1.0f));
             if (m_input->g_kb->isKeyDown(KC_E) || (joy!=nullptr && joy->getJoyStickState().mButtons[5]))
                 m_controller->moveAngularThrust(glm::vec3(0.0f,0.0f,1.0f));
-            if (m_input->g_kb->isKeyDown(KC_T))
+            /*if (m_input->g_kb->isKeyDown(KC_T))
                 m_controller->moveAngularThrust(glm::vec3(0.0f,1.0f,0.0f));
             if (m_input->g_kb->isKeyDown(KC_R))
                 m_controller->moveAngularThrust(glm::vec3(0.0f,-1.0f,0.0f));
             if (m_input->g_kb->isKeyDown(KC_U))
                 m_controller->moveAngularThrust(glm::vec3(1.0f,0.0f,0.0f));
             if (m_input->g_kb->isKeyDown(KC_J))
-                m_controller->moveAngularThrust(glm::vec3(-1.0f,0.0f,0.0f));
+                m_controller->moveAngularThrust(glm::vec3(-1.0f,0.0f,0.0f));*/
             // Joy angular thrust
             if (joy!=nullptr)
             {
@@ -234,6 +234,10 @@ void App::run()
                 drawKdTree=true;
             if (m_input->g_kb->isKeyDown(KC_P)) // Debug wireframe off
                 drawKdTree=false;
+			if (m_input->g_kb->isKeyDown(KC_ADD)) // Resize window auto on
+				m_context->setToUpdateOnResize(true);
+			if (m_input->g_kb->isKeyDown(KC_SUBTRACT)) // Resize window auto off
+				m_context->setToUpdateOnResize(false);
             if (m_input->g_kb->isKeyDown(KC_0)) // Shadow off
                 shadowMode=0;
             if (m_input->g_kb->isKeyDown(KC_1)) // Shadow on (hard shadows)

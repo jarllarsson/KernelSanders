@@ -68,12 +68,17 @@ public:
 	///-----------------------------------------------------------------------------------
 	bool isSizeDirty();
 
+	bool shouldUpdateOnResize();
+	void setToUpdateOnResize(bool p_set);
+
 	pair<int,int> getSize();
 protected:
 private:
+	bool m_updateOnResize;
 	bool m_closeFlag;
 	bool m_sizeDirty;
 	string m_title;
+	string m_origTitle;
 	int m_width;
 	int m_height;
 	HINSTANCE	m_hInstance;
