@@ -1,7 +1,7 @@
 #ifndef RAYTRACER_H
 #define RAYTRACER_H
 
-//#define RENDER_STARRY_SKY
+#define RENDER_STARRY_SKY
 
 #include <iostream> 
 #include <vector> 
@@ -78,6 +78,7 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	unsigned int numNodes=p_numNodes, numLeaves=p_numLeaves, numNodeIndices=p_numNodeIndices;
 	// define a scene
 	Scene scene;
+	scene.time=time;
 
 	scene.numIndices=0;
 	scene.numVerts=0;
@@ -161,29 +162,37 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	ray.dir = viewFrameDir;
 	mat4mul(&camRotation,&viewFrameDir, &ray.dir); // transform viewFrameDir with the viewMatrix to get the world space ray
 	Ray shadowRay;	
-
+	float spacefade=max(0.0f,1.0f-abs(ray.origin.y)/100.0f); // for fading stuff into space when traveling upwards
 
 	// define some spheres
 
-	scene.sphere[0].pos = make_float4(17.0f,15.0f,0.0f,1.0f);
-	scene.sphere[0].rad = 10.5f;
-	scene.sphere[0].mat.diffuse = make_float4(0.5f, 0.79f, 0.22f,1.0f);
-	scene.sphere[0].mat.specular = make_float4(1.0f, 1.0f, 1.0f,500.0f);
-	scene.sphere[0].mat.reflection = 0.5f;
+	//scene.sphere[0].pos = make_float4(17.0f,15.0f,0.0f,1.0f);
+	//scene.sphere[0].rad = 10.5f;
+	//scene.sphere[0].mat.diffuse = make_float4(0.5f, 0.79f, 0.22f,1.0f);
+	//scene.sphere[0].mat.specular = make_float4(1.0f, 1.0f, 1.0f,500.0f);
+	//scene.sphere[0].mat.reflection = 0.5f;
+	//
+	//scene.sphere[1].pos = make_float4(15.0f,15.0f,0.0f,1.0f);
+	//scene.sphere[1].rad = 10.6f;
+	//scene.sphere[1].mat.diffuse = make_float4(0.0f, 1.0f, 0.0f,1.0f);
+	//scene.sphere[1].mat.specular = make_float4(0.0f, 0.0f, 0.0f,0.0f);
+	//scene.sphere[1].mat.reflection = 0.5f;
 
-	scene.sphere[1].pos = make_float4(15.0f,15.0f,0.0f,1.0f);
-	scene.sphere[1].rad = 10.6f;
-	scene.sphere[1].mat.diffuse = make_float4(0.0f, 1.0f, 0.0f,1.0f);
-	scene.sphere[1].mat.specular = make_float4(0.0f, 0.0f, 0.0f,0.0f);
-	scene.sphere[1].mat.reflection = 0.5f;
-
-	for (int i=2;i<MAXSPHERES;i++)
-	{
-		scene.sphere[i].pos = make_float4((float)(i%3),(float)i+4.0f,(float)i,1.0f);
-		scene.sphere[i].rad = i*10.1f;
-		scene.sphere[i].mat.diffuse = make_float4((float)i/(float)MAXSPHERES, 1.0f-((float)i/(float)MAXSPHERES), ((float)i/(float)(MAXSPHERES*0.2f)) ,1.0f);
-		scene.sphere[i].mat.specular = make_float4(1.0f, 1.0f, 1.0f,0.8f);
-		scene.sphere[i].mat.reflection = (float)i/(float)MAXSPHERES;
+	int ii=0;float d=4.0f,rad=0.3f;
+	for (int i=0;i<MAXSPHERES;i++)
+	{	
+		scene.sphere[i].pos = make_float4(sin((float)ii)*d,rad,-cos((float)ii)*d,1.0f);
+		scene.sphere[i].rad = rad;
+		float3 col=0.6f*colarr2[i*3];
+		scene.sphere[i].mat.diffuse = make_float4(col.x,col.y,col.z,1.0f);
+		scene.sphere[i].mat.specular = make_float4(0.1f, 0.1f, 0.1f,0.8f);
+		scene.sphere[i].mat.reflection = 0.4f;
+		ii++;
+		if (ii>4)
+		{
+			ii=0; d=7.0f; rad=2.0f;
+		}
+		if (i>5) rad+=0.1f;
 	}
 
 	// define a plane
@@ -192,52 +201,55 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 		scene.plane[i].distance = 0.0f;
 		scene.plane[i].normal = make_float4(0.0f,-1.0f,0.0f,0.0f);
 		//scene.plane[i].mat.diffuse = (float4)( 71.0f/255.0f, 21.0f/255.0f, 87.0f/255.0f ,1.0f);
-		scene.plane[i].mat.diffuse = make_float4( 0.15625f, 0.37641f, 0.3394f ,1.0f);
+		scene.plane[i].mat.diffuse = make_float4( 0.15625f, 0.37641f, 0.3394f ,spacefade);
 		scene.plane[i].mat.specular = 0.1f*make_float4(0.5f, 0.9f, 0.86f,0.0f);
 		scene.plane[i].mat.reflection = 0.3f;
-
 	}
 
 
 
 	// define some tris
 	scene.numTris=numTris;
-	for (unsigned int i=0;i<numTris;i++)
-	{
-	
-		#pragma unroll 3
-		for (int x=0;x<3;x++)
-		{
-			scene.tri[i].vertices[x] = p_tris[i].vertices[x];
-				//make_float3((float)i+x*0.5f, sin(time+(float)i+x*0.01f) + ((i%2)*2-1)*(float)(x%2)*0.5f, sin((float)(x+i)*0.5f)*-3.0f);
-		}
-	
-		scene.tri[i].mat.diffuse = make_float4( 1.0f-((float)i/(float)MAXTRIS), (float)i/(float)MAXTRIS, 1.0f-((float)i/(float)(MAXTRIS*0.2f)) ,1.0f);
-		scene.tri[i].mat.specular = make_float4(1.0f, 1.0f, 1.0f,0.5f);
-		scene.tri[i].mat.reflection = 0.0f;
-	}
+	//for (unsigned int i=0;i<numTris;i++)
+	//{
+	//
+	//	#pragma unroll 3
+	//	for (int x=0;x<3;x++)
+	//	{
+	//		scene.tri[i].vertices[x] = p_tris[i].vertices[x];
+	//			//make_float3((float)i+x*0.5f, sin(time+(float)i+x*0.01f) + ((i%2)*2-1)*(float)(x%2)*0.5f, sin((float)(x+i)*0.5f)*-3.0f);
+	//	}
+	//
+	//	scene.tri[i].mat.diffuse = make_float4( 1.0f-((float)i/(float)MAXTRIS), (float)i/(float)MAXTRIS, 1.0f-((float)i/(float)(MAXTRIS*0.2f)) ,1.0f);
+	//	scene.tri[i].mat.specular = make_float4(1.0f, 1.0f, 1.0f,0.5f);
+	//	scene.tri[i].mat.reflection = 0.0f;
+	//}
 
 
 
 
 
 	// define some boxes
+	d+=4.0f; rad=5.0f;
 	for (int i=0;i<MAXBOXES;i++)
 	{
-		scene.box[i].pos = make_float4(-5.0f,10+sin((float)i)*10.0f*sin(time), i*10,0.0f) + make_float4(sin((float)i)*50.0f*(1.0f+sin(time)),
+		float sini=sin((float)i),cosi=cos((float)i);
+		scene.box[i].pos = make_float4(sini*d,rad*4.0f,-cosi*d,1.0f);
+			/*make_float4(-5.0f,10+sin((float)i)*10.0f*sin(time), i*10,0.0f) + make_float4(sin((float)i)*50.0f*(1.0f+sin(time)),
 			5.0f+sin(time*0.5f)*5.0f,
 			cos((float)i)*50.0f*(1.0f+sin(time)),
-			0.0f);
+			0.0f);*/
 		// float4 tesst = (float4)(1.0f,0.0f,0.0f,0.0f);
-		scene.box[i].sides[0] = make_float4(10.0f,0.0f,0.0f,0.0f);  // x
-		scene.box[i].sides[1] = make_float4(0.0f,10.0f,0.0f,0.0f);  // y
-		scene.box[i].sides[2] = make_float4(0.0f,0.0f,10.0f,0.0f);  // z
+		scene.box[i].sides[0] = make_float4(cosi,0.0f,sini,0.0f);  // x
+		scene.box[i].sides[1] = make_float4(0.0f,1.0f,0.0f,0.0f);  // y
+		scene.box[i].sides[2] = make_float4(-sini,0.0f,cosi,0.0f);  // z
 		// mat4mul(viewMatrix,&tesst, &box[i].sides[0]);
-		scene.box[i].hlengths[0] = (1+i);
-		scene.box[i].hlengths[1] = (1+i);
-		scene.box[i].hlengths[2] = (1+i);
-		scene.box[i].mat.diffuse = make_float4( (float)(i%5)*0.5f, 1.0f-sin((float)i), ((float)i/(float)(MAXBOXES*2.0f)) ,1.0f);
-		scene.box[i].mat.specular = make_float4(0.1f, 0.1f, 0.1f,0.5f);
+		scene.box[i].hlengths[0] = rad*0.5f;
+		scene.box[i].hlengths[1] = rad*4.0f;
+		scene.box[i].hlengths[2] = rad*0.5f;
+		scene.box[i].mat.diffuse = make_float4(colarr2[13],1.0f);
+			//make_float4( (float)(i%5)*0.5f, 1.0f-sin((float)i), ((float)i/(float)(MAXBOXES*2.0f)) ,1.0f);
+		scene.box[i].mat.specular = make_float4(0.1f, 0.2f, 0.0f,0.8f);
 		scene.box[i].mat.reflection = 0.2f;
 	}
 
@@ -277,7 +289,11 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 		0.5f+(1.0f+ray.dir.x)*1.5f,
 		0.6f+(1.0f+ray.dir.y)*2.5f,
 		0.0f)*0.15f;
-	//finalColor=make_float4(1.0f,1.0f,1.0f,0.0f);
+	float3 bcol1=colarr2[12];
+	float3 bcol2=colarr2[18];
+	float3 bcol3=colarr2[28];
+	float3 bcombo=bcol1*(1.0f+ray.dir.x)*0.5f+bcol2*(1.0f+ray.dir.y)*0.5f+bcol3*(1.0f+ray.dir.z)*0.5f;
+	finalColor=make_float4(0.5f*bcombo,1.0f)*spacefade;
 
 	Intersection intersection;
 	intersection.dist = MAX_INTERSECT_DIST;
@@ -309,7 +325,7 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 		
 		// If defined, render starry sky
 #ifdef RENDER_STARRY_SKY
-		result = MarchAll(&ray,&intersection,false,result);
+		result = MarchAll(&ray,&intersection,false,false);
 #endif
 
 		
@@ -353,8 +369,12 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 			else
 				finalColor += alphablend * reflectionfactor; 
 
-
-			reflectionfactor = intersection.surface.reflection;
+			// special fallof, to avoid reflections in plane for this particular scene
+			// otherwise, this is unwanted and should be 1
+			float rflfallof=max(0.0f,(1.0f-0.001f*squaredLen(intersection.pos)));
+			
+			// do reflection
+			reflectionfactor = intersection.surface.reflection * rflfallof;
 			if (reflectionfactor>0.01f)
 			{
 				ray.origin = intersection.pos;

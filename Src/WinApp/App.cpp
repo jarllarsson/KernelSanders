@@ -25,14 +25,15 @@ const double App::DTCAP=0.5;
 
 App::App( HINSTANCE p_hInstance,MeasurementBin* p_measurer )
 {
-    int width=600,
-        height=400;
+    int width=320,
+        height=240;
     bool windowMode=true;
     // Context
     try
     {
         m_context = new Context(p_hInstance,"Kernel Sanders",width,height);
-    }
+		m_context->setToUpdateOnResize(false);
+	}
     catch (ContextException& e)
     {
         DEBUGWARNING((e.what()));

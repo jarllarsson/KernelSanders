@@ -5,10 +5,10 @@
 //                                      RaytraceSetup
 // =======================================================================================
 
-#define MAXSPHERES 2
+#define MAXSPHERES 9
 #define MAXPLANES 1
 #define MAXTRIS 100
-#define MAXBOXES 2
+#define MAXBOXES 4
 #define MAXLIGHTS 10
 #define MAXMESHLOCAL_VERTSBIN 120
 #define MAXMESHLOCAL_INDICESBIN 120 // estimate

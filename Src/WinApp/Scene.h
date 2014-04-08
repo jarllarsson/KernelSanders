@@ -51,6 +51,7 @@ struct Scene
 	float3* verts;
 	float3* uvs;
 	float3* norms;
+	float time;
 	unsigned int numNodes, numLeaves, numNodeIndices;
 };
 

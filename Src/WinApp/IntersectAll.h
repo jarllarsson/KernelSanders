@@ -67,7 +67,7 @@ __device__ bool IntersectAll(const Scene* in_scene, const Ray* in_ray, Intersect
 	//#pragma unroll MAXPLANES 
 	for (int i=0;i<MAXPLANES;i++)
 	{
-		result|=IntersectPlane(&(in_scene->plane[i]), in_ray, inout_intersection,storeResults);
+		result|=IntersectPlane(&(in_scene->plane[i]), in_ray, inout_intersection,storeResults,in_scene->time);
 		if (result && breakOnFirst) 
 			return true;
 	}	// for each plane
