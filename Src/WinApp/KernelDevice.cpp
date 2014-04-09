@@ -36,7 +36,7 @@ KernelDevice::KernelDevice( void* p_device,
 
 
 	m_raytracer = new RaytraceKernel(p_measurer);
-	m_raytracer->ActivateMeasurements();
+	if (p_measurer!=NULL) m_raytracer->ActivateMeasurements();
 }
 
 KernelDevice::~KernelDevice()

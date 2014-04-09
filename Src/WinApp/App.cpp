@@ -23,7 +23,7 @@
 
 const double App::DTCAP=0.5;
 
-App::App( HINSTANCE p_hInstance,MeasurementBin* p_measurer )
+App::App( HINSTANCE p_hInstance,MeasurementBin* p_measurer/*=NULL*/ )
 {
     int width=320,
         height=240;
@@ -93,17 +93,16 @@ App::~App()
 void App::run()
 {
     // Set up windows timer
-    __int64 countsPerSec = 0;
-    __int64 currTimeStamp = 0;
-    QueryPerformanceFrequency((LARGE_INTEGER*)&countsPerSec);
-    double secsPerCount = 1.0f / (float)countsPerSec;
+	LARGE_INTEGER countsPerSec,currTimeStamp,startTimeStamp;
+    QueryPerformanceFrequency(&countsPerSec);
+    double secsPerCount = 1.0 / (double)countsPerSec.QuadPart;
 
     double dt = 0.0;
     double fps = 0.0f;
-    __int64 m_prevTimeStamp = 0;
+    LARGE_INTEGER m_prevTimeStamp;
 
-    QueryPerformanceCounter((LARGE_INTEGER*)&m_prevTimeStamp);
-    QueryPerformanceCounter((LARGE_INTEGER*)&currTimeStamp);
+    QueryPerformanceCounter(&m_prevTimeStamp);
+    QueryPerformanceCounter(&currTimeStamp);
 
     MSG msg = {0};
 
@@ -154,6 +153,7 @@ void App::run()
     m_kdDebugBoxInstances=m_graphicsDevice->getBufferFactoryRef()->createMat4InstanceBuffer((void*)&m_kdDebugBoxMats[0],numBounds);
     
     //
+	QueryPerformanceCounter((LARGE_INTEGER*)&startTimeStamp);
 
     while (!m_context->closeRequested() && run)
     {
@@ -164,6 +164,7 @@ void App::run()
         }
        // else
         {
+			//
             m_input->run();
             // get joystate
             //Just dump the current joy state
@@ -271,9 +272,28 @@ void App::run()
             }
 
             // Get Delta time
-            QueryPerformanceCounter((LARGE_INTEGER*)&currTimeStamp);
+            QueryPerformanceCounter(&currTimeStamp);
 
-            dt = (currTimeStamp - m_prevTimeStamp) * secsPerCount;
+			// Measurement
+			if (m_measurer!=NULL)
+			{
+				LARGE_INTEGER elapsedMicroseconds;
+				elapsedMicroseconds.QuadPart = currTimeStamp.QuadPart-startTimeStamp.QuadPart;
+				elapsedMicroseconds.QuadPart *= 1000000;
+				elapsedMicroseconds.QuadPart /= countsPerSec.QuadPart;
+				if (elapsedMicroseconds.QuadPart>5000000 && !m_measurer->isActive()) // 5 second warmup
+				{
+					m_measurer->activate();
+					DEBUGPRINT(("Starting measurement..."));
+				}
+				if (elapsedMicroseconds.QuadPart>25000000 && m_measurer->isActive()) // additional 20 seconds measurement
+				{
+					run=false;
+				}
+			}
+
+
+            dt = (currTimeStamp.QuadPart - m_prevTimeStamp.QuadPart) * secsPerCount;
             fps = 1.0f/dt;
             
             dt = clamp(dt,0.0,DTCAP);

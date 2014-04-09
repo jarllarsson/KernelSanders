@@ -37,32 +37,44 @@ float MeasurementBin::calculateSTD()
 
 bool MeasurementBin::saveResults( string fileName )
 {
-	ofstream outFile;
-	outFile.open( fileName+".csv" );
+	if (m_active)
+	{
+		ofstream outFile;
+		outFile.open( fileName+".csv" );
 
-	if( !outFile.good() ) 
-	{
-		return false;
-	} 
-	else 
-	{
-		// Gfx settings
-		outFile << "Mean time,Standard deviation"<<"\n";
-		for (int i=0;i<m_allMeans.size();i++)
+		if( !outFile.good() ) 
 		{
-			outFile << m_allMeans[i]<<","<<m_allSTDs[i]<< "\n";
-		}
+			return false;
+		} 
+		else 
+		{
+			// Gfx settings
+			outFile << "Mean time,Standard deviation"<<"\n";
+			for (int i=0;i<m_allMeans.size();i++)
+			{
+				outFile << m_allMeans[i]<<","<<m_allSTDs[i]<< "\n";
+			}
+			outFile<<"\nRaw measurements\n";
+			for (int i=0;i<m_measurements.size();i++)
+			{
+				outFile << m_measurements[i] << "\n";
+			}
 
+		}
+		outFile.close();
 	}
-	outFile.close();
+
 }
 
 void MeasurementBin::finishRound()
 {
-	calculateMean();
-	calculateSTD();
-	m_allMeans.push_back(m_mean);
-	m_allSTDs.push_back(m_mean);
+	if (m_active)
+	{
+		calculateMean();
+		calculateSTD();
+		m_allMeans.push_back(m_mean);
+		m_allSTDs.push_back(m_std);
+	}
 }
 
 void MeasurementBin::activate()

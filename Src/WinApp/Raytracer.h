@@ -1,7 +1,7 @@
 #ifndef RAYTRACER_H
 #define RAYTRACER_H
 
-#define RENDER_STARRY_SKY
+//#define RENDER_STARRY_SKY
 
 #include <iostream> 
 #include <vector> 
@@ -255,7 +255,7 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 
 	// define some lights
 	
-	for (int i=0;i<MAXLIGHTS-1;i++)
+	for (int i=0;i<MAXLIGHTS-2;i++)
 	{
 		// scene.light[i].vec = (float4)(i*5.0f*sin((1.0f+i)*time),i+sin(time),100.0f*sin(time) + i*2.0f*cos((1.0f+i)*time),1.0f);
 		scene.light[i].vec = make_float4(sin(i+time*0.3f)*2.0f*((float)(i+1)*0.15f),1.99f-cos(i+time*0.3f)*2.0f,(float)(i-2)*-cos(i+time*0.3f)*1.0f,1.0f);
@@ -268,14 +268,20 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	
 
 	// Create a directional light
-	scene.light[MAXLIGHTS-1].vec = cu_normalize(make_float4(1.0f,-1.0f,0.3f,0.0f));
+	scene.light[MAXLIGHTS-2].vec = cu_normalize(make_float4(1.0f,-1.0f,0.3f,0.0f));
 		//cu_normalize(make_float4(sin(time),sin(time*0.5f),cos(time),0.0f));
-	scene.light[MAXLIGHTS-1].diffusePower = 1.0f;
-	scene.light[MAXLIGHTS-1].specularPower = 1.0f;
-	scene.light[MAXLIGHTS-1].diffuseColor = make_float4(1.0f, 0.9f,0.7f,1.0f);
-  	scene.light[MAXLIGHTS-1].specularColor = make_float4(1.0f,1.0f,1.0f,0.0f);
+	scene.light[MAXLIGHTS-2].diffusePower = 0.7f;
+	scene.light[MAXLIGHTS-2].specularPower = 0.7f;
+	scene.light[MAXLIGHTS-2].diffuseColor = make_float4(1.0f, 0.9f,0.7f,1.0f);
+	scene.light[MAXLIGHTS-2].specularColor = make_float4(1.0f,1.0f,1.0f,0.0f);
 	
-
+	// Create a directional light
+	scene.light[MAXLIGHTS-1].vec = cu_normalize(make_float4(1.0f,-0.1f,-0.3f,0.0f));
+	//cu_normalize(make_float4(sin(time),sin(time*0.5f),cos(time),0.0f));
+	scene.light[MAXLIGHTS-1].diffusePower = 0.5f;
+	scene.light[MAXLIGHTS-1].specularPower = 0.2f;
+	scene.light[MAXLIGHTS-1].diffuseColor = make_float4(0.5f, 0.7f,0.7f,1.0f);
+	scene.light[MAXLIGHTS-1].specularColor = make_float4(1.0f,1.0f,1.0f,0.0f);
 
 
 	// TRANSFORM
@@ -304,7 +310,7 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 
 	// Raytrace:
 	float reflectionfactor = 0.0f;
-	int max_depth = 2;
+	int max_depth = 1;
 	int depth = 0;
 
 	float4 currentColor = make_float4(0.0f,0.0f,0.0f,0.0f);
@@ -351,7 +357,7 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 
 				// second intersection test for shadows, return true on very first hit
 				float lightHits=0;
-				if (shadowMode!=RAYTRACESHADOWMODE_OFF ) // shadow
+				if (shadowMode!=RAYTRACESHADOWMODE_OFF && scene.light[i].vec.w<0.5f ) // shadow
 					lightHits=ShadowCastAll(&(scene.light[i]),shadowMode,
 											&shadowRay,&intersection,&scene,u,v,partLit);
 				else              // no shadow

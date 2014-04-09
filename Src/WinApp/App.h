@@ -34,7 +34,7 @@ using namespace std;
 class App
 {
 public:
-	App(HINSTANCE p_hInstance,MeasurementBin* p_measurer);
+	App(HINSTANCE p_hInstance,MeasurementBin* p_measurer=NULL);
 	virtual ~App();
 
 	void run();

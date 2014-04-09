@@ -83,7 +83,7 @@ int ModelImporter::loadFile( const char* p_path )
 // 			max(abs(model->m_sceneMax.z),abs(model->m_sceneMin.z)));
 // 		extents -= model->m_sceneCenter;
 		int treeId = -1;
-		int treeLevel=10;
+		int treeLevel=6;
 
 		treeId=m_treeFactory.loadKDTree(treeLevel,p_path);
 		if (treeId==-1)

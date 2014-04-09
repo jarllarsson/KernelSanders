@@ -23,7 +23,8 @@ RaytraceKernel::RaytraceKernel(MeasurementBin* p_measurer) : IKernelHandler(p_me
 
 RaytraceKernel::~RaytraceKernel()
 {
-	m_measurments->finishRound();
+	if (m_doMeasurements)
+		m_measurments->finishRound();
 }
 
 void RaytraceKernel::SetPerKernelArgs()
