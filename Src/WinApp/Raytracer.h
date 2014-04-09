@@ -1,7 +1,7 @@
 #ifndef RAYTRACER_H
 #define RAYTRACER_H
 
-//#define RENDER_STARRY_SKY
+#define RENDER_STARRY_SKY
 
 #include <iostream> 
 #include <vector> 
