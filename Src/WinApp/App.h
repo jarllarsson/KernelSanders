@@ -54,4 +54,6 @@ private:
 	vector<glm::mat4> m_kdDebugBoxMats;
 	Buffer<InstanceData>* m_kdDebugBoxInstances;
 	Buffer<Mat4CBuffer>* m_vp;
+
+	MeasurementBin* m_measurer;
 };

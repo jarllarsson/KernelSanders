@@ -1,6 +1,13 @@
 #include "MeasurementBin.h"
 #include <fstream>
 
+MeasurementBin::MeasurementBin()
+{
+	m_active=false;
+	m_mean=0.0;
+	m_std=0.0f;
+}
+
 float MeasurementBin::calculateMean()
 {
 	double accumulate=0.0;
@@ -56,4 +63,20 @@ void MeasurementBin::finishRound()
 	calculateSTD();
 	m_allMeans.push_back(m_mean);
 	m_allSTDs.push_back(m_mean);
+}
+
+void MeasurementBin::activate()
+{
+	m_active=true;
+}
+
+void MeasurementBin::saveMeasurement( float p_measurement )
+{
+	if (m_active)
+		m_measurements.push_back(p_measurement);
+}
+
+bool MeasurementBin::isActive()
+{
+	return m_active;
 }

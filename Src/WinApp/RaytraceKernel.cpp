@@ -261,7 +261,7 @@ void RaytraceKernel::completePerformanceMeasurement()
 		KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
 
 		// add current measurement to bin
-		m_measurments->m_measurements.push_back(elapsedTimeMs);
+		m_measurments->saveMeasurement(elapsedTimeMs);
 	}
 }
 

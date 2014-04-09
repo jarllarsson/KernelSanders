@@ -19,14 +19,19 @@ using namespace std;
 class MeasurementBin
 {
 public:
+	MeasurementBin();
+	void activate();
 	float calculateMean();
 	float calculateSTD();
 	void finishRound();
 	bool saveResults(string fileName);
-
+	void saveMeasurement(float p_measurement);
+	bool isActive();
+private:
 	vector<float> m_measurements;
 	double m_mean;
 	double m_std;
 	vector<double> m_allMeans;
 	vector<double> m_allSTDs;
+	bool m_active;
 };

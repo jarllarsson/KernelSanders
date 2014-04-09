@@ -28,6 +28,7 @@ App::App( HINSTANCE p_hInstance,MeasurementBin* p_measurer )
     int width=320,
         height=240;
     bool windowMode=true;
+	m_measurer=p_measurer;
     // Context
     try
     {
