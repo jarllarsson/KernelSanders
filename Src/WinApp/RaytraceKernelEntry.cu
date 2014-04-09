@@ -128,7 +128,13 @@ extern "C" void RunRaytraceKernel(void* p_cb,void *surface,
 	KernelHelper::assertAndPrint(res,__FILE__,__FUNCTION__,__LINE__);
 
 	// Set up dimensions
-	dim3 Db = dim3(16, 16);   // block dimensions are fixed to be 256 threads
+	int bd=min(16,max(8,width/40));
+	if (bd<14) 
+		bd=8;
+	else
+		bd=16;
+
+	dim3 Db = dim3(bd, bd );   // block dimensions are fixed to be 256 threads
     dim3 Dg = dim3((width+Db.x-1)/Db.x, (height+Db.y-1)/Db.y);
 
 	//DEBUGPRINT(( ("\n"+toString(width)+" x "+toString(height)+" @ "+toString(1000*reinterpret_cast<RaytraceConstantBuffer*>(p_cb)->b)).c_str() ));
