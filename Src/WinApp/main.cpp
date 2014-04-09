@@ -45,11 +45,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR pCmdLin
 
 	MeasurementBin measurer;
 
-	App* mainApp = new App(hInstance,&measurer);
+	App* mainApp = new App(hInstance,NULL);
 	mainApp->run();
 	delete mainApp;
 
-	measurer.saveResults("../Output/6");
+	//measurer.saveResults("../Output/6");
 
 	return 0;
 }
