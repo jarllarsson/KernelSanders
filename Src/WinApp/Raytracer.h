@@ -310,7 +310,7 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 
 	// Raytrace:
 	float reflectionfactor = 0.0f;
-	int max_depth = 1;
+	int max_depth = 2;
 	int depth = 0;
 
 	float4 currentColor = make_float4(0.0f,0.0f,0.0f,0.0f);
