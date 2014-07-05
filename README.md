@@ -28,10 +28,17 @@ Video (raymarcher part): https://www.youtube.com/watch?v=dHV4Lj_LJp0
 
 ![stars](https://dl.dropboxusercontent.com/u/2014021/raytracer/raytracer-report/img/starfield.png)
 
+
 External dependencies:
+
 Assimp
+
 CUDA
+
 FreeImage
+
 GLM
+
 OIS
+
 Visual Leak Detector
