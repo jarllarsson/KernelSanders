@@ -95,56 +95,7 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	scene.uvs=p_uvs;
 	scene.norms=p_norms;
 
-#pragma region unusedshared
-	// Copy mesh data to local memory
-	//if (numNodes>0 && numLeaves>0 && numIndices>2)
-	//{
-	//	extern __shared__ DKDNode		snodes[];
-	//	extern __shared__ DKDLeaf		sleaves[];
-	//	extern __shared__ unsigned int	snindices[];
-	//	extern __shared__ float3		sverts[];
-	//	extern __shared__ float3		suvs[];
-	//	extern __shared__ float3		snorms[];
-	//
-	//	snodes[];
-	//	sleaves[];
-	//	snindices[];
-	//	sverts[];
-	//	suvs[];
-	//	snorms[];
-	//
-	//	scene.nodes=snodes;
-	//	scene.leaflist=sleaves;
-	//	scene.nodeIndices=snindices;
-	//	scene.verts=sverts;
-	//	scene.uvs=suvs;
-	//	scene.norms=snorms;
-	//	//for (unsigned int i=0;i<numNodes;i++)
-	//	//{
-	//	//	scene.nodes[i]=p_nodes[i];
-	//	//}
-	//	//for (unsigned int i=0;i<numLeaves;i++)
-	//	//{
-	//	//	scene.leaflist[i]=p_leaflist[i];
-	//	//}
-	//	//for (unsigned int i=0;i<numNodeIndices;i++)
-	//	//{
-	//	//	scene.nodeIndices[i]=p_nodeIndices[i];
-	//	//}
-	//	//for (unsigned int i=0;i<numVerts;i++)
-	//	//{
-	//	//	scene.verts[i]=p_verts[i];
-	//	//}
-	//	//for (unsigned int i=0;i<numVerts;i++)
-	//	//{
-	//	//	scene.norms[i]=p_norms[i];
-	//	//}
-	//	//for (unsigned int i=0;i<numVerts;i++)
-	//	//{
-	//	//	scene.uvs[i]=p_uvs[i];
-	//	//}
-	//}
-#pragma endregion
+
 	// =======================================================
 	//                   TEST SETUP CODE
 	// =======================================================
@@ -165,18 +116,6 @@ __device__ void Raytrace(float* p_outPixel, const int p_x, const int p_y,
 	float spacefade=max(0.0f,1.0f-abs(ray.origin.y)/100.0f); // for fading stuff into space when traveling upwards
 
 	// define some spheres
-
-	//scene.sphere[0].pos = make_float4(17.0f,15.0f,0.0f,1.0f);
-	//scene.sphere[0].rad = 10.5f;
-	//scene.sphere[0].mat.diffuse = make_float4(0.5f, 0.79f, 0.22f,1.0f);
-	//scene.sphere[0].mat.specular = make_float4(1.0f, 1.0f, 1.0f,500.0f);
-	//scene.sphere[0].mat.reflection = 0.5f;
-	//
-	//scene.sphere[1].pos = make_float4(15.0f,15.0f,0.0f,1.0f);
-	//scene.sphere[1].rad = 10.6f;
-	//scene.sphere[1].mat.diffuse = make_float4(0.0f, 1.0f, 0.0f,1.0f);
-	//scene.sphere[1].mat.specular = make_float4(0.0f, 0.0f, 0.0f,0.0f);
-	//scene.sphere[1].mat.reflection = 0.5f;
 
 	int ii=0;float d=4.0f,rad=0.3f;
 	for (int i=0;i<MAXSPHERES;i++)
