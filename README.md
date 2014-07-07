@@ -1,4 +1,4 @@
-KernelSanders
+#KernelSanders
 ============================
 
 ![the_kernel](http://25.media.tumblr.com/tumblr_lab6dibWmY1qa95zho1_500.gif)
@@ -29,7 +29,7 @@ Video (raymarcher part): https://www.youtube.com/watch?v=dHV4Lj_LJp0
 ![stars](https://dl.dropboxusercontent.com/u/2014021/raytracer/raytracer-report/img/starfield.png)
 
 
-External dependencies:
+##External dependencies:
 
 Assimp
 
@@ -42,3 +42,9 @@ GLM
 OIS
 
 Visual Leak Detector
+
+##License
+License is found in licenseKernelSanders.md
+Parts of the engine is also based on the Amalgamation engine of which I'm a co-author, see licenseOther.md
+
+
