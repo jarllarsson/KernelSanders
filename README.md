@@ -38,6 +38,6 @@ Video (raymarcher part): https://www.youtube.com/watch?v=dHV4Lj_LJp0
 
 ##License
 - KernelSanders license is found in licenseKernelSanders.md.
-- Parts of the engine(mainly the libs Graphics, Util and Context) are also based on the Amalgamation engine of which I'm a co-author, for those, see licenseOther.md.
+- Parts of the engine(mainly the libs Graphics, Util and Context) are based on the Amalgamation engine of which I'm a co-author, for those, see licenseOther.md.
 
 
