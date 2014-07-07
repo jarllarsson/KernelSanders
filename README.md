@@ -30,20 +30,15 @@ Video (raymarcher part): https://www.youtube.com/watch?v=dHV4Lj_LJp0
 
 ##External dependencies
 
-Assimp
-
-CUDA
-
-FreeImage
-
-GLM
-
-OIS
-
-Visual Leak Detector
+-Assimp
+-CUDA
+-FreeImage
+-GLM
+-OIS
+-Visual Leak Detector
 
 ##License
-License is found in licenseKernelSanders.md
-Parts of the engine is also based on the Amalgamation engine of which I'm a co-author, see licenseOther.md
+-KernelSanders license is found in licenseKernelSanders.md.
+-Parts of the engine is also based on the Amalgamation engine of which I'm a co-author, for those, see licenseOther.md.
 
 
