@@ -1,4 +1,5 @@
 Code reworked from the [Amalgamation engine](https://github.com/MattiasLiljeson/Amalgamation) is licensed under:
+This concerns mainly the Graphics, Context and Util libs.
 BSD 3-Clause License.
 
 Copyright (c) 2013, Polyhedron
